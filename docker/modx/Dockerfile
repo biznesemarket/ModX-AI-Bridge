@@ -3,14 +3,18 @@ FROM php:8.2-apache
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        git unzip libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype6-dev \
-       libicu-dev libxml2-dev libonig-dev default-mysql-client python3 \
+       libicu-dev libxml2-dev libonig-dev libcurl4-openssl-dev zlib1g-dev libssl-dev \
+       default-mysql-client python3 \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
-       curl dom fileinfo gd intl mbstring mysqli pdo pdo_mysql simplexml xml xmlwriter zip \
+       curl dom fileinfo ftp gd intl mbstring mysqli pcntl pdo pdo_mysql simplexml xml xmlwriter zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+COPY docker/modx/apache/aibridge-api.conf /etc/apache2/conf-enabled/aibridge-api.conf
+COPY docker/modx/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 WORKDIR /var/www/html
 

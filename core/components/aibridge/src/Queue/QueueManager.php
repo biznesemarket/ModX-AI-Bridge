@@ -115,7 +115,8 @@ final class QueueManager
 
     private function pdo(): \PDO
     {
-        $pdo = $this->modx->getConnection();
+        $connection = $this->modx->getConnection();
+        $pdo = is_object($connection) ? ($connection->pdo ?? null) : null;
         if (!$pdo instanceof \PDO) throw new \RuntimeException('MODX database connection unavailable.');
         return $pdo;
     }

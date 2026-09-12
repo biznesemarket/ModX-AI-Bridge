@@ -6,4 +6,4 @@ namespace AIBridge\Model;
 
 use xPDO\Om\xPDOSimpleObject;
 
-final class Profile extends xPDOSimpleObject {}
+class Profile extends xPDOSimpleObject {}

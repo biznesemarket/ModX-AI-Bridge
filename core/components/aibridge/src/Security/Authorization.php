@@ -12,13 +12,14 @@ final class Authorization
     public const SCOPE_WRITE = 'resource:write';
     public const SCOPE_DELETE = 'resource:delete';
     public const SCOPE_PUBLISH = 'resource:publish';
+    public const SCOPE_ROLLBACK = 'resource:rollback';
     public const SCOPE_SETTINGS = 'settings:write';
 
     public function allows(array $principal, string $operation, array $resource = []): bool
     {
         if (($principal['type'] ?? '') === 'manager' && ($principal['manager_authorized'] ?? false) === true) {
             return in_array($operation, [
-                'resource.preview','resource.create','resource.update','resource.delete','resource.publish',
+                'resource.preview','resource.create','resource.update','resource.delete','resource.publish','resource.rollback',
                 'site.schema','site.fingerprint','site.read','content.validate'
             ], true);
         }
@@ -30,6 +31,7 @@ final class Authorization
             'resource.create','resource.update' => [self::SCOPE_WRITE],
             'resource.delete' => [self::SCOPE_DELETE],
             'resource.publish' => [self::SCOPE_PUBLISH],
+            'resource.rollback' => [self::SCOPE_ROLLBACK],
             'settings.write' => [self::SCOPE_SETTINGS],
             default => [],
         };

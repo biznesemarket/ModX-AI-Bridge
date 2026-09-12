@@ -10,12 +10,14 @@ final class ContentQAService
     {
         $errors = [];
         $warnings = [];
+        $missingRequired = [];
         $fields = $contract['fields'] ?? [];
 
         foreach ($fields as $name => $rule) {
             if (!is_array($rule)) continue;
             if (($rule['required'] ?? false) && !$this->hasValue($content[$name] ?? null)) {
                 $errors[] = $this->issue('required', $name, 'Required field is missing.');
+                $missingRequired[] = (string) $name;
             }
             if (isset($content[$name], $rule['max_length']) && is_string($content[$name]) && mb_strlen($content[$name]) > (int) $rule['max_length']) {
                 $errors[] = $this->issue('max_length', $name, 'Value exceeds the contract maximum length.');
@@ -23,17 +25,22 @@ final class ContentQAService
         }
 
         $seo = $contract['seo'] ?? [];
-        $title = (string) ($content[$seo['title']['source'] ?? 'pagetitle'] ?? '');
+        $titleSource = (string) ($seo['title']['source'] ?? 'pagetitle');
+        $title = (string) ($content[$titleSource] ?? '');
         if (($seo['title']['required'] ?? false) && $title === '') {
-            $errors[] = $this->issue('seo_title_required', 'pagetitle', 'SEO title source is empty.');
+            if (!in_array($titleSource, $missingRequired, true)) {
+                $errors[] = $this->issue('seo_title_required', 'pagetitle', 'SEO title source is empty.');
+            }
         } elseif ($title !== '') {
             $this->lengthRule($title, $seo['title'] ?? [], 'seo_title', $errors, $warnings);
         }
 
-        $descriptionSource = $seo['description']['source'] ?? 'description';
+        $descriptionSource = (string) ($seo['description']['source'] ?? 'description');
         $description = (string) ($content[$descriptionSource] ?? '');
         if (($seo['description']['required'] ?? false) && $description === '') {
-            $errors[] = $this->issue('seo_description_required', $descriptionSource, 'SEO description source is empty.');
+            if (!in_array($descriptionSource, $missingRequired, true)) {
+                $errors[] = $this->issue('seo_description_required', $descriptionSource, 'SEO description source is empty.');
+            }
         } elseif ($description !== '') {
             $this->lengthRule($description, $seo['description'] ?? [], 'seo_description', $errors, $warnings);
         }
@@ -70,7 +77,8 @@ final class ContentQAService
 
     private function validateHtml(string $html, array $rules, array &$errors, array &$warnings): void
     {
-        if (($rules['allow_scripts'] ?? false) === false && preg_match('/<script\b/i', $html)) {
+        $htmlWithoutJsonLd = preg_replace('/<script\b[^>]*type=["\']application\/ld\+json["\'][^>]*>.*?<\/script>/is', '', $html) ?? $html;
+        if (($rules['allow_scripts'] ?? false) === false && preg_match('/<script\b/i', $htmlWithoutJsonLd)) {
             $errors[] = $this->issue('forbidden_tag', 'content', 'Script tags are not allowed by the content contract.');
         }
         if (($rules['allow_iframes'] ?? false) === false && preg_match('/<iframe\b/i', $html)) {

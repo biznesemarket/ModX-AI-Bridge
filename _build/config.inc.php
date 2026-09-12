@@ -21,7 +21,7 @@ return [
     'name' => 'ModX AI Bridge',
     'name_lower' => 'aibridge',
     'version' => '0.1.0',
-    'release' => 'alpha2',
+    'release' => 'rc1',
     'install' => false,
     'modx_root' => $modxRoot,
 ];

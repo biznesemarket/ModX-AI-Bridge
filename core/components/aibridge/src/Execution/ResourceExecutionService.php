@@ -65,28 +65,30 @@ final class ResourceExecutionService
         $key = trim((string) ($request['idempotency_key'] ?? $input['idempotency_key'] ?? ''));
         if ($key === '') return (new ExecutionResult(false, $operation, [], [], 'idempotency_key_required', 'Idempotency-Key is required for mutating operations.'))->toArray();
         $principalId = (string) ($principal['id'] ?? 'anonymous');
+        $profileId = (int) ($principal['profile_id'] ?? 0);
         $hash = hash('sha256', json_encode($input, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
-        $idem = $this->idempotency->begin($key, $principalId, $operation, $hash);
+        $idem = $this->idempotency->begin($key, $principalId, $operation, $hash, $profileId);
         if (!($idem['accepted'] ?? false)) {
             if (($idem['replay'] ?? false) && is_array($idem['response'] ?? null)) return $idem['response'];
             return (new ExecutionResult(false, $operation, [], [], ($idem['conflict'] ?? false) ? 'idempotency_conflict' : 'idempotency_unavailable', 'Idempotency request cannot be accepted.'))->toArray();
         }
 
-        $pdo = $this->modx->getConnection();
-        if (!$pdo) throw new \RuntimeException('MODX database connection unavailable.');
+        $connection = $this->modx->getConnection();
+        $pdo = is_object($connection) ? ($connection->pdo ?? null) : null;
+        if (!$pdo instanceof \PDO) throw new \RuntimeException('MODX database connection unavailable.');
         $snapshot = null; $resource = null; $warnings = [];
         try {
             if ($operation === 'resource.create') {
                 $templateId = (int) ($input['template'] ?? 0);
                 if ($templateId < 1) throw new \InvalidArgumentException('template is required for create.');
-                $resource = $this->modx->newObject('modResource');
+                $resource = $this->modx->newObject(\MODX\Revolution\modResource::class);
                 $payload = $this->sanitizePayload($input);
                 $payload['template'] = $templateId;
                 $resource->fromArray($payload);
             } else {
                 $id = (int) ($input['id'] ?? 0);
                 if ($id < 1) throw new \InvalidArgumentException('id is required.');
-                $resource = $this->modx->getObject('modResource', $id);
+                $resource = $this->modx->getObject(\MODX\Revolution\modResource::class, $id);
                 if (!$resource) throw new \RuntimeException('Resource not found.');
             }
 
@@ -97,14 +99,14 @@ final class ResourceExecutionService
                 $schema = (new SiteIntelligenceService($this->modx))->discover(['limit' => 100]);
                 $contract = $this->contracts->resource($schema, (int) $resource->get('template'))->toArray();
                 $qa = $this->qa->validate($candidate, $contract);
-                if (!$qa['valid']) return $this->finish($operation, new ExecutionResult(false, $operation, ['qa' => $qa], [], 'content_qa_failed', 'Content QA failed.'), $key, $principalId);
+                if (!$qa['valid']) return $this->finish($operation, new ExecutionResult(false, $operation, ['qa' => $qa], [], 'content_qa_failed', 'Content QA failed.'), $key, $principalId, $profileId);
                 $warnings = $qa['warnings'];
             }
 
             if ($operation === 'resource.delete') {
-                $snapshot = $this->snapshots->createForResource($resource, $operation);
+                $snapshot = $this->snapshots->createForResource($resource, $operation, $profileId);
             } elseif ($operation !== 'resource.create') {
-                $snapshot = $this->snapshots->createForResource($resource, $operation);
+                $snapshot = $this->snapshots->createForResource($resource, $operation, $profileId);
             }
 
             $pdo->beginTransaction();
@@ -126,19 +128,19 @@ final class ResourceExecutionService
 
             $data = ['resource_id' => $resourceId, 'snapshot' => $snapshot, 'cache' => $cache, 'qa' => ['valid' => true, 'warnings' => $warnings], 'request_id' => $requestId];
             $result = new ExecutionResult(true, $operation, $data, $warnings);
-            $this->audit->record('resource_execution', ['actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'resource_id' => $resourceId, 'request_id' => $requestId, 'result' => $data]);
-            return $this->finish($operation, $result, $key, $principalId);
+            $this->audit->record('resource_execution', ['profile_id' => $profileId, 'actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'resource_id' => $resourceId, 'request_id' => $requestId, 'result' => $data]);
+            return $this->finish($operation, $result, $key, $principalId, $profileId);
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
-            $this->audit->record('resource_execution_failed', ['actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'request_id' => $requestId, 'error' => $e->getMessage()]);
-            return $this->finish($operation, new ExecutionResult(false, $operation, ['snapshot' => $snapshot], $warnings, 'execution_failed', $e->getMessage()), $key, $principalId);
+            $this->audit->record('resource_execution_failed', ['profile_id' => $profileId, 'actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'request_id' => $requestId, 'error' => $e->getMessage()]);
+            return $this->finish($operation, new ExecutionResult(false, $operation, ['snapshot' => $snapshot], $warnings, 'execution_failed', $e->getMessage()), $key, $principalId, $profileId);
         }
     }
 
-    private function finish(string $operation, ExecutionResult $result, string $key, string $principalId): array
+    private function finish(string $operation, ExecutionResult $result, string $key, string $principalId, int $profileId): array
     {
         $data = $result->toArray();
-        $this->idempotency->complete($key, $principalId, $operation, $data);
+        $this->idempotency->complete($key, $principalId, $operation, $data, $profileId);
         return $data;
     }
 
@@ -156,7 +158,7 @@ final class ResourceExecutionService
         foreach ($tvs as $name => $value) {
             $tvName = str_starts_with((string) $name, 'tv:') ? substr((string) $name, 3) : (string) $name;
             if ($tvName === '') continue;
-            $tv = $this->modx->getObject('modTemplateVar', ['name' => $tvName]);
+            $tv = $this->modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvName]);
             if ($tv) $resource->setTVValue((int) $tv->get('id'), is_scalar($value) ? (string) $value : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         }
     }

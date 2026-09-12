@@ -7,7 +7,7 @@
 
     const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
     const connector = (typeof MODx !== 'undefined' && MODx.config) ? MODx.config.connector_url : null;
-    const state = { data: null, active: 'system', resource: null, contract: null, qa: null, tree: [], filters: {query:'', template_id:'', tv_name:'', tv_value:''} };
+    const state = { data: null, active: 'system', resource: null, contract: null, qa: null, tree: [], profileId: 0, filters: {query:'', template_id:'', tv_name:'', tv_value:''} };
 
     function request(params) {
         return new Promise((resolve, reject) => {
@@ -42,12 +42,15 @@
         bindResourceUI();
     }
     function resourceExplorer() {
-        return `<div class="aibridge-resource-layout"><aside class="aibridge-card aibridge-resource-tree"><h2>Resources</h2><button id="resource-new">+ New resource</button><div class="aibridge-resource-toolbar"><input id="resource-search" value="${esc(state.filters.query)}" placeholder="Поиск…"><input id="resource-template" value="${esc(state.filters.template_id)}" placeholder="Template ID"><input id="resource-tv-name" value="${esc(state.filters.tv_name)}" placeholder="TV name"><input id="resource-tv-value" value="${esc(state.filters.tv_value)}" placeholder="TV value"><button id="resource-search-btn">Search</button></div><div id="resource-tree-list">Loading…</div></aside><main class="aibridge-card aibridge-resource-detail"><div id="resource-detail">Выберите ресурс.</div></main></div>`;
+        const profiles = (state.data?.profiles || []).filter(p => p.status === 'active');
+        const profileOptions = profiles.map(p => `<option value="${p.id}" ${String(state.profileId) === String(p.id) ? 'selected' : ''}>${esc(p.name)} (#${p.id})</option>`).join('');
+        return `<div class="aibridge-resource-layout"><aside class="aibridge-card aibridge-resource-tree"><h2>Resources</h2><button id="resource-new">+ New resource</button><div class="aibridge-resource-toolbar"><select id="resource-profile"><option value="">Profile…</option>${profileOptions}</select><input id="resource-search" value="${esc(state.filters.query)}" placeholder="Поиск…"><input id="resource-template" value="${esc(state.filters.template_id)}" placeholder="Template ID"><input id="resource-tv-name" value="${esc(state.filters.tv_name)}" placeholder="TV name"><input id="resource-tv-value" value="${esc(state.filters.tv_value)}" placeholder="TV value"><button id="resource-search-btn">Search</button></div><div id="resource-tree-list">Loading…</div></aside><main class="aibridge-card aibridge-resource-detail"><div id="resource-detail">Выберите ресурс.</div></main></div>`;
     }
     function bindResourceUI() {
         app.querySelector('#resource-search-btn')?.addEventListener('click', searchResources);
         app.querySelector('#resource-new')?.addEventListener('click', newResource);
         app.querySelector('#resource-search')?.addEventListener('keydown', e=>{if(e.key==='Enter')searchResources();});
+        app.querySelector('#resource-profile')?.addEventListener('change', e=>{state.profileId=Number(e.target.value)||0;});
         app.querySelectorAll('[data-resource-id]').forEach(el=>el.addEventListener('click',()=>selectResource(Number(el.dataset.resourceId))));
         app.querySelector('#fp-diff')?.addEventListener('click', diffFingerprints);
     }
@@ -82,14 +85,16 @@
     }
     function currentInput(){ const r=state.resource||{}; return {id:r.id||undefined,template:Number(app.querySelector('#edit-template')?.value||r.template||0),parent:Number(app.querySelector('#edit-parent')?.value||r.parent||0),pagetitle:app.querySelector('#edit-pagetitle')?.value||'',description:app.querySelector('#edit-description')?.value||'',introtext:app.querySelector('#edit-introtext')?.value||'',content:app.querySelector('#edit-content')?.value||'',alias:app.querySelector('#edit-alias')?.value||'',}; }
     async function executeResource(operation,sync=false){
-        const result=app.querySelector('#resource-operation-result'); if(result)result.innerHTML='<div class="aibridge-card">Выполнение…</div>';
-        try { const r=await call('aibridge/manager/resource-operation',{operation,input:JSON.stringify(currentInput()),sync:sync?'1':'0'}); if(!r.success)throw new Error(r.message||r.error?.message||'Operation rejected'); if(sync){if(result)result.innerHTML=`<div class="aibridge-card"><h3>Preview</h3><pre>${esc(JSON.stringify(r,null,2))}</pre></div>`;return;} const jobId=r.job_id; if(result)result.innerHTML=`<div class="aibridge-card">Job #${esc(jobId)} создан. <span id="job-progress">queued</span></div>`; pollJob(jobId); }catch(e){if(result)result.innerHTML=`<div class="aibridge-card aibridge-error">${esc(e.message)}</div>`;}
+        const result=app.querySelector('#resource-operation-result');
+        if(!state.profileId){if(result)result.innerHTML='<div class="aibridge-card aibridge-error">Выберите активный профиль в панели Resources.</div>';return;}
+        if(result)result.innerHTML='<div class="aibridge-card">Выполнение…</div>';
+        try { const r=await call('aibridge/manager/resource-operation',{operation,profile_id:state.profileId,input:JSON.stringify(currentInput()),sync:sync?'1':'0'}); if(!r.success)throw new Error(r.message||r.error?.message||'Operation rejected'); if(sync){if(result)result.innerHTML=`<div class="aibridge-card"><h3>Preview</h3><pre>${esc(JSON.stringify(r,null,2))}</pre></div>`;return;} const jobId=r.job_id; if(result)result.innerHTML=`<div class="aibridge-card">Job #${esc(jobId)} создан. <span id="job-progress">queued</span></div>`; pollJob(jobId); }catch(e){if(result)result.innerHTML=`<div class="aibridge-card aibridge-error">${esc(e.message)}</div>`;}
     }
     async function pollJob(id){ let tries=0; const tick=async()=>{tries++;try{const r=await call('aibridge/manager/overview'); const job=(r.object||r.data)?.jobs?.find(j=>String(j.id)===String(id)); const el=document.getElementById('job-progress'); if(job&&el){el.textContent=`${job.status} ${job.progress}%`;if(job.status==='completed'||job.status==='failed'||job.status==='cancelled')return;} if(tries<30)setTimeout(tick,1000);}catch(e){}}; tick(); }
     async function diffFingerprints(){ const from=Number(app.querySelector('#fp-from')?.value||0),to=Number(app.querySelector('#fp-to')?.value||0); if(!from||!to)return;const out=app.querySelector('#fp-diff-result');try{const r=await call('aibridge/manager/resources',{mode:'fingerprint_diff',from_id:from,to_id:to});out.textContent=JSON.stringify(r,null,2);}catch(e){out.textContent=e.message;}}
     async function load(){
         app.innerHTML='<div class="aibridge-manager"><div class="aibridge-card">Loading…</div></div>';
-        try{const r=await call('aibridge/manager/overview');if(!r.success)throw new Error(r.message||'Request failed.');state.data=r.object||r.data;renderConsole();if(state.active==='resources')loadTree();}catch(e){app.innerHTML=`<div class="aibridge-manager"><div class="aibridge-card aibridge-error">${esc(e.message||e)}</div></div>`;}
+        try{const r=await call('aibridge/manager/overview');if(!r.success)throw new Error(r.message||'Request failed.');state.data=r.object||r.data;if(!state.profileId){const active=(state.data.profiles||[]).find(p=>p.status==='active');state.profileId=active?active.id:0;}renderConsole();if(state.active==='resources')loadTree();}catch(e){app.innerHTML=`<div class="aibridge-manager"><div class="aibridge-card aibridge-error">${esc(e.message||e)}</div></div>`;}
     }
     async function mutate(entity,id,status){try{const r=await call('aibridge/manager/action',{entity,id,status});if(!r.success)throw new Error(r.message||'Operation failed.');await load();}catch(e){window.alert(e.message||e);}}
     load();

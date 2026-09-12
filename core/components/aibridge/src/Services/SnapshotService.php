@@ -11,7 +11,7 @@ final class SnapshotService
 {
     public function __construct(private readonly modX $modx, private readonly SecretRedactor $redactor = new SecretRedactor()) {}
 
-    public function createForResource(\xPDOObject $resource, string $operation): array
+    public function createForResource(\xPDOObject $resource, string $operation, int $profileId = 0): array
     {
         $data = $resource->toArray();
         $data['__aibridge'] = [
@@ -22,6 +22,7 @@ final class SnapshotService
         $data = $this->redactor->redactRecursive($data);
         $row = $this->modx->newObject(\AIBridge\Model\Snapshot::class);
         $row->fromArray([
+            'profile_id' => $profileId,
             'resource_id' => (int) $resource->get('id'),
             'operation' => $operation,
             'data_json' => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR),

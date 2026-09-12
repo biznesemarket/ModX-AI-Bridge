@@ -36,7 +36,8 @@ $modelClasses = [
 ];
 
 foreach ($modelClasses as $class) {
-    if (!$modx->getManager()->getTableName($class)) {
+    $table = $modx->getTableName($class);
+    if (!is_string($table) || $table === '') {
         throw new RuntimeException("No table mapping for {$class}");
     }
 }

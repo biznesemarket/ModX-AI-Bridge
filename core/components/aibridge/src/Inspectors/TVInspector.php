@@ -15,7 +15,7 @@ final class TVInspector
     public function inspect(): array
     {
         $rows = [];
-        foreach ($this->modx->getCollection('modTemplateVar', [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $tv) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modTemplateVar::class, [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $tv) {
             $rows[] = [
                 'id' => (int) $tv->get('id'),
                 'name' => (string) $tv->get('name'),

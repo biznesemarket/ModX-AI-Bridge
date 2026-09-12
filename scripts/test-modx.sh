@@ -40,7 +40,7 @@ docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
 
 echo "== 6. Install local Transport Package =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
-  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.1.0-alpha2.transport.zip'
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.1.0-rc1.transport.zip'
 
 echo "== 7. Verify runtime =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
@@ -48,6 +48,14 @@ docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
 
 echo "== 8. Run PHPUnit =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
-  bash -lc 'cd /workspace/modx-ai-bridge && vendor/bin/phpunit'
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html vendor/bin/phpunit'
+
+echo "== 9. Queue concurrency harness =="
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'MODX_ROOT=/var/www/html php /workspace/modx-ai-bridge/scripts/test-queue-concurrency.php'
+
+echo "== 10. REST transport smoke =="
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'set -e; code=$(curl -s -o /tmp/health.json -w "%{http_code}" http://localhost/api/ai/v2/health); test "$code" = "200"; grep -q "\"status\":\"ok\"" /tmp/health.json; code=$(curl -s -o /tmp/caps.json -w "%{http_code}" http://localhost/api/ai/v2/capabilities); test "$code" = "401"'
 
 echo "== MODX INTEGRATION: PASS =="

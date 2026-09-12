@@ -15,7 +15,7 @@ final class SnippetInspector
     public function inspect(): array
     {
         $rows = [];
-        foreach ($this->modx->getCollection('modSnippet', [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $snippet) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modSnippet::class, [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $snippet) {
             $rows[] = [
                 'id' => (int) $snippet->get('id'),
                 'name' => (string) $snippet->get('name'),

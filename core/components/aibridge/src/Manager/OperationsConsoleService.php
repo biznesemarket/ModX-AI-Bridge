@@ -29,7 +29,7 @@ final class OperationsConsoleService
             'modx' => isset($this->modx) && $this->modx instanceof modX,
             'database' => $this->databaseReady(),
             'service_container' => (bool) $this->modx->services,
-            'component_namespace' => (bool) $this->modx->getObject('modNamespace', ['name' => 'aibridge']),
+            'component_namespace' => (bool) $this->modx->getObject(\MODX\Revolution\modNamespace::class, ['name' => 'aibridge']),
         ];
 
         return [

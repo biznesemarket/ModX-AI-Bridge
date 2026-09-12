@@ -15,7 +15,7 @@ final class ChangeExecutionService {
   $job=new Job('resource_execution',['operation'=>$change['operation'],'input'=>$payload,'principal'=>$principal,'request'=>['request_id'=>$requestId,'idempotency_key'=>$idem,'channel'=>'manager','ip'=>'manager','approval_id'=>(int)$change['approval_id'],'change_id'=>$changeId]],3,300,$idem,(string)($principal['id']??''),$requestId,null,(int)$change['profile_id']);
   $jobId=(new QueueManager($this->modx))->dispatch($job);
   $row=$this->modx->getObject(\AIBridge\Model\ChangeRequest::class,$changeId); $row->set('status',ChangeState::EXECUTING); $row->set('job_id',$jobId); $row->set('updated_at',gmdate('Y-m-d H:i:s')); $row->save();
-  (new AuditService($this->modx))->record('change_execution_dispatched',['change_id'=>$changeId,'job_id'=>$jobId,'actor_type'=>$principal['type']??'unknown','actor_id'=>$principal['id']??'']);
+  (new AuditService($this->modx))->record('change_execution_dispatched',['profile_id'=>(int)$change['profile_id'],'change_id'=>$changeId,'job_id'=>$jobId,'actor_type'=>$principal['type']??'unknown','actor_id'=>$principal['id']??'']);
   return ['change_id'=>$changeId,'job_id'=>$jobId,'status'=>ChangeState::EXECUTING];
  }
 }

@@ -1,20 +1,22 @@
-# ModX AI Bridge — Iteration 17
+# ModX AI Bridge — Iteration 21 (Stabilization)
 
 ## Observability, Admin UI & Operations Console
 
-Iteration 17 adds an operational console inside MODX Manager. It provides visibility into Bridge profiles, token metadata, policies, jobs, audit events, fingerprints and runtime readiness.
+Iteration 17 added an operational console inside MODX Manager. It provides visibility into Bridge profiles, token metadata, policies, jobs, audit events, fingerprints and runtime readiness.
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Review**
-
+Status: **Stabilization in progress — target `0.1.0-rc1`**
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
 
+## Iteration 20 — Verification, Rollback & Release Governance
+Post-execution verification, controlled rollback and the fail-closed `stable-gate.sh` certification pipeline are provided by `AIBridge\Verification`.
+
 ## Final Integration & Stabilization
 
-The project is not marked Stable until `scripts/final-stabilization.sh` completes successfully in an environment with Docker, Docker Compose, MODX 3.2.x and MySQL. The current source tree has passed static checks but has not received runtime certification in this environment.
+The project is not marked Stable until `scripts/final-stabilization.sh` completes successfully in an environment with Docker, Docker Compose, MODX 3.2.x and MySQL. The current source tree is undergoing the stabilization iterations (21+) defined in the iteration implementation plan; it has not received runtime certification yet.
 
 ## AI Agent Development
 

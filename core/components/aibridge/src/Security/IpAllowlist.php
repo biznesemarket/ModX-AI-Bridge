@@ -8,7 +8,8 @@ final class IpAllowlist
 {
     public function allows(string $ip, array $rules): bool
     {
-        if (!$rules) return true;
+        if ($ip === '') return false;
+        if (!$rules) return false;
         foreach ($rules as $rule) {
             $rule = trim((string)$rule);
             if ($rule === $ip) return true;

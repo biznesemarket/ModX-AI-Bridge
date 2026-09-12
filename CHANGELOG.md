@@ -1,5 +1,35 @@
 # Changelog
 
+## Unreleased — Stabilization (0.1.0-rc1)
+
+- Defined named PHPUnit test suites: unit, contract, security, integration.
+- Rewrote security regression tests against the actual Bridge configuration contract.
+- Replaced tautological approval-workflow and application tests with real security and scope-mapping assertions.
+- Unified version/status across README, CHANGELOG, testing status and build configuration (0.1.0-rc1 target).
+- Runtime certification bring-up on MODX 3.2.2-pl + MySQL 8 (Docker):
+  - generated and committed the xPDO 3.2 model (`src/Model`, `src/Model/mysql`, `src/Model/metadata.mysql.php`);
+  - fixed `SecurityDecision` fluent accessors (`allowed()`, `code()`) required by execution/MCP/rollback layers;
+  - fixed raw PDO access for the xPDO 3.2 connection wrapper in QueueManager, ResourceExecutionService,
+    RollbackService and the migration runner;
+  - replaced legacy MODX 2 class names (`modResource`, `modTemplateVar`, inspectors) with MODX 3 FQCN;
+  - added mandatory `profile_id` persistence in rate limiter, idempotency, snapshots and audit;
+  - fixed `aibridge_` settings prefix consumption and JSON array settings decoding; completed the settings set;
+  - Manager controllers are self-contained MODX 3 controllers; menu/setting primary keys are populated;
+  - package resolvers use the xPDO `$transport->xpdo` context; bootstrap resolver wired; all 12 tables created;
+  - package installer uses MODX 3 processor classes; `verify-modx-runtime` and full PHPUnit pass with MODX_ROOT;
+  - fixed `ContentQAService` duplicate SEO errors and JSON-LD handling in the script-tag check;
+  - `IpAllowlist` now fails closed (empty list denies non-manager requests);
+  - migration runner: prefix substitution for both placeholder syntaxes, DDL-safe execution, idempotent ledger;
+  - implemented the queue worker CLI and a real queue concurrency harness (atomic claim, stale lease, forked race);
+  - Manager resource operations require an explicit active `profile_id`;
+  - implemented the REST boundary (`/api/ai/v2/*`) and MCP HTTP endpoint with authentication, rate limiting,
+    idempotency contract, job dispatch and profile isolation, including integration tests and an HTTP smoke test.
+
+## Iteration 20
+
+- Added post-execution verification and controlled rollback.
+- Added fail-closed release certification pipeline (`stable-gate.sh`).
+
 ## Iteration 17
 
 - Added Manager Operations Console.

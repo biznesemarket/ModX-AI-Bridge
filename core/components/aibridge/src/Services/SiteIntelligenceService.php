@@ -56,7 +56,7 @@ final class SiteIntelligenceService
         $limit = max(1, min($limit, 5000));
         $where = $rootId > 0 ? ['parent' => $rootId] : [];
         $rows = [];
-        foreach ($this->modx->getCollection('modResource', $where, [
+        foreach ($this->modx->getCollection(\MODX\Revolution\modResource::class, $where, [
             'sortby' => 'id', 'sortdir' => 'ASC', 'limit' => $limit,
         ]) as $resource) {
             $rows[] = [

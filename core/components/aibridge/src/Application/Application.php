@@ -50,7 +50,7 @@ final class Application
     public function securityDecision(array $request, array $principal, string $operation): array
     {
         $config = ConfigFactory::fromModx($this->modx);
-        $decision = (new SecurityDecisionPipeline($config, new Authorization(), new IpAllowlist(), new \AIBridge\Services\PolicyService($config)))->decide($request, $principal, $operation);
+        $decision = (new SecurityDecisionPipeline($config, new Authorization(), new IpAllowlist(), new \AIBridge\Services\PolicyService($config), $this->modx))->decide($request, $principal, $operation);
         return $decision->toArray();
     }
 

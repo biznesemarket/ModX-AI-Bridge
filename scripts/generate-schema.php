@@ -15,8 +15,9 @@ $modxRoot = rtrim((string)(getenv('MODX_ROOT') ?: '/var/www/html'), '/');
 $schema = $root . '/core/components/aibridge/schema/aibridge.mysql.schema.xml';
 $destination = $root . '/core/components/aibridge/src/';
 $xpdo = $modxRoot . '/core/vendor/bin/xpdo';
+$configFile = __DIR__ . '/xpdo.properties.inc.php';
 
-foreach ([$schema, $xpdo] as $path) {
+foreach ([$schema, $xpdo, $configFile] as $path) {
     if (!is_file($path)) {
         throw new RuntimeException('Required file not found: ' . $path);
     }
@@ -30,6 +31,7 @@ $command = implode(' ', [
     escapeshellarg(PHP_BINARY),
     escapeshellarg($xpdo),
     'parse-schema',
+    '--config=' . escapeshellarg($configFile),
     '--psr4=' . escapeshellarg('AIBridge\\'),
     '--update=1',
     'mysql',

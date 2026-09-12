@@ -14,7 +14,7 @@ final class RateLimiter
      * Fixed-window limiter backed by the Extra table. The increment is atomic
      * on MySQL/MariaDB, unlike a read-modify-write cache counter.
      */
-    public function consume(string $key, int $limit, int $windowSeconds = 60): array
+    public function consume(string $key, int $limit, int $windowSeconds = 60, int $profileId = 0): array
     {
         if ($limit < 1) throw new \InvalidArgumentException('Rate limit must be positive.');
         $windowStart = intdiv(time(), $windowSeconds) * $windowSeconds;
@@ -22,9 +22,10 @@ final class RateLimiter
         $bucketKey = hash('sha256', $key);
         $table = $this->modx->getTableName('AIBridge\\Model\\RateLimitBucket');
         $sql = sprintf(
-            'INSERT INTO %s (bucket_key, window_start, requests, expires_at) VALUES (%s, %d, 1, %s) '
+            'INSERT INTO %s (profile_id, bucket_key, window_start, requests, expires_at) VALUES (%d, %s, %d, 1, %s) '
             . 'ON DUPLICATE KEY UPDATE requests = requests + 1, expires_at = VALUES(expires_at)',
             $table,
+            $profileId,
             $this->quote($bucketKey),
             $windowStart,
             $this->quote($expiresAt)

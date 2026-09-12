@@ -15,14 +15,14 @@ MODX_ROOT=/absolute/path/to/modx php _build/build.php
 The build script uses the MODX 3 namespaced transport classes and writes:
 
 ```text
-core/packages/aibridge-0.1.0-alpha2.transport.zip
+core/packages/aibridge-0.1.0-rc1.transport.zip
 ```
 
 ## Installation
 
 ```bash
 MODX_ROOT=/absolute/path/to/modx \
-php scripts/install-package.php aibridge-0.1.0-alpha2
+php scripts/install-package.php aibridge-0.1.0-rc1
 ```
 
 The installer invokes MODX's `workspace/packages/scanlocal` and `workspace/packages/install` processors.

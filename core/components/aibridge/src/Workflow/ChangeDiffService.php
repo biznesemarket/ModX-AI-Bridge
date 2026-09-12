@@ -6,7 +6,7 @@ use MODX\Revolution\modX;
 final class ChangeDiffService {
  public function __construct(private readonly modX $modx, private readonly SecretRedactor $redactor=new SecretRedactor()) {}
  public function build(?int $resourceId,array $candidate): array {
-  $before=[]; if($resourceId){$r=$this->modx->getObject('modResource',['id'=>$resourceId,'deleted'=>0]); if($r)$before=$r->toArray();}
+  $before=[]; if($resourceId){$r=$this->modx->getObject(\MODX\Revolution\modResource::class,['id'=>$resourceId,'deleted'=>0]); if($r)$before=$r->toArray();}
   $safeBefore=$this->redactor->redactRecursive($before); $safeAfter=$this->redactor->redactRecursive($candidate);
   return ['before'=>$safeBefore,'after'=>$safeAfter,'changes'=>$this->diff($safeBefore,$safeAfter)];
  }

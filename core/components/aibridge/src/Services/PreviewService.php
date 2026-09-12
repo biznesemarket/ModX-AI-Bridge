@@ -14,7 +14,7 @@ final class PreviewService
     public function preview(array $input = []): array
     {
         $id = (int) ($input['id'] ?? 0);
-        $resource = $id > 0 ? $this->modx->getObject('modResource', $id) : null;
+        $resource = $id > 0 ? $this->modx->getObject(\MODX\Revolution\modResource::class, $id) : null;
         if (!$resource) throw new \RuntimeException('Resource not found.');
 
         $content = $input['content'] ?? (string) $resource->get('content');

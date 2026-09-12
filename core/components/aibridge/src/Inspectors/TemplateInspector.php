@@ -15,7 +15,7 @@ final class TemplateInspector
     public function inspect(): array
     {
         $rows = [];
-        foreach ($this->modx->getCollection('modTemplate', [], ['sortby' => 'templatename', 'sortdir' => 'ASC']) as $template) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modTemplate::class, [], ['sortby' => 'templatename', 'sortdir' => 'ASC']) as $template) {
             $rows[] = [
                 'id' => (int) $template->get('id'),
                 'name' => (string) $template->get('templatename'),

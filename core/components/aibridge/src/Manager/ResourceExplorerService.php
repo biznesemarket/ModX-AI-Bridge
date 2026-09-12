@@ -17,7 +17,7 @@ final class ResourceExplorerService
     {
         $limit = max(1, min(500, $limit));
         $criteria = ['parent' => max(0, $parent), 'deleted' => 0];
-        $resources = $this->modx->getCollection('modResource', $criteria, [
+        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $criteria, [
             'limit' => $limit,
             'sortby' => 'menuindex',
             'sortdir' => 'ASC',
@@ -26,7 +26,7 @@ final class ResourceExplorerService
         foreach ($resources as $resource) {
             $id = (int) $resource->get('id');
             $items[] = $this->summary($resource, true);
-            $items[array_key_last($items)]['has_children'] = (bool) $this->modx->getCount('modResource', ['parent' => $id, 'deleted' => 0]);
+            $items[array_key_last($items)]['has_children'] = (bool) $this->modx->getCount(\MODX\Revolution\modResource::class, ['parent' => $id, 'deleted' => 0]);
             if ($depth > 0 && $items[array_key_last($items)]['has_children']) {
                 $items[array_key_last($items)]['children'] = $this->tree($id, 100, $depth - 1);
             }
@@ -49,18 +49,18 @@ final class ResourceExplorerService
         if ($templateId !== null && $templateId > 0) $criteria['template'] = $templateId;
 
         if ($tvName !== '') {
-            $tv = $this->modx->getObject('modTemplateVar', ['name' => $tvName]);
+            $tv = $this->modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvName]);
             if (!$tv) return [];
             $tvCriteria = ['tmplvarid' => (int) $tv->get('id')];
             if ($tvValue !== '') $tvCriteria['value:LIKE'] = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $tvValue) . '%';
-            $relations = $this->modx->getCollection('modTemplateVarResource', $tvCriteria, ['limit' => 5000]);
+            $relations = $this->modx->getCollection(\MODX\Revolution\modTemplateVarResource::class, $tvCriteria, ['limit' => 5000]);
             $ids = [];
             foreach ($relations as $relation) $ids[] = (int) $relation->get('contentid');
             if ($ids === []) return [];
             $criteria['id:IN'] = $ids;
         }
 
-        $resources = $this->modx->getCollection('modResource', $criteria, ['limit' => $limit, 'sortby' => 'editedon', 'sortdir' => 'DESC']);
+        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $criteria, ['limit' => $limit, 'sortby' => 'editedon', 'sortdir' => 'DESC']);
         $items = [];
         foreach ($resources as $resource) $items[] = $this->summary($resource, false);
         return $items;
@@ -68,7 +68,7 @@ final class ResourceExplorerService
 
     public function get(int $id): ?array
     {
-        $resource = $this->modx->getObject('modResource', ['id' => $id, 'deleted' => 0]);
+        $resource = $this->modx->getObject(\MODX\Revolution\modResource::class, ['id' => $id, 'deleted' => 0]);
         if (!$resource) return null;
         $data = $this->summary($resource, true);
         $data['content'] = (string) $resource->get('content');
@@ -88,7 +88,7 @@ final class ResourceExplorerService
 
     public function contract(int $id): ?array
     {
-        $resource = $this->modx->getObject('modResource', ['id' => $id, 'deleted' => 0]);
+        $resource = $this->modx->getObject(\MODX\Revolution\modResource::class, ['id' => $id, 'deleted' => 0]);
         if (!$resource) return null;
         $schema = (new SiteIntelligenceService($this->modx))->discover(['limit' => 500]);
         return (new ContentContractService())->resource($schema, (int) $resource->get('template'))->toArray();

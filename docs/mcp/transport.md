@@ -1,15 +1,24 @@
 # MCP Transport Boundary
 
-`McpServer` is deliberately transport-neutral. The project does not hard-code a particular web server transport into the domain layer.
+`McpServer` is deliberately transport-neutral. The HTTP adapter lives in the REST front controller
+(`AIBridge\Api\RestApi::handle` for `POST /api/ai/v2/mcp`) and never contains business logic.
 
-A future transport adapter must:
+The adapter:
 
-1. accept only HTTPS;
-2. authenticate the bearer token before dispatch;
-3. construct the principal and client IP context;
-4. pass the JSON-RPC message to `McpServer::handle()`;
-5. preserve request IDs;
-6. apply response headers and body-size limits;
-7. never log bearer tokens.
+1. enforces HTTPS according to `aibridge_require_https`;
+2. authenticates the bearer token before dispatch (`TokenAuthenticator`, SHA-256 token lookup);
+3. applies the fixed-window rate limit;
+4. constructs the principal (including `profile_id`) and client IP context;
+5. validates the JSON-RPC envelope (`jsonrpc: "2.0"`);
+6. passes the message to `McpServer::handle()`;
+7. preserves request IDs and never logs bearer tokens.
+
+`McpServer::handle()` applies the full security pipeline per tool/resource (`-32003` on denial) and
+supports: `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`, `prompts/list`,
+`prompts/get`; unknown methods return `-32601`, unknown tools `-32602`, unknown resources `-32002`.
+
+`resource_publish` requires `approval_id` and `change_id`; the approval record is verified against the
+change before execution. Write/delete/publish tools run through `Application` → `ResourceExecutionService`
+with the same security boundary as REST.
 
 Streamable HTTP/SSE support belongs to this adapter layer, not to MCP tools themselves.

@@ -36,14 +36,15 @@ final class ModxIntegrationTest extends TestCase
             self::markTestSkipped('AIBridge Extra is not installed.');
         }
 
-        require_once rtrim((string)$namespace->get('path'), '/') . '/bootstrap.php';
+        $namespacePath = \MODX\Revolution\modNamespace::translatePath(self::$modx, (string) $namespace->get('path'));
+        require_once rtrim((string) $namespacePath, '/') . '/bootstrap.php';
     }
 
     public function testModelPackageLoads(): void
     {
         self::assertNotNull(self::$modx);
         self::assertTrue(class_exists(Token::class));
-        self::assertNotSame('', self::$modx->getManager()->getTableName(Token::class));
+        self::assertNotSame('', self::$modx->getTableName(Token::class));
         self::assertNotNull(self::$modx->newObject(Token::class));
     }
 

@@ -30,13 +30,13 @@ final class Worker
             }
             $safe = $this->redactor->redactRecursive($result);
             $this->queue->complete($job->id(), $safe);
-            $this->audit?->record('job_completed', ['job_id' => $job->id(), 'type' => $job->type(), 'duration_ms' => (int) round($elapsed * 1000)]);
+            $this->audit?->record('job_completed', ['profile_id' => (int) ($job->raw()['profile_id'] ?? 0), 'job_id' => $job->id(), 'type' => $job->type(), 'duration_ms' => (int) round($elapsed * 1000)]);
             return ['id' => $job->id(), 'status' => JobState::COMPLETED, 'result' => $safe];
         } catch (\Throwable $e) {
             $retryable = !($e instanceof NonRetryableJobException);
             $error = ['code' => $e instanceof JobTimeoutException ? 'job_timeout' : 'job_failed', 'message' => $e->getMessage()];
             $status = $this->queue->fail($job->id(), $this->redactor->redactRecursive($error), $retryable);
-            $this->audit?->record('job_failed', ['job_id' => $job->id(), 'type' => $job->type(), 'status' => $status, 'error' => $error]);
+            $this->audit?->record('job_failed', ['profile_id' => (int) ($job->raw()['profile_id'] ?? 0), 'job_id' => $job->id(), 'type' => $job->type(), 'status' => $status, 'error' => $error]);
             return ['id' => $job->id(), 'status' => $status, 'error' => $error];
         }
     }

@@ -13,4 +13,11 @@ final class IpAllowlistTest extends TestCase
         $this->assertTrue($service->allows('10.0.0.12',['10.0.0.0/24']));
         $this->assertFalse($service->allows('10.0.1.12',['10.0.0.0/24']));
     }
+
+    public function testFailsClosedWithoutRulesOrIp(): void
+    {
+        $service=new IpAllowlist();
+        $this->assertFalse($service->allows('10.0.0.12',[]));
+        $this->assertFalse($service->allows('',['10.0.0.12']));
+    }
 }

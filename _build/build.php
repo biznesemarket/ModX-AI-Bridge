@@ -54,7 +54,7 @@ $builder->registerNamespace(
 $menus = require __DIR__ . '/elements/menus.php';
 
 foreach ($menus as $text => $data) {
-    $menu = $modx->newObject('modMenu');
+    $menu = $modx->newObject(\MODX\Revolution\modMenu::class);
     $menu->fromArray([
         'text' => $text,
         'description' => $data['description'] ?? '',
@@ -63,7 +63,8 @@ foreach ($menus as $text => $data) {
         'menuindex' => $data['menuindex'] ?? 0,
         'params' => $data['params'] ?? '',
         'handler' => $data['handler'] ?? '',
-    ]);
+        'namespace' => 'aibridge',
+    ], '', true);
 
     $builder->putVehicle($builder->createVehicle($menu, [
         xPDOTransport::PRESERVE_KEYS => true,
@@ -111,6 +112,10 @@ $coreVehicle->resolve('file', [
 
 $coreVehicle->resolve('php', [
     'source' => __DIR__ . '/resolvers/install-model.resolver.php',
+]);
+
+$coreVehicle->resolve('php', [
+    'source' => __DIR__ . '/resolvers/register-bootstrap.resolver.php',
 ]);
 
 $builder->putVehicle($coreVehicle);

@@ -7,35 +7,41 @@ if ($argc < 2) {
     exit(2);
 }
 
-$package = $argv[1];
-$root = getenv('MODX_ROOT') ?: '/var/www/html';
+$packageFile = $argv[1];
+$root = rtrim((string) (getenv('MODX_ROOT') ?: '/var/www/html'), '/') . '/';
 
-require $root . '/config.core.php';
+if (!is_file($root . 'config.core.php')) {
+    throw new RuntimeException('MODX_ROOT is not a MODX installation: ' . $root);
+}
+
+require $root . 'config.core.php';
 require_once MODX_CORE_PATH . 'vendor/autoload.php';
 
 $modx = \MODX\Revolution\modX::getInstance();
 $modx->initialize('mgr');
 
-$package = realpath($package);
+$package = realpath($packageFile);
 if ($package === false || !is_file($package)) {
-    throw new RuntimeException('Transport package not found.');
+    throw new RuntimeException('Transport package not found: ' . $packageFile);
 }
 
-$scan = $modx->runProcessor('workspace/packages/scanlocal', [
-    'path' => dirname($package),
+$signature = (string) preg_replace('/\.transport\.zip$/', '', basename($package));
+
+$scan = $modx->runProcessor(\MODX\Revolution\Processors\Workspace\Packages\ScanLocal::class, [
+    'workspace' => 1,
 ]);
 
 if ($scan->isError()) {
-    throw new RuntimeException($scan->getMessage());
+    throw new RuntimeException('Package scan failed: ' . $scan->getMessage());
 }
 
-$install = $modx->runProcessor('workspace/packages/install', [
-    'package' => basename($package),
-    'signature' => pathinfo($package, PATHINFO_FILENAME),
+$install = $modx->runProcessor(\MODX\Revolution\Processors\Workspace\Packages\Install::class, [
+    'signature' => $signature,
 ]);
 
 if ($install->isError()) {
-    throw new RuntimeException($install->getMessage());
+    throw new RuntimeException('Package install failed: ' . $install->getMessage());
 }
 
 echo "Transport Package installation: PASS" . PHP_EOL;
+echo "Signature: {$signature}" . PHP_EOL;

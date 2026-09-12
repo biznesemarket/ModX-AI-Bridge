@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 use MODX\Revolution\modExtraManagerController;
 
-abstract class AIBridgeManagerController extends modExtraManagerController
+class IndexManagerController extends modExtraManagerController
 {
+    public static function getDefaultController()
+    {
+        return 'home';
+    }
+
     public function getLanguageTopics()
     {
         return ['aibridge:default'];
@@ -14,13 +19,5 @@ abstract class AIBridgeManagerController extends modExtraManagerController
     public function checkPermissions()
     {
         return true;
-    }
-}
-
-class IndexManagerController extends AIBridgeManagerController
-{
-    public static function getDefaultController()
-    {
-        return 'home';
     }
 }
