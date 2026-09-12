@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.0 — Stable (2026-09-12)
+
+- Unblocked TypeScript SDK certification: added the missing `sdk/typescript/package-lock.json`, fixed
+  NodeNext import resolution (`./errors.js`), widened idempotency-key parameters to `string`, ignored SDK
+  build artifacts, and marked `scripts/sdk-typescript-check.sh` executable (it is invoked via `./`). CI now
+  reports `TYPESCRIPT SDK: PASS`.
+- Added `workflow_dispatch` to `.github/workflows/release.yml` so the full certification gate can be run on
+  demand; `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` passes end to end on a
+  Docker + PHP + Composer + Node runner and prints `STABLE certification gates passed.`
+- Finalized the Stable transport package: `_build/config.inc.php` release suffix removed and signature
+  composition made suffix-safe, so the build produces `aibridge-0.1.0.transport.zip`
+  (`scripts/test-modx.sh` updated to install it).
+- Declared `Stable`; tag `v0.1.0`. See `docs/release/0.1.0.md`, `docs/release/stable-status.md`,
+  `docs/testing/iteration-40-typescript-sdk-unblock.md` and `docs/testing/iteration-41-stable-release.md`.
+
 ## Unreleased — Stabilization (0.1.0-rc1)
 
 - Defined named PHPUnit test suites: unit, contract, security, integration.

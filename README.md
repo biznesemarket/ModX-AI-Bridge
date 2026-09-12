@@ -6,7 +6,7 @@ Iteration 17 added an operational console inside MODX Manager. It provides visib
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Stabilization in progress — target `0.1.0-rc1`**
+Status: **Stable `0.1.0`** (tag `v0.1.0`; certified `aibridge-0.1.0.transport.zip`)
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
@@ -16,7 +16,11 @@ Post-execution verification, controlled rollback and the fail-closed `stable-gat
 
 ## Final Integration & Stabilization
 
-The project is not marked Stable until `scripts/final-stabilization.sh` completes successfully in an environment with Docker, Docker Compose, MODX 3.2.x and MySQL. The current source tree is undergoing the stabilization iterations (21+) defined in the iteration implementation plan; it has not received runtime certification yet.
+`Stable` is only declared when `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completes green
+in an environment with Docker, Docker Compose, MODX 3.2.x, MySQL, PHP/Composer and Node.js. That single-command
+gate passed on commit `160a659` (GitHub Actions `ubuntu-latest`, run `34716441523`) and printed
+`STABLE certification gates passed.`; the `0.1.0` tag `v0.1.0` points at it. Evidence:
+`docs/release/0.1.0.md`, `docs/testing/iteration-41-stable-release.md`, `docs/release/stable-status.md`.
 
 ## AI Agent Development
 

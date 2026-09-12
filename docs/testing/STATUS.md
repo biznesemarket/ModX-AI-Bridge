@@ -1,9 +1,10 @@
-# Testing Status — Iterations 21–39
+# Testing Status — Iterations 21–41
 
-**Status: NOT STABLE — Release Candidate `0.1.0-rc1`; TypeScript SDK gate BLOCKED; no `v0.1.0` tag**
+**Status: STABLE — `0.1.0` (`v0.1.0`); all gates PASS on the CI runner**
 
-Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), executed inside containers
-because the Windows host has no PHP/Composer/POSIX shell:
+Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
+(Docker + PHP + Composer + Node):
 
 - `composer validate --no-check-publish --strict` — PASS
 - `composer lint` — PASS
@@ -22,8 +23,8 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Multi-site isolation E2E — PASS. Evidence: `docs/testing/iteration-32-multi-site-isolation.md`
 - Security regression runtime — PASS. Evidence: `docs/testing/iteration-33-security-regression.md`
 - Observability/readiness — PASS. Evidence: `docs/testing/iteration-34-observability.md`
-- SDK certification — PHP PASS; TypeScript **BLOCKED** (no `node`/`npm`). Evidence:
-  `docs/testing/iteration-35-sdk-certification.md`
+- SDK certification — PHP PASS; TypeScript PASS (Iteration 40, `TYPESCRIPT SDK: PASS`). Evidence:
+  `docs/testing/iteration-35-sdk-certification.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`
 - Upgrade/recovery drill — PASS. Evidence: `docs/testing/iteration-36-upgrade-recovery.md`
 - Performance & limits — PASS (`scripts/performance-limits.php`: 256 KiB resource, 50 TVs, queue depth
   200, rate limiter, audit growth; per-op budgets). Evidence:
@@ -31,10 +32,14 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Release Candidate `0.1.0-rc1` — BUILT and content-verified; SHA-256 and metadata recorded
   (`docs/release/0.1.0-rc1.md`, `scripts/release-candidate.php`). Evidence:
   `docs/testing/iteration-38-release-candidate.md`
-- Stable certification attempt — **NOT STABLE**: `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh`
-  exits 3 at the TypeScript SDK gate (`node`/`npm` unavailable); no `v0.1.0` tag created. Evidence:
-  `docs/testing/iteration-39-stable-certification.md`, `docs/release/stable-status.md`
+- Stable certification attempt (Iteration 39) — NOT STABLE (historical): gate exited 3 at the TypeScript SDK
+  gate. Evidence: `docs/testing/iteration-39-stable-certification.md`
+- Iteration 40 — TypeScript SDK gate cleared, single-command stable gate green on commit `642c681`
+  (run `34715583238`). Evidence: `docs/testing/iteration-40-typescript-sdk-unblock.md`
+- Iteration 41 — Stable `0.1.0` package finalized and re-certified on commit `160a659`
+  (run `34716441523`); `STABLE certification gates passed.`; tag `v0.1.0`. Evidence:
+  `docs/testing/iteration-41-stable-release.md`, `docs/release/0.1.0.md`
 
-Remaining gates before `Stable`: TypeScript SDK toolchain (BLOCKED), and a single-command run of
-`stable-gate.sh` on a host/CI runner with Docker (the in-container run cannot execute `composer test-modx`).
-A missing runtime is a failure of certification, not a pass.
+No remaining gates: TypeScript SDK PASS and the single-command
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` passes on a host/CI runner with Docker.
+A missing runtime remains a failure of certification, not a pass.

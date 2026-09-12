@@ -1,10 +1,12 @@
 # Final Integration & Stabilization — Status
 
-Status: **NOT STABLE** — Release Candidate `0.1.0-rc1` is built; Stable certification is blocked by the
-TypeScript SDK gate (`node`/`npm` unavailable). No `v0.1.0` tag has been created.
+Status: **STABLE** — `0.1.0` certified; tag `v0.1.0` created. Evidence:
+`docs/release/stable-status.md`, `docs/release/0.1.0.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
+`docs/testing/iteration-41-stable-release.md`.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
-`docker-compose.yml`. Evidence: `docs/testing/iteration-21-26-runtime-certification.md`.
+`docker-compose.yml`, plus a GitHub Actions `ubuntu-latest` runner (Docker + PHP + Composer + Node) for the
+single-command gate. Evidence: `docs/testing/iteration-21-26-runtime-certification.md`.
 
 ## Executed gates (PASS)
 
@@ -45,15 +47,17 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - Release Candidate `0.1.0-rc1` (`scripts/release-candidate.php`) — built, contents verified, SHA-256 and
   release metadata recorded (`docs/release/0.1.0-rc1.md`)
 
-## Required runtime gates not yet certified
+## Previously blocking runtime gates (resolved)
 
-1. TypeScript SDK certification — BLOCKED: `node`/`npm` are unavailable, so the `tsc` build and runtime
-   client tests were not executed (not a PASS).
-2. Stable certification tag — must not be created while gate 1 is BLOCKED.
+1. TypeScript SDK certification — **PASS**: added the missing `package-lock.json`, fixed NodeNext import
+   resolution and idempotency-key typing, and set the executable bit; CI prints `TYPESCRIPT SDK: PASS`.
+2. Stable certification tag — `v0.1.0` created after
+   `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` printed `STABLE certification gates passed.`
+   on commit `160a659` (run `34716441523`).
 
-Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
-Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the
-container with the results above.
+Note: the Windows host has no PHP/Composer, so the single-command gate is executed on GitHub Actions
+`ubuntu-latest` (Docker + PHP + Composer + Node); the same gate's individual steps were also executed against
+the local Docker stack throughout iterations 30–38.
 
 ## Stable certification rule
 

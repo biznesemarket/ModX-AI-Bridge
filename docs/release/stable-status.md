@@ -1,46 +1,43 @@
-# Stable Certification Status — 0.1.0-rc1
+# Stable Certification Status — 0.1.0
 
-Status: **NOT STABLE** (Release Candidate only)
+Status: **STABLE**
 
-`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` was executed on the Docker stack. The gate
-passes every PHP/composer check and the PHP unit/contract/security/SDK suites, then stops at the TypeScript
-SDK gate:
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green in a single invocation on
+GitHub Actions `ubuntu-latest` (Docker + PHP 8.2 + Composer + Node.js), commit `160a659`, run `34716441523`:
 
 ```text
-composer validate --no-check-publish --strict   PASS
-composer lint                                   PASS
-composer verify-static-contract                 PASS
-composer test -- --testsuite unit,contract,security   OK (58 tests, 188 assertions)
-composer test -- --testsuite sdk                OK (10 tests, 49 assertions)
-./scripts/sdk-typescript-check.sh               BLOCKED (node/npm are not available)
-                                                 A BLOCKED gate prevents Stable certification.
-gate_exit=3
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (58 tests, 188 assertions)
+composer test -- --testsuite sdk                     OK (10 tests, 49 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS == (123 tests, 626 assertions)
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
 ```
 
-## Blocking gate
+## Certified artifact
 
-- **TypeScript SDK certification — BLOCKED.** `node`/`npm` are not available in the environment, so the
-  `tsc` build and the runtime client contract tests (`sdk/typescript`) were not executed. A missing runtime
-  is a failed gate, not a pass.
+- Stable Transport Package: `aibridge-0.1.0.transport.zip` (built by `scripts/release-candidate.php`).
+- The build first passed on commit `642c681` (TypeScript gate cleared, run `34715583238`) and again on the
+  finalized `0.1.0` package at commit `160a659` (run `34716441523`).
+- Transport archives are not byte-reproducible (embedded file timestamps); each build records its own
+  SHA-256 in `dist/<package>.release.json` and `<package>.sha256`. See `docs/release/0.1.0.md`.
 
-## Environment-limited gate
+## Environment
 
-- The Docker-runtime portion of the gate (`composer test-modx`, which runs `scripts/test-modx.sh` and then
-  `scripts/quality-gate.sh`) cannot execute inside the `modx` container because it requires the Docker CLI.
-  Its individual steps were executed directly against the same stack throughout iterations 30–38
-  (runtime verification, full PHPUnit, queue concurrency, REST smoke, HTTP security regression,
-  upgrade/recovery drill, performance and Release Candidate build), and all passed. Wiring the gate to a
-  host/CI runner with Docker remains required for a single-command Stable run.
+- Runner: GitHub Actions `ubuntu-latest` (Ubuntu 24.04 image).
+- Runtime: Docker MODX 3.2.2-pl, PHP 8.2, MySQL 8.0.
+- Node.js/npm: provided by the runner; `tsc` build and client contract type-check.
 
-## Not done
+## Release
 
-- `v0.1.0` tag **not created**.
-- No `Stable` claim.
+- Tag `v0.1.0` points at the certified commit.
+- `git push` of the tag re-runs `release.yml` (verify → certify → package) as the official release gate.
 
-## Path to Stable
+## Prior blocking state (resolved)
 
-1. Provide a Node.js/npm toolchain so `scripts/sdk-typescript-check.sh` runs `npm ci`, `tsc` build and the
-   TypeScript tests (must print `TYPESCRIPT SDK: PASS`).
-2. Run `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` on a runner with Docker, PHP and
-   Composer; all gates must pass in one invocation.
-3. Only then create the `v0.1.0` tag.
+Iteration 39 left the release NOT STABLE because the TypeScript SDK gate was BLOCKED (no
+`node`/`npm`) and the single-command gate could not run in-container. Both were resolved in Iterations 40–41:
+toolchain provided, SDK lockfile/build fixed, executable bit corrected, and the gate run on a proper runner.
