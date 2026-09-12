@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–32 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–33 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -58,7 +58,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 32–39)
+## 3. Что осталось (Iterations 33–39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
@@ -74,7 +74,10 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
    change-переходы, approval create/decide и approved-execute проверяют profile ownership на сервере;
    матрица Token/Job/Audit/Schema/Fingerprint/Snapshot/Change/Approval + IDOR. Evidence:
    `docs/testing/iteration-32-multi-site-isolation.md`.
-4. **33 Security regression на runtime** (auth bypass, escalation, replay, oversized body, malformed JSON).
+4. **33 ✅ Security regression на runtime:** auth bypass (scheme/unknown/revoked/expired), scope escalation,
+   profile escape через body `profile_id`, rate limit 429 + `Retry-After`, idempotency conflict/replay,
+   отсутствие утечки секретов в response/audit; front controller → `400 invalid_json`, oversized → `413`.
+   Evidence: `docs/testing/iteration-33-security-regression.md`.
 5. **34 Observability:** request-id propagation, readiness, redaction в логах.
 6. **35 SDK:** PHP + TypeScript (при отсутствии Node — TS-часть BLOCKED, не PASS).
 7. **36 Upgrade/recovery drill:** backup → upgrade → migrate → smoke → rollback → restore.
@@ -127,7 +130,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 33** (security regression на runtime: auth bypass, scope escalation, replay,
-oversized body, malformed JSON, rate limit, fail-closed delete/publish), затем **Iteration 34**
-(observability/readiness/redaction). Работать по плану v2; каждый шаг закрывать отчётом по формату
-`AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED).
+Начать с **Iteration 34** (observability/readiness: request-id propagation, structured errors, readiness,
+worker events, redaction в логах), затем **Iteration 35** (SDK PHP + TS). Работать по плану v2; каждый шаг
+закрывать отчётом по формату `AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED), затем
+коммит + push.

@@ -12,7 +12,7 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer verify-static-contract`
 - `composer verify-generated-model`
 - `composer test -- --testsuite unit,contract,security` — 57 tests, 181 assertions
-- Full PHPUnit incl. integration against real MODX — 102 tests, 363 assertions
+- Full PHPUnit incl. integration against real MODX — 108 tests, 1464 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner
@@ -28,15 +28,17 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - Multi-site isolation E2E (`tests/Integration/MultiSiteIsolationE2ETest.php`) — active-profile token auth,
   job/profile scoping, snapshot-rollback IDOR denied, change/approval profile guards, audit ownership,
   site-level schema/fingerprint
+- Security regression runtime (`tests/Integration/SecurityRegressionRuntimeTest.php` +
+  `scripts/security-regression-http.php`) — auth bypass, scope escalation, profile escape, rate limit,
+  idempotency replay/conflict, secret leakage, malformed JSON 400 and oversized body 413
 
 ## Required runtime gates not yet certified
 
-1. Security regression matrix on runtime (rate limit, replay, oversized body, malformed JSON edge cases).
-2. Observability/readiness/redaction runtime pass.
-3. SDK contract certification (PHP + TypeScript).
-4. Package upgrade and rollback drill.
-5. Performance and limits certification.
-6. Release Candidate artifact checksum and Stable certification tag.
+1. Observability/readiness/redaction runtime pass.
+2. SDK contract certification (PHP + TypeScript).
+3. Package upgrade and rollback drill.
+4. Performance and limits certification.
+5. Release Candidate artifact checksum and Stable certification tag.
 
 Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
 Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the

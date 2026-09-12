@@ -50,6 +50,13 @@
     server-side profile ownership (`profile_mismatch` / `belongs to another profile`);
   - added `tests/Integration/MultiSiteIsolationE2ETest.php` covering the Token/Job/Audit/Schema/
     Fingerprint/Snapshot/Change/Approval cross-profile matrix and IDOR attempts (9 tests).
+- Iteration 33 — runtime security regression:
+  - the REST front controller rejects malformed JSON bodies with `400 invalid_json` instead of treating
+    them as an empty object;
+  - added `tests/Integration/SecurityRegressionRuntimeTest.php` (auth bypass, scope escalation, profile
+    escape, rate limit 429 + `Retry-After`, idempotency conflict/replay, secret/audit leakage);
+  - added `scripts/security-regression-http.php` (malformed JSON 400, oversized body 413, transport auth)
+    wired into `scripts/test-modx.sh`.
 
 ## Iteration 20
 

@@ -79,9 +79,13 @@ if (strlen($raw) > $maxBytes) {
 $body = [];
 if ($raw !== '') {
     $decoded = json_decode($raw, true);
-    if (is_array($decoded)) {
-        $body = $decoded;
+    if (!is_array($decoded)) {
+        http_response_code(400);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => ['code' => 'invalid_json', 'message' => 'Request body must be a valid JSON object.']]);
+        exit;
     }
+    $body = $decoded;
 }
 
 $requireHttps = (bool) $modx->getOption('aibridge_require_https', null, true);
