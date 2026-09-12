@@ -18,5 +18,8 @@
         <testsuite name="integration">
             <directory>tests/Integration</directory>
         </testsuite>
+        <testsuite name="sdk">
+            <directory>sdk/php/tests</directory>
+        </testsuite>
     </testsuites>
 </phpunit>

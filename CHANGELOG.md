@@ -63,6 +63,13 @@
   - `Worker` audit events include `request_id`; the worker CLI redacts secrets in error/requeue output via
     `SecretRedactor::redactText()`;
   - `scripts/readiness.php` reports service-container/namespace checks and the component version.
+- Iteration 35 — SDK certification:
+  - aligned `docs/api/openapi.yaml` with the served surface (added `/health`, `/ready`, `/profiles`,
+    `/resources/preview`, `/resources/{id}/publish`; mutations document `202` and `Idempotency-Key`);
+  - `AIBridge\SDK\` is autoloaded from `sdk/php/src/` and `sdk` is a PHPUnit testsuite; expanded PHP SDK
+    contract tests and added an OpenAPI alignment test;
+  - added `scripts/sdk-typescript-check.sh`; the TypeScript SDK remains **BLOCKED** because `node`/`npm`
+    are not available (not certified as PASS).
 
 ## Iteration 20
 

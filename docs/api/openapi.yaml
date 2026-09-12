@@ -7,8 +7,22 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /api/ai/v2/health:
+    get:
+      summary: Public liveness probe
+      security: []
+      responses: {'200': {description: OK}}
+  /api/ai/v2/ready:
+    get:
+      summary: Public readiness probe
+      security: []
+      responses:
+        '200': {description: Ready}
+        '503': {description: Not ready}
   /api/ai/v2/capabilities:
     get: {summary: Discover Bridge capabilities, responses: {'200': {description: OK}}}
+  /api/ai/v2/profiles:
+    get: {summary: List profiles visible to the caller, responses: {'200': {description: OK}}}
   /api/ai/v2/site/schema:
     get: {summary: Read Site Schema, responses: {'200': {description: OK}}}
   /api/ai/v2/site/fingerprint:
@@ -18,10 +32,33 @@ paths:
   /api/ai/v2/content/validate:
     post: {summary: Validate proposed content, responses: {'200': {description: OK}}}
   /api/ai/v2/resources:
-    post: {summary: Create resource, parameters: [{in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
+    post:
+      summary: Create resource
+      parameters:
+        - {in: header, name: Idempotency-Key, required: true, schema: {type: string}}
+      responses: {'202': {description: Job queued}}
+  /api/ai/v2/resources/preview:
+    post: {summary: Preview proposed resource content synchronously, responses: {'200': {description: OK}}}
   /api/ai/v2/resources/{id}:
-    patch: {summary: Update resource, parameters: [{in: path, name: id, required: true, schema: {type: integer}}, {in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
-    delete: {summary: Delete resource, parameters: [{in: path, name: id, required: true, schema: {type: integer}}, {in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
+    patch:
+      summary: Update resource
+      parameters:
+        - {in: path, name: id, required: true, schema: {type: integer}}
+        - {in: header, name: Idempotency-Key, required: true, schema: {type: string}}
+      responses: {'202': {description: Job queued}}
+    delete:
+      summary: Delete resource
+      parameters:
+        - {in: path, name: id, required: true, schema: {type: integer}}
+        - {in: header, name: Idempotency-Key, required: true, schema: {type: string}}
+      responses: {'202': {description: Job queued}}
+  /api/ai/v2/resources/{id}/publish:
+    post:
+      summary: Publish resource (approval required)
+      parameters:
+        - {in: path, name: id, required: true, schema: {type: integer}}
+        - {in: header, name: Idempotency-Key, required: true, schema: {type: string}}
+      responses: {'202': {description: Job queued}}
   /api/ai/v2/jobs/{id}:
     get: {summary: Read job status, responses: {'200': {description: OK}}}
   /api/ai/v2/mcp:

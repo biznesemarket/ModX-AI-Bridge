@@ -10,6 +10,7 @@ composer validate --no-check-publish --strict
 composer lint
 composer verify-static-contract
 composer test -- --testsuite unit,contract,security
+composer test -- --testsuite sdk
 
 if [[ "$AIBRIDGE_RUNTIME" != "1" ]]; then
   echo "STABLE certification requires AIBRIDGE_RUNTIME=1" >&2

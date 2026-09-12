@@ -12,7 +12,8 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer verify-static-contract`
 - `composer verify-generated-model`
 - `composer test -- --testsuite unit,contract,security` — 58 tests, 188 assertions
-- Full PHPUnit incl. integration against real MODX — 113 tests, 1645 assertions
+- `composer test -- --testsuite sdk` — 10 tests, 49 assertions
+- Full PHPUnit incl. integration against real MODX — 123 tests, 1840 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner
@@ -34,10 +35,13 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - Observability/readiness (`tests/Integration/ObservabilityRuntimeTest.php` + `SecretRedactorTest`) —
   inbound request-id propagation/echo, structured error envelopes, worker audit `request_id`, public
   `GET /ready` and free-text log redaction
+- PHP SDK certification (`sdk/php/tests`, `--testsuite sdk`) — idempotency/auth/job contracts and
+  OpenAPI alignment (every SDK path documented, mutation `202` + `Idempotency-Key`)
 
 ## Required runtime gates not yet certified
 
-1. SDK contract certification (PHP + TypeScript).
+1. TypeScript SDK certification — BLOCKED: `node`/`npm` are unavailable, so the `tsc` build and runtime
+   client tests were not executed (not a PASS).
 2. Package upgrade and rollback drill.
 3. Performance and limits certification.
 4. Release Candidate artifact checksum and Stable certification tag.

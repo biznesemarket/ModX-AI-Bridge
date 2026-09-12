@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–34 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–35 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -58,7 +58,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 35–39)
+## 3. Что осталось (Iterations 36–39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
@@ -81,11 +81,15 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
 5. **34 ✅ Observability/readiness:** inbound `X-Request-Id` propagation + echo, structured error envelope,
    worker audit `request_id`, публичный `GET /ready` (200/503), redaction свободного текста в worker-логах,
    расширенный `scripts/readiness.php`. Evidence: `docs/testing/iteration-34-observability.md`.
-6. **35 SDK:** PHP + TypeScript (при отсутствии Node — TS-часть BLOCKED, не PASS).
+6. **35 ⚠ SDK:** PHP PASS (10 тестов, OpenAPI выровнен: добавлены `/health`, `/ready`, `/profiles`,
+   `/resources/preview`, `/resources/{id}/publish`, `202` + `Idempotency-Key`); TypeScript **BLOCKED**
+   (`node`/`npm` недоступны, `tsc` не запускался — не PASS). Evidence:
+   `docs/testing/iteration-35-sdk-certification.md`.
 7. **36 Upgrade/recovery drill:** backup → upgrade → migrate → smoke → rollback → restore.
 8. **37 Performance & limits.**
 9. **38 Release Candidate:** артефакт `0.1.0-rc1` + SHA-256.
 10. **39 Stable certification:** `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` + тег `v0.1.0`.
+    Важно: TypeScript BLOCKED ⇒ Stable невозможен, пока не поднят Node-тулчейн.
 
 Полный план: `C:\Users\potap\.local\share\kilo\plans\1789231022815-iteration-implementation-plan.md` (v2).
 Статусы и evidence: `docs/release/FINAL-INTEGRATION-STATUS.md`, `docs/testing/STATUS.md`,
@@ -132,6 +136,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 35** (SDK PHP + TypeScript; при отсутствии Node TS-часть = BLOCKED, не PASS), затем
-**Iteration 36** (upgrade/recovery drill). Работать по плану v2; каждый шаг закрывать отчётом по формату
-`AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED), затем коммит + push.
+Начать с **Iteration 36** (upgrade/recovery drill: backup → upgrade → migrate → smoke → rollback →
+restore), затем **Iteration 37** (performance & limits). TS SDK остаётся BLOCKED до появления Node.
+Работать по плану v2; каждый шаг закрывать отчётом по формату `AGENTS.md` §7 с фактическими результатами
+гейтов (PASS/FAIL/BLOCKED), затем коммит + push.

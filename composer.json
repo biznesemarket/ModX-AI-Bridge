@@ -12,7 +12,8 @@
   },
   "autoload": {
     "psr-4": {
-      "AIBridge\\": "core/components/aibridge/src/"
+      "AIBridge\\": "core/components/aibridge/src/",
+      "AIBridge\\SDK\\": "sdk/php/src/"
     }
   },
   "autoload-dev": {

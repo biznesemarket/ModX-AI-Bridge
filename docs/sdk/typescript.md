@@ -8,3 +8,7 @@ const result = await bridge.createResource({pagetitle: 'AI article', content: '<
 ```
 
 The SDK uses `AbortController` for request timeouts and exposes machine-readable `ApiError` values.
+
+Certification: run `bash scripts/sdk-typescript-check.sh` (requires `node`/`npm`; executes `npm ci`,
+`tsc` build and the `tsc --noEmit` test script). In environments without Node.js the gate reports
+**BLOCKED** and must not be treated as PASS.
