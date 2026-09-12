@@ -73,4 +73,8 @@ echo "== 13. Performance & limits =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/performance-limits.php'
 
+echo "== 14. Release Candidate artifact =="
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/release-candidate.php'
+
 echo "== MODX INTEGRATION: PASS =="

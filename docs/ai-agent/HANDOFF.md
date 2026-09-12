@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–37 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–38 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -21,7 +21,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
 - Локальный стек: `modxaibridge-modx-1` (http://localhost:8080), `modxaibridge-db-1`
   (MySQL 8), MODX 3.2.2-pl установлен с нуля.
 
-## 2. Что сделано (Iterations 21–29)
+## 2. Что сделано (Iterations 21–38)
 
 - **21 Baseline:** сьюты `unit/contract/security/integration` в `phpunit.xml`; переписаны
   тавтологичные тесты; версия сведена к `0.1.0-rc1`; реестр дефектов —
@@ -58,7 +58,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 38–39)
+## 3. Что осталось (Iteration 39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
@@ -91,9 +91,12 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
 8. **37 ✅ Performance & limits:** `scripts/performance-limits.php` — 256 KiB resource, 50 TVs, snapshot,
    queue depth 200, rate limiter 500, audit growth; per-op бюджеты PASS. Evidence:
    `docs/testing/iteration-37-performance-limits.md`.
-9. **38 Release Candidate:** артефакт `0.1.0-rc1` + SHA-256.
-10. **39 Stable certification:** `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` + тег `v0.1.0`.
-    Важно: TypeScript BLOCKED ⇒ Stable невозможен, пока не поднят Node-тулчейн.
+9. **38 ✅ Release Candidate:** `scripts/release-candidate.php` собрал `aibridge-0.1.0-rc1.transport.zip`,
+   проверил содержимое архива и записал SHA-256 + metadata; запись в `docs/release/0.1.0-rc1.md`. Evidence:
+   `docs/testing/iteration-38-release-candidate.md`.
+10. **39 Stable certification:** `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh`.
+    Важно: TypeScript BLOCKED ⇒ **Stable объявлять нельзя**; статус должен остаться NOT STABLE/BLOCKED,
+    тег `v0.1.0` не создавать.
 
 Полный план: `C:\Users\potap\.local\share\kilo\plans\1789231022815-iteration-implementation-plan.md` (v2).
 Статусы и evidence: `docs/release/FINAL-INTEGRATION-STATUS.md`, `docs/testing/STATUS.md`,
@@ -140,8 +143,8 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 38** (Release Candidate: собрать transport package `0.1.0-rc1`, записать SHA-256 и
-release metadata), затем **Iteration 39** (Stable certification через
-`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh`). Учесть: TypeScript SDK BLOCKED ⇒
-Stable не может быть объявлен, пока не поднят Node-тулчейн; статус должен остаться NOT STABLE/BLOCKED.
-Каждый шаг закрывать отчётом по формату `AGENTS.md` §7, затем коммит + push.
+**Iteration 39 (финал):** попытаться выполнить Stable-сертификацию (`AIBRIDGE_RUNTIME=1 bash
+scripts/certification/stable-gate.sh`). Ожидаемый результат — **NOT STABLE**, потому что гейт TypeScript
+SDK BLOCKED (нет `node`/`npm`). В отчёте зафиксировать пройденные гейты, BLOCKED-гейт и то, что тег
+`v0.1.0` не создаётся. Если Node-тулчейн будет предоставлен — прогнать
+`bash scripts/sdk-typescript-check.sh`, затем повторить stable-gate. После отчёта — коммит + push.

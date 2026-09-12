@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–37
+# Testing Status — Iterations 21–38
 
-**Status: Runtime certification in progress (target `0.1.0-rc1`); TypeScript SDK BLOCKED (no Node)**
+**Status: Release Candidate `0.1.0-rc1` built; NOT Stable (TypeScript SDK BLOCKED — no Node)**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), executed inside containers
 because the Windows host has no PHP/Composer/POSIX shell:
@@ -28,7 +28,9 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Performance & limits — PASS (`scripts/performance-limits.php`: 256 KiB resource, 50 TVs, queue depth
   200, rate limiter, audit growth; per-op budgets). Evidence:
   `docs/testing/iteration-37-performance-limits.md`
+- Release Candidate `0.1.0-rc1` — BUILT and content-verified; SHA-256 and metadata recorded
+  (`docs/release/0.1.0-rc1.md`, `scripts/release-candidate.php`). Evidence:
+  `docs/testing/iteration-38-release-candidate.md`
 
 Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): TypeScript SDK toolchain
-(BLOCKED), Release Candidate artifact and Stable tag. A missing runtime is a failure of certification, not
-a pass.
+(BLOCKED) and the Stable certification tag. A missing runtime is a failure of certification, not a pass.
