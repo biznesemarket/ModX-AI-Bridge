@@ -1,0 +1,31 @@
+openapi: 3.0.3
+info:
+  title: ModX AI Bridge API
+  version: 2.0.0
+servers:
+  - url: https://example.invalid
+security:
+  - bearerAuth: []
+paths:
+  /api/ai/v2/capabilities:
+    get: {summary: Discover Bridge capabilities, responses: {'200': {description: OK}}}
+  /api/ai/v2/site/schema:
+    get: {summary: Read Site Schema, responses: {'200': {description: OK}}}
+  /api/ai/v2/site/fingerprint:
+    get: {summary: Read Site Fingerprint, responses: {'200': {description: OK}}}
+  /api/ai/v2/content/contract:
+    get: {summary: Read Content Contract, responses: {'200': {description: OK}}}
+  /api/ai/v2/content/validate:
+    post: {summary: Validate proposed content, responses: {'200': {description: OK}}}
+  /api/ai/v2/resources:
+    post: {summary: Create resource, parameters: [{in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
+  /api/ai/v2/resources/{id}:
+    patch: {summary: Update resource, parameters: [{in: path, name: id, required: true, schema: {type: integer}}, {in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
+    delete: {summary: Delete resource, parameters: [{in: path, name: id, required: true, schema: {type: integer}}, {in: header, name: Idempotency-Key, required: true, schema: {type: string}}], responses: {'200': {description: OK}}}
+  /api/ai/v2/jobs/{id}:
+    get: {summary: Read job status, responses: {'200': {description: OK}}}
+  /api/ai/v2/mcp:
+    post: {summary: MCP JSON-RPC endpoint, responses: {'200': {description: JSON-RPC response}}}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer}

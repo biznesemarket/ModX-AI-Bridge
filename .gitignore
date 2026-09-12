@@ -1,0 +1,12 @@
+/vendor/
+/.phpunit.cache/
+/build/
+/dist/
+/core/packages/
+/core/cache/
+/core/config/config.inc.php
+.DS_Store
+.idea/
+.vscode/
+/add_iter19.py
+/patch_iter19.py

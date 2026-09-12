@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="680" viewBox="0 0 1100 680">
+  <rect width="1100" height="680" fill="#ffffff"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#111">
+    <text x="550" y="42" text-anchor="middle" font-size="26" font-weight="700">ModX AI Bridge — PHP / Extra Skeleton</text>
+
+    <rect x="60" y="85" width="980" height="82" rx="10" fill="#f4f4f4" stroke="#222"/>
+    <text x="550" y="118" text-anchor="middle" font-size="19" font-weight="700">External / MODX Boundaries</text>
+    <text x="550" y="147" text-anchor="middle" font-size="15">Manager UI · REST · MCP · MODX Processors</text>
+
+    <rect x="110" y="210" width="880" height="90" rx="10" fill="#f8f8f8" stroke="#222"/>
+    <text x="550" y="246" text-anchor="middle" font-size="19" font-weight="700">Application Layer</text>
+    <text x="550" y="275" text-anchor="middle" font-size="15">Application · Services · Inspectors · Contracts · Validators</text>
+
+    <rect x="160" y="340" width="780" height="88" rx="10" fill="#fbfbfb" stroke="#222"/>
+    <text x="550" y="375" text-anchor="middle" font-size="19" font-weight="700">Governance &amp; Infrastructure Boundaries</text>
+    <text x="550" y="404" text-anchor="middle" font-size="15">Security · Middleware · Policy · Audit · Queue · Snapshot</text>
+
+    <rect x="220" y="468" width="660" height="88" rx="10" fill="#f4f4f4" stroke="#222"/>
+    <text x="550" y="503" text-anchor="middle" font-size="19" font-weight="700">MODX / xPDO</text>
+    <text x="550" y="532" text-anchor="middle" font-size="15">AIBridge\Model · MODX Core · Database</text>
+
+    <line x1="550" y1="167" x2="550" y2="210" stroke="#111" stroke-width="3"/>
+    <polygon points="550,210 542,197 558,197" fill="#111"/>
+
+    <line x1="550" y1="300" x2="550" y2="340" stroke="#111" stroke-width="3"/>
+    <polygon points="550,340 542,327 558,327" fill="#111"/>
+
+    <line x1="550" y1="428" x2="550" y2="468" stroke="#111" stroke-width="3"/>
+    <polygon points="550,468 542,455 558,455" fill="#111"/>
+
+    <text x="550" y="610" text-anchor="middle" font-size="15">Business logic is not placed in MODX controllers or processors.</text>
+    <text x="550" y="638" text-anchor="middle" font-size="15">REST and MCP must converge on the same application services.</text>
+  </g>
+</svg>

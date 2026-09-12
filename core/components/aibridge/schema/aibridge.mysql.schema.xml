@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="AIBridge\Model"
+       baseClass="xPDO\Om\xPDOObject"
+       platform="mysql"
+       defaultEngine="InnoDB"
+       phpdoc-methods="true"
+       phpdoc-properties="true"
+       version="3.0">
+
+    <object class="Profile" table="aibridge_profiles" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="name" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="site_key" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="active" />
+        <field key="environment" dbtype="varchar" precision="32" phptype="string" null="false" default="production" />
+        <field key="base_url" dbtype="varchar" precision="500" phptype="string" null="true" />
+        <field key="metadata_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="updated_at" dbtype="datetime" phptype="datetime" null="true" />
+        <index alias="site_key" name="site_key" primary="false" unique="true" type="BTREE"><column key="site_key" /></index>
+    </object>
+
+    <object class="Token" table="aibridge_tokens" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="name" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="token_hash" dbtype="char" precision="64" phptype="string" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="active" />
+        <field key="expires_at" dbtype="datetime" phptype="datetime" null="true" />
+        <field key="last_used_at" dbtype="datetime" phptype="datetime" null="true" />
+        <field key="scopes_json" dbtype="text" phptype="string" null="false" default="[]" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <index alias="profile_id" name="profile_id" primary="false" unique="false" type="BTREE"><column key="profile_id" /></index>
+        <index alias="token_hash" name="token_hash" primary="false" unique="true" type="BTREE">
+            <column key="token_hash" length="64" />
+        </index>
+    </object>
+
+    <object class="AuditEvent" table="aibridge_audit" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="event" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="actor_type" dbtype="varchar" precision="32" phptype="string" null="false" />
+        <field key="actor_id" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="operation" dbtype="varchar" precision="64" phptype="string" null="true" />
+        <field key="resource_id" dbtype="int" phptype="integer" null="true" />
+        <field key="request_id" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="context_json" dbtype="text" phptype="string" null="true" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <index alias="profile_id_request_id" name="profile_id_request_id" primary="false" unique="false" type="BTREE"><column key="profile_id" /><column key="request_id" /></index>
+        <index alias="request_id" name="request_id" primary="false" unique="false" type="BTREE">
+            <column key="request_id" />
+        </index>
+    </object>
+
+    <object class="Job" table="aibridge_jobs" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="type" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="queued" />
+        <field key="payload_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="result_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="error_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="attempts" dbtype="int" phptype="integer" null="false" default="0" />
+        <field key="max_attempts" dbtype="int" phptype="integer" null="false" default="3" />
+        <field key="timeout_seconds" dbtype="int" phptype="integer" null="false" default="300" />
+        <field key="available_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="locked_at" dbtype="datetime" phptype="datetime" null="true" />
+        <field key="locked_by" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="progress" dbtype="int" phptype="integer" null="false" default="0" />
+        <field key="progress_json" dbtype="text" phptype="string" null="true" />
+        <field key="idempotency_key" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="principal_id" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="request_id" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="started_at" dbtype="datetime" phptype="datetime" null="true" />
+        <field key="finished_at" dbtype="datetime" phptype="datetime" null="true" />
+        <index alias="profile_id_status_available" name="profile_id_status_available" primary="false" unique="false" type="BTREE"><column key="profile_id" /><column key="status" /><column key="available_at" /></index>
+        <index alias="status_available" name="status_available" primary="false" unique="false" type="BTREE">
+            <column key="status" />
+            <column key="available_at" />
+        </index>
+        <index alias="locked_at" name="locked_at" primary="false" unique="false" type="BTREE">
+            <column key="status" />
+            <column key="locked_at" />
+        </index>
+    </object>
+
+    <object class="Schema" table="aibridge_schemas" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="type" dbtype="varchar" precision="64" phptype="string" null="false" />
+        <field key="version" dbtype="varchar" precision="32" phptype="string" null="false" />
+        <field key="schema_json" dbtype="longtext" phptype="string" null="false" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+    </object>
+
+    <object class="Fingerprint" table="aibridge_fingerprints" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="algorithm" dbtype="varchar" precision="64" phptype="string" null="false" />
+        <field key="fingerprint" dbtype="char" precision="64" phptype="string" null="false" />
+        <field key="snapshot_json" dbtype="longtext" phptype="string" null="false" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+    </object>
+
+    <object class="Policy" table="aibridge_policies" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="name" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="rules_json" dbtype="longtext" phptype="string" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="active" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+    </object>
+
+    <object class="Snapshot" table="aibridge_snapshots" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="resource_id" dbtype="int" phptype="integer" null="true" />
+        <field key="operation" dbtype="varchar" precision="64" phptype="string" null="false" />
+        <field key="data_json" dbtype="longtext" phptype="string" null="false" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+    </object>
+
+    <object class="IdempotencyKey" table="aibridge_idempotency" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="idempotency_key" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="principal_id" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="operation" dbtype="varchar" precision="64" phptype="string" null="false" />
+        <field key="request_hash" dbtype="char" precision="64" phptype="string" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="in_progress" />
+        <field key="response_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <index alias="idempotency_unique" name="idempotency_unique" primary="false" unique="true" type="BTREE">
+            <column key="idempotency_key" />
+            <column key="principal_id" />
+            <column key="operation" />
+        </index>
+    </object>
+
+    <object class="RateLimitBucket" table="aibridge_rate_limits" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="bucket_key" dbtype="varchar" precision="190" phptype="string" null="false" />
+        <field key="window_start" dbtype="int" phptype="integer" null="false" />
+        <field key="requests" dbtype="int" phptype="integer" null="false" default="0" />
+        <field key="expires_at" dbtype="datetime" phptype="datetime" null="false" />
+        <index alias="bucket_unique" name="bucket_unique" primary="false" unique="true" type="BTREE">
+            <column key="bucket_key" />
+            <column key="window_start" />
+        </index>
+    </object>
+
+    <object class="ChangeRequest" table="aibridge_change_requests" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="profile_id" dbtype="int" phptype="integer" null="false" />
+        <field key="operation" dbtype="varchar" precision="64" phptype="string" null="false" />
+        <field key="resource_id" dbtype="int" phptype="integer" null="true" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="draft" />
+        <field key="input_json" dbtype="longtext" phptype="string" null="false" />
+        <field key="before_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="after_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="diff_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="qa_json" dbtype="longtext" phptype="string" null="true" />
+        <field key="approval_id" dbtype="int" phptype="integer" null="true" />
+        <field key="job_id" dbtype="int" phptype="integer" null="true" />
+        <field key="requested_by" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="request_id" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="rejection_reason" dbtype="text" phptype="string" null="true" />
+        <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="updated_at" dbtype="datetime" phptype="datetime" null="true" />
+        <index alias="profile_status" name="profile_status" primary="false" unique="false" type="BTREE"><column key="profile_id" /><column key="status" /></index>
+        <index alias="approval_id" name="approval_id" primary="false" unique="false" type="BTREE"><column key="approval_id" /></index>
+        <index alias="job_id" name="job_id" primary="false" unique="false" type="BTREE"><column key="job_id" /></index>
+    </object>
+
+    <object class="Approval" table="aibridge_approvals" extends="xPDO\Om\xPDOSimpleObject">
+        <field key="change_id" dbtype="int" phptype="integer" null="false" />
+        <field key="status" dbtype="varchar" precision="32" phptype="string" null="false" default="pending" />
+        <field key="requested_by" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="requested_at" dbtype="datetime" phptype="datetime" null="false" />
+        <field key="decided_by" dbtype="varchar" precision="190" phptype="string" null="true" />
+        <field key="decided_at" dbtype="datetime" phptype="datetime" null="true" />
+        <field key="comment" dbtype="text" phptype="string" null="true" />
+        <index alias="change_id" name="change_id" primary="false" unique="false" type="BTREE"><column key="change_id" /></index>
+        <index alias="status" name="status" primary="false" unique="false" type="BTREE"><column key="status" /></index>
+    </object>
+</model>

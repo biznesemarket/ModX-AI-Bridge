@@ -1,0 +1,53 @@
+<?php
+declare(strict_types=1);
+namespace AIBridge\MCP;
+use AIBridge\Application\Application;
+use AIBridge\Security\SecurityDecisionPipeline;
+use AIBridge\Configuration\ConfigFactory;
+use AIBridge\Security\Authorization;
+use AIBridge\Security\IpAllowlist;
+use AIBridge\Services\PolicyService;
+
+final class McpServer
+{
+    private McpRegistry $registry; private McpProtocol $protocol;
+    public function __construct(private readonly Application $application, private readonly SecurityDecisionPipeline $security)
+    { $this->registry=new McpRegistry(); $this->protocol=new McpProtocol(); $this->register(); }
+    public static function fromModx(\MODX\Revolution\modX $modx): self { $config=ConfigFactory::fromModx($modx); $security=new SecurityDecisionPipeline($config,new Authorization(),new IpAllowlist(),new PolicyService($config),$modx); return new self(new Application($modx),$security); }
+    private function register(): void {
+        $this->registry->tool('site_schema','Discover the MODX site schema.',['type'=>'object','properties'=>['limit'=>['type'=>'integer','minimum'=>1],'root_id'=>['type'=>'integer','minimum'=>0]]],fn(array $a)=>$this->application->discoverSite($a),'site.schema');
+        $this->registry->tool('site_fingerprint','Return the deterministic site fingerprint.',['type'=>'object'],fn(array $a)=>$this->application->discoverSite($a)['fingerprint']??null,'site.fingerprint');
+        $this->registry->tool('content_contract','Build a content contract for a template.',['type'=>'object','properties'=>['template_id'=>['type'=>'integer']]],fn(array $a)=>$this->application->buildContentContract($this->application->discoverSite(),isset($a['template_id'])?(int)$a['template_id']:null),'site.schema');
+        $this->registry->tool('content_validate','Validate proposed AI content against a contract.',['type'=>'object','required'=>['content','contract'],'properties'=>['content'=>['type'=>'object'],'contract'=>['type'=>'object']]],fn(array $a)=>$this->application->validateContent($a['content']??[],$a['contract']??[]),'content.validate');
+        $resourceSchema=['type'=>'object','required'=>['idempotency_key'],'properties'=>['id'=>['type'=>'integer','minimum'=>1],'idempotency_key'=>['type'=>'string','minLength'=>8],'pagetitle'=>['type'=>'string'],'longtitle'=>['type'=>'string'],'description'=>['type'=>'string'],'introtext'=>['type'=>'string'],'content'=>['type'=>'string'],'alias'=>['type'=>'string'],'parent'=>['type'=>'integer'],'template'=>['type'=>'integer'],'tvs'=>['type'=>'object']]];
+        $this->registry->tool('resource_create','Create a MODX resource after security and Content QA.',$resourceSchema,fn(array $a)=>$this->application->resourceCreate($a, $this->principalFromArguments($a), ['ip'=>(string)($a['_client_ip']??''),'idempotency_key'=>(string)($a['idempotency_key']??'')]),'resource.create');
+        $this->registry->tool('resource_update','Update a MODX resource after security and Content QA.',$resourceSchema,fn(array $a)=>$this->application->resourceUpdate($a, $this->principalFromArguments($a), ['ip'=>(string)($a['_client_ip']??''),'idempotency_key'=>(string)($a['idempotency_key']??'')]),'resource.update');
+        $this->registry->tool('resource_delete','Delete a MODX resource only when policy allows it.',['type'=>'object','required'=>['id','idempotency_key'],'properties'=>['id'=>['type'=>'integer','minimum'=>1],'idempotency_key'=>['type'=>'string','minLength'=>8]]],fn(array $a)=>$this->application->resourceDelete($a, $this->principalFromArguments($a), ['ip'=>(string)($a['_client_ip']??''),'idempotency_key'=>(string)($a['idempotency_key']??'')]),'resource.delete');
+        $this->registry->tool('resource_preview','Preview resource content without persistence.',['type'=>'object','required'=>['id'],'properties'=>['id'=>['type'=>'integer','minimum'=>1],'content'=>['type'=>'string']]],fn(array $a)=>$this->application->resourcePreview($a, $this->principalFromArguments($a), ['ip'=>(string)($a['_client_ip']??'')]),'resource.preview');
+        $this->registry->tool('resource_publish','Publish a MODX resource subject to approval and policy.',['type'=>'object','required'=>['id','idempotency_key','approval_id'],'properties'=>['id'=>['type'=>'integer','minimum'=>1],'idempotency_key'=>['type'=>'string','minLength'=>8],'approval_id'=>['type'=>'string','minLength'=>1]]],fn(array $a)=>$this->application->resourcePublish($a, $this->principalFromArguments($a), ['ip'=>(string)($a['_client_ip']??''),'idempotency_key'=>(string)($a['idempotency_key']??''),'approval_id'=>(string)($a['approval_id']??'')]),'resource.publish');
+        $this->registry->resource('modx://site/schema','Site Schema','Current discovered MODX site schema','application/json',fn()=>['contents'=>[['uri'=>'modx://site/schema','mimeType'=>'application/json','text'=>json_encode($this->application->discoverSite(),JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]]],'site.schema');
+        $this->registry->resource('modx://site/fingerprint','Site Fingerprint','Deterministic fingerprint of the discovered site schema','text/plain',fn()=>['contents'=>[['uri'=>'modx://site/fingerprint','mimeType'=>'text/plain','text'=>(string)($this->application->discoverSite()['fingerprint']??'')]]],'site.fingerprint');
+        $this->registry->prompt('content_authoring','Generate content that conforms to the MODX Content Contract.',[['name'=>'topic','description'=>'Content topic','required'=>true],['name'=>'template_id','description'=>'MODX template identifier','required'=>false]],fn(array $a)=>['messages'=>[['role'=>'user','content'=>['type'=>'text','text'=>'Create MODX content for topic: '.(string)($a['topic']??'').' using the discovered Content Contract.']] ]]);
+    }
+    private function principalFromArguments(array $arguments): array
+    {
+        $principal = is_array($arguments['_principal'] ?? null) ? $arguments['_principal'] : [];
+        return ['type'=>(string)($principal['type']??'token'),'id'=>(string)($principal['id']??'mcp'),'scopes'=>array_values(array_map('strval',$principal['scopes']??[]))];
+    }
+
+    public function capabilities(): array { return ['protocolVersion'=>McpProtocol::PROTOCOL_VERSION,'tools'=>$this->registry->tools(),'resources'=>$this->registry->resources(),'prompts'=>$this->registry->prompts()]; }
+    public function handle(array $request,array $principal=[]): array {
+        $id=$request['id']??null; $method=(string)($request['method']??''); $params=is_array($request['params']??null)?$request['params']:[];
+        if($method==='initialize') return $this->protocol->result($id,$this->protocol->initialize($params['clientInfo']??[]));
+        if($method==='tools/list') return $this->protocol->result($id,['tools'=>$this->registry->tools()]);
+        if($method==='resources/list') return $this->protocol->result($id,['resources'=>$this->registry->resources()]);
+        if($method==='prompts/list') return $this->protocol->result($id,['prompts'=>$this->registry->prompts()]);
+        if($method==='tools/call') return $this->callTool($id,$params,$principal);
+        if($method==='resources/read') return $this->readResource($id,$params,$principal);
+        if($method==='prompts/get') return $this->getPrompt($id,$params);
+        return $this->protocol->error($id,-32601,'Method not found');
+    }
+    private function callTool($id,array $params,array $principal): array { $name=(string)($params['name']??''); $tool=$this->registry->getTool($name); if(!$tool)return $this->protocol->error($id,-32602,'Unknown tool',['tool'=>$name]); $arguments=is_array($params['arguments']??null)?$params['arguments']:[]; $arguments['_principal']=$principal; $arguments['_client_ip']=(string)($params['_client_ip']??''); $request=['ip'=>(string)($params['_client_ip']??''),'mcp_tool'=>$name,'arguments'=>$arguments]; $d=$this->security->decide($request,$principal,$tool['operation']); if(!$d->allowed())return $this->protocol->error($id,-32003,'Security policy denied',$d->toArray()); try { $out=($tool['handler'])($arguments); return $this->protocol->result($id,['content'=>[['type'=>'text','text'=>json_encode($out,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)]]]); } catch(\Throwable $e) { return $this->protocol->error($id,-32603,'Tool execution failed',['code'=>'tool_execution_failed']); } }
+    private function readResource($id,array $params,array $principal): array { $uri=(string)($params['uri']??''); $r=$this->registry->getResource($uri); if(!$r)return $this->protocol->error($id,-32002,'Resource not found',['uri'=>$uri]); $d=$this->security->decide(['ip'=>(string)($params['_client_ip']??''),'mcp_resource'=>$uri],$principal,$r['operation']); if(!$d->allowed())return $this->protocol->error($id,-32003,'Security policy denied',$d->toArray()); return $this->protocol->result($id,($r['handler'])()); }
+    private function getPrompt($id,array $params): array { $name=(string)($params['name']??''); $p=$this->registry->getPrompt($name); if(!$p)return $this->protocol->error($id,-32001,'Prompt not found',['prompt'=>$name]); return $this->protocol->result($id,($p['handler'])((array)($params['arguments']??[]))); }
+}

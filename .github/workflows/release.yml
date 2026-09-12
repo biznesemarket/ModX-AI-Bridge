@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql,dom,fileinfo,gd,json,simplexml,xml,xmlwriter,zip,zlib
+      - run: composer install --no-interaction --prefer-dist
+      - run: bash scripts/quality-gate.sh
+      - run: bash -n scripts/release-package.sh scripts/modx-install.sh scripts/test-modx.sh
+
+  certify:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql,dom,fileinfo,gd,json,simplexml,xml,xmlwriter,zip,zlib
+      - run: composer install --no-interaction --prefer-dist
+      - run: AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh
+
+  package:
+    needs: certify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql,dom,fileinfo,gd,json,simplexml,xml,xmlwriter,zip,zlib
+      - run: composer install --no-interaction --prefer-dist
+      - run: echo "Transport Package build is executed against a real MODX runtime in the integration release job; no package is published from a source-only runner."

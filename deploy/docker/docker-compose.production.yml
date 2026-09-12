@@ -1,0 +1,49 @@
+services:
+  modx:
+    build:
+      context: ../..
+      dockerfile: docker/modx/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - modx_app:/var/www/html
+      - ./deploy/config:/run/aibridge/config:ro
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: docker/modx/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["php", "/var/www/html/core/components/aibridge/worker.php"]
+    security_opt:
+      - no-new-privileges:true
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - modx_db:/var/lib/mysql
+
+volumes:
+  modx_app:
+  modx_db:

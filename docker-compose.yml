@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mysql:8.0
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: modx_root
+      MYSQL_DATABASE: modx
+      MYSQL_USER: modx
+      MYSQL_PASSWORD: modx
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - modx_db:/var/lib/mysql
+
+  modx:
+    build:
+      context: .
+      dockerfile: docker/modx/Dockerfile
+    environment:
+      MODX_DB_HOST: db
+      MODX_DB_NAME: modx
+      MODX_DB_USER: modx
+      MODX_DB_PASSWORD: modx
+      MODX_DB_PREFIX: modx_
+      MODX_ADMIN_USER: aibridge
+      MODX_ADMIN_PASSWORD: aibridge
+      MODX_ADMIN_EMAIL: aibridge@example.test
+      MODX_SITE_URL: http://localhost:8080/
+      MODX_VERSION: 3.2.2-pl
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    volumes:
+      - modx_app:/var/www/html
+      - .:/workspace/modx-ai-bridge
+
+volumes:
+  modx_db:
+  modx_app:
