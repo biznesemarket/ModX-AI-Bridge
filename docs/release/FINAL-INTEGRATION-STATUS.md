@@ -11,8 +11,8 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer lint` (PHP syntax, all sources and tests)
 - `composer verify-static-contract`
 - `composer verify-generated-model`
-- `composer test -- --testsuite unit,contract,security` — 55 tests, 129 assertions
-- Full PHPUnit incl. integration against real MODX — 85 tests, 235 assertions
+- `composer test -- --testsuite unit,contract,security` — 57 tests, 181 assertions
+- Full PHPUnit incl. integration against real MODX — 93 tests, 328 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner
@@ -22,17 +22,19 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - Mutation E2E + verification/rollback (`tests/Integration/ResourceMutationE2ETest.php`) — Manager
   update/preview/delete/publish through approvals, snapshot/audit, controlled mismatch →
   `NonRetryableJobException`, rollback restores fields/TVs, deleted-resource recreation refused
+- Approval workflow E2E (`tests/Integration/ApprovalWorkflowE2ETest.php`) — `draft→submit→reject`,
+  approval↔change binding, execute-only-approved, approve→execute→verify→audit, terminal states,
+  publish without approval denied
 
 ## Required runtime gates not yet certified
 
-1. Full approval workflow matrix (`draft→submit→reject`, approval↔change binding, terminal states).
-2. Multi-site isolation matrix across all entities (jobs certified; tokens/audit/snapshots/approvals pending).
-3. Security regression matrix on runtime (rate limit, replay, oversized body, malformed JSON edge cases).
-4. Observability/readiness/redaction runtime pass.
-5. SDK contract certification (PHP + TypeScript).
-6. Package upgrade and rollback drill.
-7. Performance and limits certification.
-8. Release Candidate artifact checksum and Stable certification tag.
+1. Multi-site isolation matrix across all entities (jobs certified; tokens/audit/snapshots/approvals pending).
+2. Security regression matrix on runtime (rate limit, replay, oversized body, malformed JSON edge cases).
+3. Observability/readiness/redaction runtime pass.
+4. SDK contract certification (PHP + TypeScript).
+5. Package upgrade and rollback drill.
+6. Performance and limits certification.
+7. Release Candidate artifact checksum and Stable certification tag.
 
 Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
 Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the

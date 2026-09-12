@@ -37,6 +37,12 @@
   - added `tests/Integration/ResourceMutationE2ETest.php` covering Manager update/preview/delete/publish
     through approvals, post-execution verification, controlled mismatch → `NonRetryableJobException`,
     snapshot rollback of fields/TVs and refusal to recreate a deleted resource.
+- Iteration 31 — approval workflow E2E certification:
+  - full `ChangeState` transition matrix and terminal-state invariants covered by unit tests;
+  - added `tests/Integration/ApprovalWorkflowE2ETest.php`: `draft→submit→reject`, approval↔change binding
+    (an approval cannot authorize another change), execute-only-approved guards, approve→execute→verify→
+    audit happy path with terminal completed state, approval decision lifecycle and manager publish
+    denied without an approval reference.
 
 ## Iteration 20
 

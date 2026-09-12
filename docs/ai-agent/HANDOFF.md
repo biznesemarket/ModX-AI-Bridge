@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–30 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–31 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -58,15 +58,18 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 30–39)
+## 3. Что осталось (Iterations 31–39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
    автопересоздание удалённых запрещено. Defect #7 закрыт на уровне `Authorization` **и**
    `ResourceRollbackProcessor` (principal/channel/permission). Defect #25 (publish expected-state) закрыт.
    Evidence: `docs/testing/iteration-30-mutation-rollback.md`.
-2. **31 Approval workflow E2E:** `draft→submit→approve→execute→verify→audit`; терминальность состояний;
-   полная матрица approve/reject и привязка approval↔change.
+2. **31 ✅ Approval workflow E2E:** `draft→submit→reject` (терминальность, reason, audit);
+   привязка approval↔change (approval нельзя применить к другому change); execute только для `approved`;
+   `approve→execute→verify→audit` (completed терминален); approval decision lifecycle; publish без
+   approval отклоняется даже для manager. Полная матрица `ChangeState` — unit. Evidence:
+   `docs/testing/iteration-31-approval-workflow.md`.
 3. **32 Multi-site матрица:** Token/Job/Audit/Schema/Fingerprint/Snapshot/Approval между профилями
    (jobs уже проверены).
 4. **33 Security regression на runtime** (auth bypass, escalation, replay, oversized body, malformed JSON).
@@ -122,7 +125,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 31** (approval workflow E2E: `draft→submit→approve/reject→execute→verify→audit`,
-терминальность состояний, привязка approval↔change), затем **Iteration 32** (multi-site матрица).
-Работать по плану v2; каждый шаг закрывать отчётом по формату `AGENTS.md` §7 с фактическими результатами
-гейтов (PASS/FAIL/BLOCKED).
+Начать с **Iteration 32** (multi-site изоляция: матрица Token/Job/Audit/Schema/Fingerprint/Snapshot/Approval
+между двумя профилями, IDOR-проверки; `TokenManager::issue` уже принимает `profile_id`), затем
+**Iteration 33** (security regression на runtime). Работать по плану v2; каждый шаг закрывать отчётом
+по формату `AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED).
