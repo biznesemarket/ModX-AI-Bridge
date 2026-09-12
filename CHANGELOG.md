@@ -43,6 +43,13 @@
     (an approval cannot authorize another change), execute-only-approved guards, approve→execute→verify→
     audit happy path with terminal completed state, approval decision lifecycle and manager publish
     denied without an approval reference.
+- Iteration 32 — multi-site isolation certification:
+  - `TokenAuthenticator` now rejects tokens whose profile is missing or not active
+    (`token_profile_missing` / `profile_inactive`);
+  - snapshot rollback, change transitions, approval creation/decision and approved execution enforce
+    server-side profile ownership (`profile_mismatch` / `belongs to another profile`);
+  - added `tests/Integration/MultiSiteIsolationE2ETest.php` covering the Token/Job/Audit/Schema/
+    Fingerprint/Snapshot/Change/Approval cross-profile matrix and IDOR attempts (9 tests).
 
 ## Iteration 20
 

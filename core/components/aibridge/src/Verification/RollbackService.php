@@ -15,6 +15,7 @@ final class RollbackService {
   $resourceId=(int)$snapshot->get('resource_id');$data=json_decode((string)$snapshot->get('data_json'),true);if(!is_array($data))throw new \RuntimeException('Snapshot data is invalid.');
   $config=ConfigFactory::fromModx($this->modx);$pipeline=new SecurityDecisionPipeline($config,new Authorization(),new IpAllowlist(),new PolicyService($config),$this->modx);
   $decision=$pipeline->decide($request+['request_id'=>$request['request_id']??bin2hex(random_bytes(8))],$principal,'resource.rollback');if(!$decision->allowed())return ['success'=>false,'code'=>$decision->code(),'message'=>'Rollback denied by security policy.'];
+  $principalProfile=(int)($principal['profile_id']??0);if($principalProfile>0&&(int)$snapshot->get('profile_id')!==$principalProfile)return ['success'=>false,'code'=>'profile_mismatch','message'=>'Snapshot belongs to another profile.'];
   $resource=$this->modx->getObject(\MODX\Revolution\modResource::class,['id'=>$resourceId]);if(!$resource)throw new \RuntimeException('Target resource not found; automatic recreation from snapshot is disabled.');
   $allowed=['pagetitle','longtitle','description','introtext','content','alias','parent','template','menuindex','published','hidemenu','class_key','context_key'];$payload=[];foreach($allowed as $k)if(array_key_exists($k,$data))$payload[$k]=$data[$k];
   $connection=$this->modx->getConnection();$pdo=is_object($connection)?($connection->pdo??null):null;if(!$pdo instanceof \PDO)throw new \RuntimeException('MODX database connection unavailable.');

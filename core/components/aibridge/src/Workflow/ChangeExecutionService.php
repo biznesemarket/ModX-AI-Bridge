@@ -10,6 +10,7 @@ final class ChangeExecutionService {
  public function dispatchApproved(int $changeId,array $principal):array {
   $service=new ChangeRequestService($this->modx); $change=$service->get($changeId); if(!$change) throw new \RuntimeException('Change request not found.');
   if((string)$change['status']!==ChangeState::APPROVED) throw new \RuntimeException('Only approved changes may execute.');
+  $profile=(int)($principal['profile_id']??0); if($profile>0&&(int)$change['profile_id']!==$profile) throw new \RuntimeException('Change request belongs to another profile.');
   $payload=json_decode((string)$change['input_json'],true); if(!is_array($payload)) throw new \RuntimeException('Change payload is invalid.');
   $requestId=(string)$change['request_id']; $idem='change-'.$changeId.'-'.substr(hash('sha256',(string)$changeId),0,32);
   $job=new Job('resource_execution',['operation'=>$change['operation'],'input'=>$payload,'principal'=>$principal,'request'=>['request_id'=>$requestId,'idempotency_key'=>$idem,'channel'=>'manager','ip'=>'manager','approval_id'=>(int)$change['approval_id'],'change_id'=>$changeId]],3,300,$idem,(string)($principal['id']??''),$requestId,null,(int)$change['profile_id']);

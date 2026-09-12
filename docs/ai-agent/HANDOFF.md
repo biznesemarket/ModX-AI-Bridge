@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–31 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–32 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -58,7 +58,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 31–39)
+## 3. Что осталось (Iterations 32–39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
@@ -70,8 +70,10 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
    `approve→execute→verify→audit` (completed терминален); approval decision lifecycle; publish без
    approval отклоняется даже для manager. Полная матрица `ChangeState` — unit. Evidence:
    `docs/testing/iteration-31-approval-workflow.md`.
-3. **32 Multi-site матрица:** Token/Job/Audit/Schema/Fingerprint/Snapshot/Approval между профилями
-   (jobs уже проверены).
+3. **32 ✅ Multi-site изоляция:** `TokenAuthenticator` требует активный профиль токена; snapshot-rollback,
+   change-переходы, approval create/decide и approved-execute проверяют profile ownership на сервере;
+   матрица Token/Job/Audit/Schema/Fingerprint/Snapshot/Change/Approval + IDOR. Evidence:
+   `docs/testing/iteration-32-multi-site-isolation.md`.
 4. **33 Security regression на runtime** (auth bypass, escalation, replay, oversized body, malformed JSON).
 5. **34 Observability:** request-id propagation, readiness, redaction в логах.
 6. **35 SDK:** PHP + TypeScript (при отсутствии Node — TS-часть BLOCKED, не PASS).
@@ -125,7 +127,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 32** (multi-site изоляция: матрица Token/Job/Audit/Schema/Fingerprint/Snapshot/Approval
-между двумя профилями, IDOR-проверки; `TokenManager::issue` уже принимает `profile_id`), затем
-**Iteration 33** (security regression на runtime). Работать по плану v2; каждый шаг закрывать отчётом
-по формату `AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED).
+Начать с **Iteration 33** (security regression на runtime: auth bypass, scope escalation, replay,
+oversized body, malformed JSON, rate limit, fail-closed delete/publish), затем **Iteration 34**
+(observability/readiness/redaction). Работать по плану v2; каждый шаг закрывать отчётом по формату
+`AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED).

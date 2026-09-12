@@ -23,6 +23,10 @@ final class TokenAuthenticator
         if ((string)$token->get('status') !== 'active') return ['authenticated' => false, 'reason' => 'token_inactive'];
         $expires = $token->get('expires_at');
         if ($expires && strtotime((string)$expires) <= time()) return ['authenticated' => false, 'reason' => 'token_expired'];
+        $profileId = (int) $token->get('profile_id');
+        if ($profileId < 1) return ['authenticated' => false, 'reason' => 'token_profile_missing'];
+        $profile = $this->modx->getObject(\AIBridge\Model\Profile::class, ['id' => $profileId, 'status' => 'active']);
+        if (!$profile) return ['authenticated' => false, 'reason' => 'profile_inactive'];
         $scopes = json_decode((string)$token->get('scopes_json'), true);
         if (!is_array($scopes)) $scopes = [];
         $token->set('last_used_at', date('Y-m-d H:i:s'));
