@@ -33,3 +33,11 @@ stop workers/API mutations
 ```
 
 A backup is not considered operationally verified until a restore test has succeeded in an isolated environment.
+
+The repository ships `scripts/recovery-drill.sh`, which performs this sequence against the disposable
+Docker stack (baseline migrate → checksummed `mysqldump` backup → additive schema upgrade → smoke →
+restore → verify schema, data and migration ledger). Run it inside the `modx` container:
+
+```bash
+MODX_ROOT=/var/www/html bash scripts/recovery-drill.sh
+```

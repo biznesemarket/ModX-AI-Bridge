@@ -13,7 +13,7 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer verify-generated-model`
 - `composer test -- --testsuite unit,contract,security` — 58 tests, 188 assertions
 - `composer test -- --testsuite sdk` — 10 tests, 49 assertions
-- Full PHPUnit incl. integration against real MODX — 123 tests, 1840 assertions
+- Full PHPUnit incl. integration against real MODX — 123 tests, 1984 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner
@@ -37,14 +37,15 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
   `GET /ready` and free-text log redaction
 - PHP SDK certification (`sdk/php/tests`, `--testsuite sdk`) — idempotency/auth/job contracts and
   OpenAPI alignment (every SDK path documented, mutation `202` + `Idempotency-Key`)
+- Upgrade/recovery drill (`scripts/recovery-drill.sh`, wired into `scripts/test-modx.sh`) — baseline
+  migrate, checksummed database backup, additive schema upgrade, smoke, restore and baseline verification
 
 ## Required runtime gates not yet certified
 
 1. TypeScript SDK certification — BLOCKED: `node`/`npm` are unavailable, so the `tsc` build and runtime
    client tests were not executed (not a PASS).
-2. Package upgrade and rollback drill.
-3. Performance and limits certification.
-4. Release Candidate artifact checksum and Stable certification tag.
+2. Performance and limits certification.
+3. Release Candidate artifact checksum and Stable certification tag.
 
 Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
 Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the

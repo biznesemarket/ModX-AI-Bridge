@@ -65,4 +65,8 @@ echo "== 11. HTTP security regression =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'MODX_ROOT=/var/www/html php /workspace/modx-ai-bridge/scripts/security-regression-http.php'
 
+echo "== 12. Upgrade/recovery drill =="
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html bash scripts/recovery-drill.sh'
+
 echo "== MODX INTEGRATION: PASS =="

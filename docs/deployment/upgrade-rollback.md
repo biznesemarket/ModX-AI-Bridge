@@ -35,3 +35,11 @@ Each release should record:
 - migration level;
 - deployment timestamp;
 - operator/change reference.
+
+## Executable drill
+
+`scripts/recovery-drill.sh` (run inside the MODX container) exercises this runbook end to end on the
+disposable Docker stack: it applies baseline migrations, records a checksummed database backup, simulates an
+additive schema upgrade, runs the runtime smoke test, restores the backup and verifies that the schema,
+data and migration ledger returned to the baseline. A backup is not considered verified until this restore
+test passes.

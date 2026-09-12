@@ -70,6 +70,11 @@
     contract tests and added an OpenAPI alignment test;
   - added `scripts/sdk-typescript-check.sh`; the TypeScript SDK remains **BLOCKED** because `node`/`npm`
     are not available (not certified as PASS).
+- Iteration 36 — upgrade/recovery drill:
+  - added `scripts/recovery-drill.sh` (baseline migrate, checksummed `mysqldump` backup, additive schema
+    upgrade, runtime smoke, restore and verification of schema/data/migration ledger), wired into
+    `scripts/test-modx.sh`;
+  - documented the executable drill in the upgrade/rollback and backup/restore runbooks.
 
 ## Iteration 20
 
