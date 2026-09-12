@@ -57,6 +57,12 @@
     escape, rate limit 429 + `Retry-After`, idempotency conflict/replay, secret/audit leakage);
   - added `scripts/security-regression-http.php` (malformed JSON 400, oversized body 413, transport auth)
     wired into `scripts/test-modx.sh`.
+- Iteration 34 — observability and readiness:
+  - `RestApi` propagates a bounded inbound `X-Request-Id` (or generates one) and echoes it on every
+    response, and exposes a public `GET /ready` readiness endpoint (200/503);
+  - `Worker` audit events include `request_id`; the worker CLI redacts secrets in error/requeue output via
+    `SecretRedactor::redactText()`;
+  - `scripts/readiness.php` reports service-container/namespace checks and the component version.
 
 ## Iteration 20
 

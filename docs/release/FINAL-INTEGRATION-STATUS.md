@@ -11,8 +11,8 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer lint` (PHP syntax, all sources and tests)
 - `composer verify-static-contract`
 - `composer verify-generated-model`
-- `composer test -- --testsuite unit,contract,security` — 57 tests, 181 assertions
-- Full PHPUnit incl. integration against real MODX — 108 tests, 1464 assertions
+- `composer test -- --testsuite unit,contract,security` — 58 tests, 188 assertions
+- Full PHPUnit incl. integration against real MODX — 113 tests, 1645 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner
@@ -31,14 +31,16 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - Security regression runtime (`tests/Integration/SecurityRegressionRuntimeTest.php` +
   `scripts/security-regression-http.php`) — auth bypass, scope escalation, profile escape, rate limit,
   idempotency replay/conflict, secret leakage, malformed JSON 400 and oversized body 413
+- Observability/readiness (`tests/Integration/ObservabilityRuntimeTest.php` + `SecretRedactorTest`) —
+  inbound request-id propagation/echo, structured error envelopes, worker audit `request_id`, public
+  `GET /ready` and free-text log redaction
 
 ## Required runtime gates not yet certified
 
-1. Observability/readiness/redaction runtime pass.
-2. SDK contract certification (PHP + TypeScript).
-3. Package upgrade and rollback drill.
-4. Performance and limits certification.
-5. Release Candidate artifact checksum and Stable certification tag.
+1. SDK contract certification (PHP + TypeScript).
+2. Package upgrade and rollback drill.
+3. Performance and limits certification.
+4. Release Candidate artifact checksum and Stable certification tag.
 
 Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
 Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the

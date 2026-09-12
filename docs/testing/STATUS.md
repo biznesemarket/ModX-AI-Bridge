@@ -1,4 +1,4 @@
-# Testing Status — Iterations 21–33
+# Testing Status — Iterations 21–34
 
 **Status: Runtime certification in progress (target `0.1.0-rc1`)**
 
@@ -9,11 +9,11 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - `composer lint` — PASS
 - `composer verify-static-contract` — PASS
 - `composer verify-generated-model` — PASS
-- `phpunit --testsuite unit,contract,security` — PASS (57 tests, 181 assertions)
-- `phpunit` with `MODX_ROOT` — PASS (108 tests, 1464 assertions, integration included)
+- `phpunit --testsuite unit,contract,security` — PASS (58 tests, 188 assertions)
+- `phpunit` with `MODX_ROOT` — PASS (113 tests, 1645 assertions, integration included)
 - `scripts/verify-modx-runtime.php` — PASS
 - `scripts/test-queue-concurrency.php` — PASS (forked race: exactly one winner)
-- REST transport smoke over Apache — health 200, unauthenticated capabilities 401
+- REST transport smoke over Apache — health 200, unauthenticated capabilities 401, ready 200
 - Migration runner — idempotent (`skipped ... already applied` on rerun)
 - Worker CLI `--once` — PASS
 - Mutation E2E + verification/rollback — PASS (`tests/Integration/ResourceMutationE2ETest.php`, 6 tests).
@@ -23,10 +23,11 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Multi-site isolation E2E — PASS (`tests/Integration/MultiSiteIsolationE2ETest.php`, 9 tests). Evidence:
   `docs/testing/iteration-32-multi-site-isolation.md`
 - Security regression runtime — PASS (`tests/Integration/SecurityRegressionRuntimeTest.php`, 6 tests +
-  `scripts/security-regression-http.php`: auth bypass, scope escalation, profile escape, rate limit,
-  idempotency replay/conflict, secret leakage, malformed JSON 400, oversized body 413). Evidence:
-  `docs/testing/iteration-33-security-regression.md`
+  `scripts/security-regression-http.php`). Evidence: `docs/testing/iteration-33-security-regression.md`
+- Observability/readiness — PASS (`tests/Integration/ObservabilityRuntimeTest.php` + `SecretRedactorTest`):
+  request-id propagation, structured errors, worker audit correlation, `/ready`, log redaction. Evidence:
+  `docs/testing/iteration-34-observability.md`
 
-Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): observability/redaction
-pass, SDK certification, upgrade/rollback drill, performance and limits, Release Candidate artifact and
-Stable tag. A missing runtime is a failure of certification, not a pass.
+Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): SDK certification,
+upgrade/rollback drill, performance and limits, Release Candidate artifact and Stable tag. A missing runtime
+is a failure of certification, not a pass.

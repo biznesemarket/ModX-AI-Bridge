@@ -49,6 +49,7 @@ $queue = new AIBridge\Queue\QueueManager($modx);
 $registry = new AIBridge\Queue\JobRegistry();
 $registry->register('resource_execution', new AIBridge\Queue\ResourceExecutionJobHandler($modx));
 $worker = new AIBridge\Queue\Worker($queue, $registry, new AIBridge\Audit\AuditService($modx));
+$redactor = new AIBridge\Security\SecretRedactor();
 
 $workerId = 'worker-' . getmypid() . '-' . substr(bin2hex(random_bytes(4)), 0, 8);
 
@@ -70,7 +71,7 @@ while ($running) {
     try {
         $result = $worker->runOnce($workerId);
     } catch (\Throwable $e) {
-        fwrite(STDERR, '[worker] error: ' . $e->getMessage() . "\n");
+        fwrite(STDERR, '[worker] error: ' . $redactor->redactText($e->getMessage()) . "\n");
     }
     $iterations++;
 
@@ -87,7 +88,7 @@ while ($running) {
                 fwrite(STDOUT, "[worker] requeued {$requeued} stale job(s)\n");
             }
         } catch (\Throwable $e) {
-            fwrite(STDERR, '[worker] requeue error: ' . $e->getMessage() . "\n");
+            fwrite(STDERR, '[worker] requeue error: ' . $redactor->redactText($e->getMessage()) . "\n");
         }
         if ($running) {
             sleep($sleep);

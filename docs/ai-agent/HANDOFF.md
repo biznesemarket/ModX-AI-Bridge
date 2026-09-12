@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–33 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–34 завершены)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -58,7 +58,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iterations 33–39)
+## 3. Что осталось (Iterations 35–39)
 
 1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
    verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
@@ -78,7 +78,9 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
    profile escape через body `profile_id`, rate limit 429 + `Retry-After`, idempotency conflict/replay,
    отсутствие утечки секретов в response/audit; front controller → `400 invalid_json`, oversized → `413`.
    Evidence: `docs/testing/iteration-33-security-regression.md`.
-5. **34 Observability:** request-id propagation, readiness, redaction в логах.
+5. **34 ✅ Observability/readiness:** inbound `X-Request-Id` propagation + echo, structured error envelope,
+   worker audit `request_id`, публичный `GET /ready` (200/503), redaction свободного текста в worker-логах,
+   расширенный `scripts/readiness.php`. Evidence: `docs/testing/iteration-34-observability.md`.
 6. **35 SDK:** PHP + TypeScript (при отсутствии Node — TS-часть BLOCKED, не PASS).
 7. **36 Upgrade/recovery drill:** backup → upgrade → migrate → smoke → rollback → restore.
 8. **37 Performance & limits.**
@@ -130,7 +132,6 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-Начать с **Iteration 34** (observability/readiness: request-id propagation, structured errors, readiness,
-worker events, redaction в логах), затем **Iteration 35** (SDK PHP + TS). Работать по плану v2; каждый шаг
-закрывать отчётом по формату `AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED), затем
-коммит + push.
+Начать с **Iteration 35** (SDK PHP + TypeScript; при отсутствии Node TS-часть = BLOCKED, не PASS), затем
+**Iteration 36** (upgrade/recovery drill). Работать по плану v2; каждый шаг закрывать отчётом по формату
+`AGENTS.md` §7 с фактическими результатами гейтов (PASS/FAIL/BLOCKED), затем коммит + push.

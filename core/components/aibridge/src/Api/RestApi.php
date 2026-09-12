@@ -28,6 +28,8 @@ use MODX\Revolution\modX;
  */
 final class RestApi
 {
+    private string $requestId = '';
+
     public function __construct(private readonly modX $modx) {}
 
     /**
@@ -35,16 +37,28 @@ final class RestApi
      */
     public function handle(string $method, string $path, array $headers = [], array $body = [], string $clientIp = '', array $query = []): array
     {
-        $requestId = bin2hex(random_bytes(16));
         $method = strtoupper($method);
         $path = '/' . trim($path, '/');
         $headers = array_change_key_case($headers, CASE_LOWER);
+        $incoming = trim((string) ($headers['x-request-id'] ?? ''));
+        $requestId = preg_match('/^[A-Za-z0-9._:-]{1,128}$/', $incoming) === 1 ? $incoming : bin2hex(random_bytes(16));
+        $this->requestId = $requestId;
 
         if ($path === '/health') {
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
                 'version' => '0.1.0',
+                'request_id' => $requestId,
+            ]);
+        }
+
+        if ($path === '/ready') {
+            $readiness = (new \AIBridge\Manager\OperationsConsoleService($this->modx))->readiness();
+            return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
+                'component' => 'modx-ai-bridge',
+                'status' => $readiness['status'],
+                'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
         }
@@ -248,7 +262,7 @@ final class RestApi
 
     private function json(int $status, array $body, array $headers = []): array
     {
-        return ['status' => $status, 'body' => $body, 'headers' => ['Content-Type' => 'application/json; charset=utf-8'] + $headers];
+        return ['status' => $status, 'body' => $body, 'headers' => ['Content-Type' => 'application/json; charset=utf-8', 'X-Request-Id' => $this->requestId] + $headers];
     }
 
     private function error(int $status, string $code, string $message, array $details, string $requestId, array $headers = []): array
