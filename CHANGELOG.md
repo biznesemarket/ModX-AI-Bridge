@@ -27,6 +27,16 @@
   - model generation is deterministic again: stale platform classes are recreated from scratch (xPDO `--update`
     could write unresolved template markers) and `verify-generated-model` now validates class contents;
   - integration gates apply a deterministic test runtime configuration with a system settings cache refresh.
+- Iteration 30 — mutation E2E and rollback certification:
+  - fixed `ResourceRollbackProcessor`: it now enforces the `aibridge_manage` permission and builds a
+    manager principal (`manager_authorized`, `scopes`, `profile_id`) with `channel=manager`, so Manager
+    rollback reaches the security pipeline instead of being denied (Defect #7);
+  - publish expected state now includes `published` and a non-empty `publishedon` marker; `tvs` keys are
+    normalized — `VerificationService` gained `PRESENT` sentinel handling and boolean-scalar normalization
+    for coerced xPDO fields (Defect #25);
+  - added `tests/Integration/ResourceMutationE2ETest.php` covering Manager update/preview/delete/publish
+    through approvals, post-execution verification, controlled mismatch → `NonRetryableJobException`,
+    snapshot rollback of fields/TVs and refusal to recreate a deleted resource.
 
 ## Iteration 20
 

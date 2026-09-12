@@ -23,4 +23,26 @@ final class AuthorizationTest extends TestCase
     {
         $this->assertTrue((new Authorization())->allows(['scopes'=>['*']], 'resource.update'));
     }
+
+    public function testRollbackScopeAllowsRollback(): void
+    {
+        $this->assertTrue((new Authorization())->allows(['scopes'=>[Authorization::SCOPE_ROLLBACK]], 'resource.rollback'));
+    }
+
+    public function testWriteScopeDoesNotAllowRollback(): void
+    {
+        $this->assertFalse((new Authorization())->allows(['scopes'=>[Authorization::SCOPE_WRITE]], 'resource.rollback'));
+    }
+
+    public function testAuthorizedManagerAllowsRollback(): void
+    {
+        $principal = ['type'=>'manager','manager_authorized'=>true,'scopes'=>[]];
+        $this->assertTrue((new Authorization())->allows($principal, 'resource.rollback'));
+    }
+
+    public function testUnauthorizedManagerIsDeniedRollback(): void
+    {
+        $principal = ['type'=>'manager','manager_authorized'=>false,'scopes'=>[]];
+        $this->assertFalse((new Authorization())->allows($principal, 'resource.rollback'));
+    }
 }

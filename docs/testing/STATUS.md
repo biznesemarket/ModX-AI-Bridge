@@ -1,4 +1,4 @@
-# Testing Status — Iterations 21–29
+# Testing Status — Iterations 21–30
 
 **Status: Runtime certification in progress (target `0.1.0-rc1`)**
 
@@ -9,15 +9,19 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - `composer lint` — PASS
 - `composer verify-static-contract` — PASS
 - `composer verify-generated-model` — PASS
-- `phpunit --testsuite unit,contract,security` — PASS (51 tests, 125 assertions)
-- `phpunit` with `MODX_ROOT` — PASS (75 tests, 190 assertions, integration included)
+- `phpunit --testsuite unit,contract,security` — PASS (55 tests, 129 assertions)
+- `phpunit` with `MODX_ROOT` — PASS (85 tests, 235 assertions, integration included)
 - `scripts/verify-modx-runtime.php` — PASS
 - `scripts/test-queue-concurrency.php` — PASS (forked race: exactly one winner)
 - REST transport smoke over Apache — health 200, unauthenticated capabilities 401
 - Migration runner — idempotent (`skipped ... already applied` on rerun)
 - Worker CLI `--once` — PASS
+- Mutation E2E + verification/rollback — PASS (`tests/Integration/ResourceMutationE2ETest.php`,
+  6 tests: update/preview/delete/publish, mismatch → `NonRetryableJobException`, rollback restores
+  fields and TVs, deleted-resource recreation refused). Evidence:
+  `docs/testing/iteration-30-mutation-rollback.md`
 
-Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): update/delete/preview/publish
-E2E through approvals, verification-mismatch rollback drill, full multi-site matrix, security regression
-runtime matrix, observability/redaction pass, SDK certification, upgrade/rollback drill, performance and
-limits, Release Candidate artifact and Stable tag. A missing runtime is a failure of certification, not a pass.
+Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): full approval workflow
+matrix, multi-site matrix, security regression runtime matrix, observability/redaction pass, SDK
+certification, upgrade/rollback drill, performance and limits, Release Candidate artifact and Stable tag.
+A missing runtime is a failure of certification, not a pass.

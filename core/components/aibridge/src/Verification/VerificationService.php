@@ -4,6 +4,7 @@ namespace AIBridge\Verification;
 use AIBridge\Security\SecretRedactor;
 use MODX\Revolution\modX;
 final class VerificationService {
+ public const PRESENT='__aibridge_present__';
  public function __construct(private readonly modX $modx, private readonly SecretRedactor $redactor=new SecretRedactor()) {}
  public function verifyResource(int $resourceId,array $expected): VerificationResult {
   $resource=$this->modx->getObject(\MODX\Revolution\modResource::class,['id'=>$resourceId]);
@@ -16,5 +17,5 @@ final class VerificationService {
  public function verifyChange(array $change): VerificationResult { $id=(int)($change['resource_id']??0);$expected=json_decode((string)($change['after_json']??'{}'),true);if(!is_array($expected))throw new \InvalidArgumentException('Change expected state is invalid.');if($id<1)return new VerificationResult(false,$this->safe($expected),[],[['path'=>'resource_id','type'=>'missing']]);return $this->verifyResource($id,$expected); }
  private function readTvs(\xPDOObject $resource):array{$out=[];$tvs=$resource->getMany('TemplateVars');if(is_array($tvs))foreach($tvs as $tv)if(method_exists($tv,'get'))$out[(string)$tv->get('name')]=$tv->getValue($resource->get('id'));return $out;}
  private function safe(array $v):array{return $this->redactor->redactRecursive($v);}
- private function diff(array $a,array $b,string $path=''):array{$out=[];foreach(array_keys($a) as $k){$p=$path===''?(string)$k:$path.'.'.$k;if(!array_key_exists($k,$b)){$out[]=['path'=>$p,'type'=>'missing','expected'=>$a[$k]];continue;}if(is_array($a[$k])&&is_array($b[$k])){$out=array_merge($out,$this->diff($a[$k],$b[$k],$p));continue;}if($a[$k]!==$b[$k])$out[]=['path'=>$p,'type'=>'mismatch','expected'=>$a[$k],'actual'=>$b[$k]];}return $out;}
+ private function diff(array $a,array $b,string $path=''):array{$out=[];foreach(array_keys($a) as $k){$p=$path===''?(string)$k:$path.'.'.$k;if(!array_key_exists($k,$b)){$out[]=['path'=>$p,'type'=>'missing','expected'=>$a[$k]];continue;}if($a[$k]===self::PRESENT){if($b[$k]===null||$b[$k]===''||$b[$k]===false)$out[]=['path'=>$p,'type'=>'missing','expected'=>'present','actual'=>$b[$k]];continue;}if(is_array($a[$k])&&is_array($b[$k])){$out=array_merge($out,$this->diff($a[$k],$b[$k],$p));continue;}$av=$a[$k];$bv=$b[$k];$equal=$av===$bv;if(!$equal&&(is_bool($av)||is_bool($bv)))$equal=((bool)$av)===((bool)$bv);if(!$equal)$out[]=['path'=>$p,'type'=>'mismatch','expected'=>$av,'actual'=>$bv];}return $out;}
 }

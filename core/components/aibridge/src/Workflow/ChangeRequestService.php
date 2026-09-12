@@ -3,12 +3,14 @@ declare(strict_types=1);
 namespace AIBridge\Workflow;
 use AIBridge\Audit\AuditService;
 use AIBridge\Security\SecretRedactor;
+use AIBridge\Verification\VerificationService;
 use MODX\Revolution\modX;
 final class ChangeRequestService {
  public function __construct(private readonly modX $modx, private readonly SecretRedactor $redactor=new SecretRedactor()) {}
  public function create(string $operation,array $input,array $principal,array $request,array $qa=[]):array {
   $profileId=(int)($principal['profile_id']??$request['profile_id']??0); if($profileId<1) throw new \InvalidArgumentException('profile_id is required for a change request.');
-  $id=isset($input['id'])?(int)$input['id']:null; $diff=(new ChangeDiffService($this->modx,$this->redactor))->build($id,$input); $now=gmdate('Y-m-d H:i:s');
+  if(isset($input['tvs'])&&is_array($input['tvs'])){$normalizedTvs=[];foreach($input['tvs'] as $tvKey=>$tvValue){$normalizedTvs[str_starts_with((string)$tvKey,'tv:')?substr((string)$tvKey,3):(string)$tvKey]=$tvValue;}$input['tvs']=$normalizedTvs;}
+  $id=isset($input['id'])?(int)$input['id']:null; $diff=(new ChangeDiffService($this->modx,$this->redactor))->build($id,$input); if($operation==='resource.publish'){$diff['after']['published']=1;$diff['after']['publishedon']=VerificationService::PRESENT;} $now=gmdate('Y-m-d H:i:s');
   $row=$this->modx->newObject(\AIBridge\Model\ChangeRequest::class);
   $row->fromArray(['profile_id'=>$profileId,'operation'=>$operation,'resource_id'=>$id,'status'=>ChangeState::DRAFT,'input_json'=>json_encode($this->redactor->redactRecursive($input),JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),'before_json'=>json_encode($diff['before'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),'after_json'=>json_encode($diff['after'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),'diff_json'=>json_encode($diff['changes'],JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),'qa_json'=>json_encode($this->redactor->redactRecursive($qa),JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR),'requested_by'=>(string)($principal['id']??''),'request_id'=>(string)($request['request_id']??''),'created_at'=>$now,'updated_at'=>$now]);
   if(!$row->save())throw new \RuntimeException('Change request persistence failed.');
