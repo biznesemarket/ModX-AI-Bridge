@@ -9,7 +9,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
   echo "TYPESCRIPT SDK: BLOCKED (node/npm are not available in this environment)"
-  exit 0
+  echo "A BLOCKED gate prevents Stable certification." >&2
+  exit 3
 fi
 
 cd "${ROOT}/sdk/typescript"

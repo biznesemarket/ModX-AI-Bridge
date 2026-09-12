@@ -1,4 +1,4 @@
-# Handoff — ModX AI Bridge (Iterations 21–38 завершены)
+# Handoff — ModX AI Bridge (Iterations 21–39: RC `0.1.0-rc1`; Stable BLOCKED)
 
 Дата: 2026-09-12
 Состояние: runtime-сертификация в процессе; цель — `Stable` (`0.1.0-rc1`).
@@ -21,7 +21,7 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
 - Локальный стек: `modxaibridge-modx-1` (http://localhost:8080), `modxaibridge-db-1`
   (MySQL 8), MODX 3.2.2-pl установлен с нуля.
 
-## 2. Что сделано (Iterations 21–38)
+## 2. Что сделано (Iterations 21–39)
 
 - **21 Baseline:** сьюты `unit/contract/security/integration` в `phpunit.xml`; переписаны
   тавтологичные тесты; версия сведена к `0.1.0-rc1`; реестр дефектов —
@@ -58,45 +58,25 @@ f589021 CI: run shell gates via bash and mark shell scripts executable
   `verify-generated-model` проверяет содержимое.
 - Устаревший кеш `system_settings` для web-процессов → `cacheManager->refresh()`.
 
-## 3. Что осталось (Iteration 39)
+## 3. Итог: Release Candidate готов, Stable BLOCKED
 
-1. **30 ✅ Mutation E2E + rollback:** Manager update/preview/delete/publish через approval+queue;
-   verification mismatch → FAILED (`NonRetryableJobException`); rollback drill (поля + TV) PASS;
-   автопересоздание удалённых запрещено. Defect #7 закрыт на уровне `Authorization` **и**
-   `ResourceRollbackProcessor` (principal/channel/permission). Defect #25 (publish expected-state) закрыт.
-   Evidence: `docs/testing/iteration-30-mutation-rollback.md`.
-2. **31 ✅ Approval workflow E2E:** `draft→submit→reject` (терминальность, reason, audit);
-   привязка approval↔change (approval нельзя применить к другому change); execute только для `approved`;
-   `approve→execute→verify→audit` (completed терминален); approval decision lifecycle; publish без
-   approval отклоняется даже для manager. Полная матрица `ChangeState` — unit. Evidence:
-   `docs/testing/iteration-31-approval-workflow.md`.
-3. **32 ✅ Multi-site изоляция:** `TokenAuthenticator` требует активный профиль токена; snapshot-rollback,
-   change-переходы, approval create/decide и approved-execute проверяют profile ownership на сервере;
-   матрица Token/Job/Audit/Schema/Fingerprint/Snapshot/Change/Approval + IDOR. Evidence:
-   `docs/testing/iteration-32-multi-site-isolation.md`.
-4. **33 ✅ Security regression на runtime:** auth bypass (scheme/unknown/revoked/expired), scope escalation,
-   profile escape через body `profile_id`, rate limit 429 + `Retry-After`, idempotency conflict/replay,
-   отсутствие утечки секретов в response/audit; front controller → `400 invalid_json`, oversized → `413`.
-   Evidence: `docs/testing/iteration-33-security-regression.md`.
-5. **34 ✅ Observability/readiness:** inbound `X-Request-Id` propagation + echo, structured error envelope,
-   worker audit `request_id`, публичный `GET /ready` (200/503), redaction свободного текста в worker-логах,
-   расширенный `scripts/readiness.php`. Evidence: `docs/testing/iteration-34-observability.md`.
-6. **35 ⚠ SDK:** PHP PASS (10 тестов, OpenAPI выровнен: добавлены `/health`, `/ready`, `/profiles`,
-   `/resources/preview`, `/resources/{id}/publish`, `202` + `Idempotency-Key`); TypeScript **BLOCKED**
-   (`node`/`npm` недоступны, `tsc` не запускался — не PASS). Evidence:
-   `docs/testing/iteration-35-sdk-certification.md`.
-7. **36 ✅ Upgrade/recovery drill:** `scripts/recovery-drill.sh` (baseline migrate → checksummed backup →
-   additive schema upgrade → smoke → restore → verify schema/data/ledger) PASS на реальной БД; встроен в
-   `scripts/test-modx.sh`. Evidence: `docs/testing/iteration-36-upgrade-recovery.md`.
-8. **37 ✅ Performance & limits:** `scripts/performance-limits.php` — 256 KiB resource, 50 TVs, snapshot,
-   queue depth 200, rate limiter 500, audit growth; per-op бюджеты PASS. Evidence:
-   `docs/testing/iteration-37-performance-limits.md`.
-9. **38 ✅ Release Candidate:** `scripts/release-candidate.php` собрал `aibridge-0.1.0-rc1.transport.zip`,
-   проверил содержимое архива и записал SHA-256 + metadata; запись в `docs/release/0.1.0-rc1.md`. Evidence:
-   `docs/testing/iteration-38-release-candidate.md`.
-10. **39 Stable certification:** `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh`.
-    Важно: TypeScript BLOCKED ⇒ **Stable объявлять нельзя**; статус должен остаться NOT STABLE/BLOCKED,
-    тег `v0.1.0` не создавать.
+Выполнено (Iterations 30–38): **30** mutation E2E + rollback (Defect #7/#25 закрыты); **31** approval
+workflow E2E (`draft→submit→reject`, approval↔change, execute-only-approved, terminal states); **32**
+multi-site изоляция (активный профиль токена, snapshot/workflow profile ownership, IDOR-матрица); **33**
+security regression (auth bypass, scope escalation, profile escape, rate limit, replay, secret leakage,
+malformed JSON 400, oversized 413); **34** observability/readiness (`X-Request-Id`, `/ready`, worker audit
+`request_id`, лог-redaction); **35** PHP SDK + OpenAPI-выравнивание (TypeScript — см. ниже); **36**
+upgrade/recovery drill; **37** performance & limits; **38** Release Candidate `0.1.0-rc1`. Детали — в
+`docs/testing/iteration-30..38-*.md`.
+
+Осталось до Stable (оба обязательны):
+1. TypeScript SDK — **BLOCKED**: нет `node`/`npm`; после установки тулчейна
+   `bash scripts/sdk-typescript-check.sh` должен напечатать `TYPESCRIPT SDK: PASS`.
+2. Однокомандный `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` на host/CI с Docker
+   (внутри контейнера `composer test-modx` не запускается — нет Docker CLI).
+
+Тег `v0.1.0` **не создан**; статус — NOT STABLE. Evidence: `docs/release/stable-status.md`,
+`docs/testing/iteration-39-stable-certification.md`.
 
 Полный план: `C:\Users\potap\.local\share\kilo\plans\1789231022815-iteration-implementation-plan.md` (v2).
 Статусы и evidence: `docs/release/FINAL-INTEGRATION-STATUS.md`, `docs/testing/STATUS.md`,
@@ -143,8 +123,8 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 5. Следующий шаг
 
-**Iteration 39 (финал):** попытаться выполнить Stable-сертификацию (`AIBRIDGE_RUNTIME=1 bash
-scripts/certification/stable-gate.sh`). Ожидаемый результат — **NOT STABLE**, потому что гейт TypeScript
-SDK BLOCKED (нет `node`/`npm`). В отчёте зафиксировать пройденные гейты, BLOCKED-гейт и то, что тег
-`v0.1.0` не создаётся. Если Node-тулчейн будет предоставлен — прогнать
-`bash scripts/sdk-typescript-check.sh`, затем повторить stable-gate. После отчёта — коммит + push.
+Для достижения Stable: (1) установить Node.js/npm и прогнать `bash scripts/sdk-typescript-check.sh`
+(ожидается `TYPESCRIPT SDK: PASS`); (2) выполнить
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` на host/CI с Docker, PHP и Composer и
+убедиться, что все гейты проходят в одном запуске; (3) только после этого создать тег `v0.1.0`.
+До выполнения (1)–(2) статус остаётся NOT STABLE, тег не создавать.

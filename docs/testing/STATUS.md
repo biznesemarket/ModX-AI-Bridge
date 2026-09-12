@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–38
+# Testing Status — Iterations 21–39
 
-**Status: Release Candidate `0.1.0-rc1` built; NOT Stable (TypeScript SDK BLOCKED — no Node)**
+**Status: NOT STABLE — Release Candidate `0.1.0-rc1`; TypeScript SDK gate BLOCKED; no `v0.1.0` tag**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), executed inside containers
 because the Windows host has no PHP/Composer/POSIX shell:
@@ -31,6 +31,10 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Release Candidate `0.1.0-rc1` — BUILT and content-verified; SHA-256 and metadata recorded
   (`docs/release/0.1.0-rc1.md`, `scripts/release-candidate.php`). Evidence:
   `docs/testing/iteration-38-release-candidate.md`
+- Stable certification attempt — **NOT STABLE**: `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh`
+  exits 3 at the TypeScript SDK gate (`node`/`npm` unavailable); no `v0.1.0` tag created. Evidence:
+  `docs/testing/iteration-39-stable-certification.md`, `docs/release/stable-status.md`
 
-Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): TypeScript SDK toolchain
-(BLOCKED) and the Stable certification tag. A missing runtime is a failure of certification, not a pass.
+Remaining gates before `Stable`: TypeScript SDK toolchain (BLOCKED), and a single-command run of
+`stable-gate.sh` on a host/CI runner with Docker (the in-container run cannot execute `composer test-modx`).
+A missing runtime is a failure of certification, not a pass.

@@ -1,6 +1,7 @@
 # Final Integration & Stabilization — Status
 
-Status: **RUNTIME CERTIFICATION IN PROGRESS**
+Status: **NOT STABLE** — Release Candidate `0.1.0-rc1` is built; Stable certification is blocked by the
+TypeScript SDK gate (`node`/`npm` unavailable). No `v0.1.0` tag has been created.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
 `docker-compose.yml`. Evidence: `docs/testing/iteration-21-26-runtime-certification.md`.
@@ -13,7 +14,7 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
 - `composer verify-generated-model`
 - `composer test -- --testsuite unit,contract,security` — 58 tests, 188 assertions
 - `composer test -- --testsuite sdk` — 10 tests, 49 assertions
-- Full PHPUnit incl. integration against real MODX — 123 tests, 1984 assertions
+- Full PHPUnit incl. integration against real MODX — 123 tests, ~2128 assertions
 - Runtime verification (`scripts/verify-modx-runtime.php`) — namespace, xPDO model, service container,
   Manager menu, processor
 - Queue concurrency harness with forked race — exactly one winner

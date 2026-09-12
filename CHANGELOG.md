@@ -84,6 +84,12 @@
     migration-level metadata, `dist/<package>.release.json` + `.sha256`); wired into `scripts/test-modx.sh`;
   - recorded the `0.1.0-rc1` release in `docs/release/0.1.0-rc1.md`. `Stable` is withheld because the
     TypeScript SDK gate is BLOCKED.
+- Iteration 39 — Stable certification attempt:
+  - `scripts/sdk-typescript-check.sh` now exits non-zero when the Node toolchain is missing, so a BLOCKED
+    TypeScript gate blocks certification; `stable-gate.sh` and `quality-gate.sh` run the `sdk` testsuite
+    and the TypeScript gate;
+  - result: **NOT STABLE** — the gate fails closed at the TypeScript SDK gate (`node`/`npm` unavailable);
+    no `v0.1.0` tag was created (`docs/release/stable-status.md`).
 
 ## Iteration 20
 

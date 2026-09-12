@@ -11,6 +11,7 @@ composer lint
 composer verify-static-contract
 composer test -- --testsuite unit,contract,security
 composer test -- --testsuite sdk
+./scripts/sdk-typescript-check.sh
 
 if [[ "$AIBRIDGE_RUNTIME" != "1" ]]; then
   echo "STABLE certification requires AIBRIDGE_RUNTIME=1" >&2
