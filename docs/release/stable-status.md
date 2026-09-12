@@ -21,7 +21,8 @@ STABLE certification gates passed.
 
 - Stable Transport Package: `aibridge-0.1.0.transport.zip` (built by `scripts/release-candidate.php`).
 - The build first passed on commit `642c681` (TypeScript gate cleared, run `34715583238`) and again on the
-  finalized `0.1.0` package at commit `160a659` (run `34716441523`).
+  finalized `0.1.0` package at commit `160a659` (run `34716441523`); the tagged commit `7dc27d0` was
+  re-certified by the tag-push run `34717494266`.
 - Transport archives are not byte-reproducible (embedded file timestamps); each build records its own
   SHA-256 in `dist/<package>.release.json` and `<package>.sha256`. See `docs/release/0.1.0.md`.
 
