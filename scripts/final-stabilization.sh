@@ -16,6 +16,6 @@ find "${ROOT}/core" "${ROOT}/tests" -name '*.php' -print0 | xargs -0 -n1 php -l 
 find "${ROOT}" -name '*.sh' -print0 | xargs -0 -n1 bash -n
 
 KEEP_MODX_STACK=1 bash "${ROOT}/scripts/test-modx.sh"
-php "${ROOT}/scripts/release-package.sh"
+bash "${ROOT}/scripts/release-package.sh"
 
 echo "FINAL STABILIZATION: runtime gates completed. Review release evidence before tagging Stable."

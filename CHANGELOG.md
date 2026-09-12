@@ -23,7 +23,10 @@
   - implemented the queue worker CLI and a real queue concurrency harness (atomic claim, stale lease, forked race);
   - Manager resource operations require an explicit active `profile_id`;
   - implemented the REST boundary (`/api/ai/v2/*`) and MCP HTTP endpoint with authentication, rate limiting,
-    idempotency contract, job dispatch and profile isolation, including integration tests and an HTTP smoke test.
+    idempotency contract, job dispatch and profile isolation, including integration tests and an HTTP smoke test;
+  - model generation is deterministic again: stale platform classes are recreated from scratch (xPDO `--update`
+    could write unresolved template markers) and `verify-generated-model` now validates class contents;
+  - integration gates apply a deterministic test runtime configuration with a system settings cache refresh.
 
 ## Iteration 20
 

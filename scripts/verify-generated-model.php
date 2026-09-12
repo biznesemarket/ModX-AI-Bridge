@@ -2,8 +2,20 @@
 
 declare(strict_types=1);
 
+/**
+ * Fail-closed verification of the generated xPDO model.
+ *
+ * Verifies that every schema class has a base class and a platform subclass and
+ * that no file still contains unresolved generator template markers such as
+ * "[+class-header+]".
+ */
+
 $root = dirname(__DIR__);
-$models = [
+$modelDir = $root . '/core/components/aibridge/src/Model';
+$platformDir = $modelDir . '/mysql';
+
+$classes = [
+    'Profile',
     'Token',
     'AuditEvent',
     'Job',
@@ -11,20 +23,38 @@ $models = [
     'Fingerprint',
     'Policy',
     'Snapshot',
+    'IdempotencyKey',
+    'RateLimitBucket',
+    'ChangeRequest',
+    'Approval',
 ];
 
 $failed = [];
 
-foreach ($models as $model) {
-    $path = $root . '/core/components/aibridge/src/Model/' . $model . '.php';
+$assertValid = static function (string $path, array $needles) use (&$failed): void {
     if (!is_file($path)) {
-        $failed[] = $model . '.php';
+        $failed[] = basename($path) . ': missing';
+        return;
     }
+    $contents = (string) file_get_contents($path);
+    if (str_contains($contents, '[+')) {
+        $failed[] = basename($path) . ': contains unresolved template markers';
+        return;
+    }
+    foreach ($needles as $needle) {
+        if (!str_contains($contents, $needle)) {
+            $failed[] = basename($path) . ": missing '{$needle}'";
+            return;
+        }
+    }
+};
+
+foreach ($classes as $class) {
+    $assertValid($modelDir . '/' . $class . '.php', ['<?php', 'class ' . $class]);
+    $assertValid($platformDir . '/' . $class . '.php', ['<?php', 'namespace AIBridge\\Model\\mysql;', 'class ' . $class]);
 }
 
-if (!is_file($root . '/core/components/aibridge/src/Model/metadata.mysql.php')) {
-    $failed[] = 'metadata.mysql.php';
-}
+$assertValid($modelDir . '/metadata.mysql.php', ['<?php', "'namespace' => 'AIBridge\\\\Model'"]);
 
 if ($failed) {
     fwrite(STDERR, "Generated model verification FAILED:" . PHP_EOL);

@@ -265,6 +265,7 @@ final class RestApiTest extends TestCase
         $setting->set('value', $value);
         $setting->save();
         self::$modx->config[$key] = $value;
+        self::$modx->getCacheManager()->refresh(['system_settings' => []]);
     }
 
     private static function template(): int

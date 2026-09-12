@@ -56,6 +56,9 @@ docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
 
 echo "== 10. REST transport smoke =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'MODX_ROOT=/var/www/html php /workspace/modx-ai-bridge/scripts/configure-test-runtime.php'
+
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'set -e; code=$(curl -s -o /tmp/health.json -w "%{http_code}" http://localhost/api/ai/v2/health); test "$code" = "200"; grep -q "\"status\":\"ok\"" /tmp/health.json; code=$(curl -s -o /tmp/caps.json -w "%{http_code}" http://localhost/api/ai/v2/capabilities); test "$code" = "401"'
 
 echo "== MODX INTEGRATION: PASS =="
