@@ -130,8 +130,8 @@ $builder->pack();
 $package = MODX_CORE_PATH
     . 'packages/'
     . $config['name_lower'] . '-'
-    . $config['version'] . '-'
-    . $config['release']
+    . $config['version']
+    . ($config['release'] !== '' ? '-' . $config['release'] : '')
     . '.transport.zip';
 
 fwrite(STDOUT, "Built: {$package}\n");

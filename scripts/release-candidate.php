@@ -23,7 +23,8 @@ if ($exitCode !== 0) {
     exit(1);
 }
 
-$packageName = $config['name_lower'] . '-' . $config['version'] . '-' . $config['release'];
+$packageName = $config['name_lower'] . '-' . $config['version']
+    . ($config['release'] !== '' ? '-' . $config['release'] : '');
 $packagePath = $modxRoot . 'core/packages/' . $packageName . '.transport.zip';
 if (!is_file($packagePath)) {
     fwrite(STDERR, "Built package not found: {$packagePath}\n");
@@ -91,7 +92,7 @@ $metadataPath = $distDir . '/' . $packageName . '.release.json';
 file_put_contents($metadataPath, json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 file_put_contents($packagePath . '.sha256', $metadata['sha256'] . '  ' . basename($packagePath) . "\n");
 
-fwrite(STDOUT, "RELEASE CANDIDATE: {$packageName}\n");
+fwrite(STDOUT, ($config['release'] !== '' ? 'RELEASE CANDIDATE: ' : 'RELEASE: ') . "{$packageName}\n");
 foreach ($metadata as $key => $value) {
     $rendered = is_array($value) ? implode(', ', $value) : (is_bool($value) ? ($value ? 'true' : 'false') : (string) $value);
     fwrite(STDOUT, '  ' . $key . ': ' . $rendered . "\n");
