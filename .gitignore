@@ -8,5 +8,7 @@
 .DS_Store
 .idea/
 .vscode/
+node_modules/
+sdk/typescript/dist/
 /add_iter19.py
 /patch_iter19.py

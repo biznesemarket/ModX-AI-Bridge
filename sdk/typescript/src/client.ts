@@ -1,4 +1,4 @@
-import { ApiError } from './errors';
+import { ApiError } from './errors.js';
 export type Json=Record<string,unknown>;
 export interface ClientOptions { baseUrl:string; token:string; timeoutMs?:number; fetchImpl?:typeof fetch; }
 export class BridgeClient {
@@ -8,11 +8,11 @@ export class BridgeClient {
  siteSchema(params:Record<string,string|number>={}){const q=new URLSearchParams(Object.entries(params).map(([k,v])=>[k,String(v)]));return this.request('GET','/api/ai/v2/site/schema'+(q.toString()?`?${q}`:''));}
  siteFingerprint(){return this.request('GET','/api/ai/v2/site/fingerprint');} contentContract(templateId?:number){return this.request('GET','/api/ai/v2/content/contract'+(templateId===undefined?'':`?template_id=${templateId}`));}
  validateContent(content:Json,contract:Json){return this.request('POST','/api/ai/v2/content/validate',{content,contract});}
- createResource(resource:Json,idempotencyKey=crypto.randomUUID()){return this.request('POST','/api/ai/v2/resources',resource,{'Idempotency-Key':idempotencyKey});}
- updateResource(id:number,resource:Json,idempotencyKey=crypto.randomUUID()){return this.request('PATCH',`/api/ai/v2/resources/${id}`,{...resource,id}, {'Idempotency-Key':idempotencyKey});}
- deleteResource(id:number,idempotencyKey=crypto.randomUUID()){return this.request('DELETE',`/api/ai/v2/resources/${id}`,undefined,{'Idempotency-Key':idempotencyKey});}
+ createResource(resource:Json,idempotencyKey:string=crypto.randomUUID()){return this.request('POST','/api/ai/v2/resources',resource,{'Idempotency-Key':idempotencyKey});}
+ updateResource(id:number,resource:Json,idempotencyKey:string=crypto.randomUUID()){return this.request('PATCH',`/api/ai/v2/resources/${id}`,{...resource,id}, {'Idempotency-Key':idempotencyKey});}
+ deleteResource(id:number,idempotencyKey:string=crypto.randomUUID()){return this.request('DELETE',`/api/ai/v2/resources/${id}`,undefined,{'Idempotency-Key':idempotencyKey});}
  previewResource(resource:Json){return this.request('POST','/api/ai/v2/resources/preview',resource);}
- publishResource(id:number,approvalId:string,idempotencyKey=crypto.randomUUID()){return this.request('POST',`/api/ai/v2/resources/${id}/publish`,{approval_id:approvalId},{'Idempotency-Key':idempotencyKey});}
+ publishResource(id:number,approvalId:string,idempotencyKey:string=crypto.randomUUID()){return this.request('POST',`/api/ai/v2/resources/${id}/publish`,{approval_id:approvalId},{'Idempotency-Key':idempotencyKey});}
  job(id:string){return this.request('GET',`/api/ai/v2/jobs/${id}`);}
  async waitForJob(id:string,timeoutMs=60000,pollMs=1000){const end=Date.now()+timeoutMs;while(Date.now()<end){const j:any=await this.job(id);const s=j.data?.status??j.status;if(['completed','failed','cancelled'].includes(s))return j;await new Promise(r=>setTimeout(r,pollMs));}throw new ApiError('Job polling timeout',408,'job_timeout',{job_id:id});}
 }
