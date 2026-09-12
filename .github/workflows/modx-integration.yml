@@ -24,5 +24,4 @@ jobs:
     needs: static
     steps:
       - uses: actions/checkout@v4
-      - run: chmod +x scripts/test-modx.sh
-      - run: ./scripts/test-modx.sh
+      - run: bash scripts/test-modx.sh

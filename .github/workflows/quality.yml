@@ -31,4 +31,4 @@ jobs:
           extensions: mbstring, dom, xml, pdo, pdo_mysql
           coverage: none
       - run: composer install --no-interaction --prefer-dist
-      - run: AIBRIDGE_RUNTIME=1 ./scripts/quality-gate.sh
+      - run: AIBRIDGE_RUNTIME=1 bash scripts/quality-gate.sh
