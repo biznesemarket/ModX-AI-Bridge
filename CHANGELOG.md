@@ -75,6 +75,10 @@
     upgrade, runtime smoke, restore and verification of schema/data/migration ledger), wired into
     `scripts/test-modx.sh`;
   - documented the executable drill in the upgrade/rollback and backup/restore runbooks.
+- Iteration 37 — performance & limits:
+  - added `scripts/performance-limits.php` measuring large-resource save, 50-TV save, snapshot creation,
+    queue dispatch/claim depth (200), rate-limiter throughput (500) and audit growth (500 write / 100 read)
+    against per-operation budgets; wired into `scripts/test-modx.sh`.
 
 ## Iteration 20
 

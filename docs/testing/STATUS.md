@@ -1,4 +1,4 @@
-# Testing Status — Iterations 21–36
+# Testing Status — Iterations 21–37
 
 **Status: Runtime certification in progress (target `0.1.0-rc1`); TypeScript SDK BLOCKED (no Node)**
 
@@ -11,7 +11,7 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - `composer verify-generated-model` — PASS
 - `phpunit --testsuite unit,contract,security` — PASS (58 tests, 188 assertions)
 - `phpunit --testsuite sdk` — PASS (10 tests, 49 assertions)
-- `phpunit` with `MODX_ROOT` — PASS (123 tests, ~1984 assertions, integration + sdk included)
+- `phpunit` with `MODX_ROOT` — PASS (123 tests, integration + sdk included)
 - `scripts/verify-modx-runtime.php` — PASS
 - `scripts/test-queue-concurrency.php` — PASS (forked race: exactly one winner)
 - REST transport smoke over Apache — health 200, unauthenticated capabilities 401, ready 200
@@ -24,9 +24,11 @@ because the Windows host has no PHP/Composer/POSIX shell:
 - Observability/readiness — PASS. Evidence: `docs/testing/iteration-34-observability.md`
 - SDK certification — PHP PASS; TypeScript **BLOCKED** (no `node`/`npm`). Evidence:
   `docs/testing/iteration-35-sdk-certification.md`
-- Upgrade/recovery drill — PASS (`scripts/recovery-drill.sh`: backup → schema upgrade → smoke → restore →
-  verify schema/data/ledger). Evidence: `docs/testing/iteration-36-upgrade-recovery.md`
+- Upgrade/recovery drill — PASS. Evidence: `docs/testing/iteration-36-upgrade-recovery.md`
+- Performance & limits — PASS (`scripts/performance-limits.php`: 256 KiB resource, 50 TVs, queue depth
+  200, rate limiter, audit growth; per-op budgets). Evidence:
+  `docs/testing/iteration-37-performance-limits.md`
 
 Remaining gates before `Stable` (see `docs/release/FINAL-INTEGRATION-STATUS.md`): TypeScript SDK toolchain
-(BLOCKED), performance and limits, Release Candidate artifact and Stable tag. A missing runtime is a failure
-of certification, not a pass.
+(BLOCKED), Release Candidate artifact and Stable tag. A missing runtime is a failure of certification, not
+a pass.

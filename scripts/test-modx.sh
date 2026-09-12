@@ -69,4 +69,8 @@ echo "== 12. Upgrade/recovery drill =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html bash scripts/recovery-drill.sh'
 
+echo "== 13. Performance & limits =="
+docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/performance-limits.php'
+
 echo "== MODX INTEGRATION: PASS =="

@@ -39,13 +39,14 @@ Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local s
   OpenAPI alignment (every SDK path documented, mutation `202` + `Idempotency-Key`)
 - Upgrade/recovery drill (`scripts/recovery-drill.sh`, wired into `scripts/test-modx.sh`) — baseline
   migrate, checksummed database backup, additive schema upgrade, smoke, restore and baseline verification
+- Performance & limits (`scripts/performance-limits.php`) — 256 KiB resource, 50 TVs, queue depth 200,
+  rate-limiter throughput and audit growth measured against per-op budgets
 
 ## Required runtime gates not yet certified
 
 1. TypeScript SDK certification — BLOCKED: `node`/`npm` are unavailable, so the `tsc` build and runtime
    client tests were not executed (not a PASS).
-2. Performance and limits certification.
-3. Release Candidate artifact checksum and Stable certification tag.
+2. Release Candidate artifact checksum and Stable certification tag.
 
 Note: `scripts/test-modx.sh` and `scripts/certification/stable-gate.sh` wrapper scripts cannot run on the
 Windows host (no POSIX shell/distro); every step they orchestrate was executed individually inside the
