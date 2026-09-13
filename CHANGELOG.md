@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 — 2026-09-13
 
 - Deterministic MODX provisioning: `docker/modx/entrypoint.sh` writes `/var/www/html/.modx-ready` only
   after the file tree is fully materialized, and `scripts/test-modx.sh` waits for that marker instead of

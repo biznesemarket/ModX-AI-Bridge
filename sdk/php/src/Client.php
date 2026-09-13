@@ -20,7 +20,7 @@ final class Client {
 }
 final class McpClient {
  public function __construct(private readonly HttpClient $http) {}
- public function initialize(array $clientInfo=['name'=>'modx-ai-bridge-sdk','version'=>'0.1.1']): array { return $this->call('initialize',['clientInfo'=>$clientInfo]); }
+ public function initialize(array $clientInfo=['name'=>'modx-ai-bridge-sdk','version'=>'0.1.2']): array { return $this->call('initialize',['clientInfo'=>$clientInfo]); }
  public function tools(): array { return $this->call('tools/list'); }
  public function callTool(string $name,array $arguments=[]): array { return $this->call('tools/call',['name'=>$name,'arguments'=>$arguments]); }
  public function resources(): array { return $this->call('resources/list'); }
