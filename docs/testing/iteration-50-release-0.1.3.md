@@ -47,10 +47,25 @@ serving the previous classes until `docker compose restart modx`; CI starts fres
 
 ## Certification
 
-Pending: full `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` on CI. Evidence is appended after
-the run; only then do the docs claim `Stable 0.1.3`.
+`Release` dispatch on `main`, commit `93fa4fd`, run `34751162661`: `verify` PASS (incl.
+`SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS.
+
+```text
+Transport Package installation: PASS (Signature: aibridge-0.1.3)
+MODX runtime verification: PASS
+OK (124 tests, 627 assertions)
+== 10b. TypeScript SDK live HTTP E2E ==     TYPESCRIPT SDK LIVE HTTP: PASS
+PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.3, sha256 0d66d8331b62df8ca1c9ce1b0d33e852771e862f1983d4e21a3728a4f1a93b1b)
+STABLE certification gates passed.
+```
+
+Local build and CI artifact hash identically (`0d66d833…`): with README committed before the gate, the
+pre-release and future tag-run artifacts must match (the `0.1.2` divergence does not repeat). Evidence
+artifact: `release-evidence-93fa4fd8a79a7828f11f17a12499df937e824437` (99582 bytes, 90 days).
 
 ## Notes
 
 - No schema or migration change; no API contract change.
 - `0.1.3` supersedes `0.1.2`; historical `v0.1.0`/`v0.1.1`/`v0.1.2` records stay untouched.
+- README (embedded in the package manifest) is not modified after certification, so the artifact hash is
+  stable across the dispatch and tag runs.

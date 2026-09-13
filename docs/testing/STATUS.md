@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–49
 
-**Status: STABLE — `0.1.2` (`v0.1.2`), superseding `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.1.3` (`v0.1.3`), superseding `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -66,6 +66,11 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   worker (auth, capabilities, profile isolation, schema/fingerprint, contract/validation, create/update via
   the queue, delete/publish denials, MCP), wired into `test-modx.sh` step 10b; found and fixed Defect #35
   (`waitForJob()` envelope mismatch in both SDKs). Evidence: `docs/testing/iteration-49-live-http-e2e.md`
+- Iteration 50 — `0.1.3` patch release: all version identities including README bumped before the gate
+  (hash stable across runs), full gate green on `93fa4fd` (run `34751162661`; `TYPESCRIPT SDK LIVE HTTP: PASS`,
+  `PACKAGE REPRODUCIBILITY: PASS`, sha256 `0d66d833…`, `OK (124 tests, 627 assertions)`,
+  `STABLE certification gates passed.`); tag `v0.1.3`. Evidence:
+  `docs/testing/iteration-50-release-0.1.3.md`, `docs/release/0.1.3.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

@@ -1,8 +1,37 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.1.2` (previous: `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.1.3` (previous: `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.1.2 (current)
+## 0.1.3 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `93fa4fd`, run `34751162661`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (58 tests, 188 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 50 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.1.3.transport.zip`, SHA-256
+  `0d66d8331b62df8ca1c9ce1b0d33e852771e862f1983d4e21a3728a4f1a93b1b` (139631 bytes); local build == CI
+  artifact. README and all version identities were committed before the gate, so the hash is stable across
+  the dispatch and tag runs.
+- Patch release over `0.1.2`: TypeScript SDK live HTTP E2E (step 10b in `test-modx.sh`) and Defect #35
+  (`waitForJob()` envelope fix in both SDKs).
+- The published artifact is built and certified again by the `v0.1.3` tag run.
+- See `docs/release/0.1.3.md`.
+
+## 0.1.2 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `ad92ab5`, run `34748277073`:
