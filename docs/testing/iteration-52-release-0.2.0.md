@@ -51,8 +51,20 @@ Operational notes:
 
 ## Certification
 
-Pending: full `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` on CI. Evidence is appended after
-the run; only then do the docs claim `Stable 0.2.0`.
+`Release` dispatch on `main`, commit `350fc28`, run `34753117255`: `verify` PASS (incl.
+`SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS.
+
+```text
+Transport Package installation: PASS (Signature: aibridge-0.2.0)
+MODX runtime verification: PASS
+OK (129 tests, 650 assertions)
+== 10b. TypeScript SDK live HTTP E2E ==     TYPESCRIPT SDK LIVE HTTP: PASS
+PACKAGE REPRODUCIBILITY: PASS (aibridge-0.2.0, sha256 b8525cda8326f08102025f9e2f2f7c0bbf5ea9baaad52079175f4c1f7f11cc8e)
+STABLE certification gates passed.
+```
+
+Local build and CI artifact hash identically (`b8525cda…`). Evidence artifact:
+`release-evidence-350fc28f872ca75b4169e11c2e4ba6cf97c7876a` (101139 bytes, 90 days).
 
 ## Notes
 

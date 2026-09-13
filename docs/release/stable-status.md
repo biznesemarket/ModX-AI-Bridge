@@ -1,8 +1,36 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.1.3` (previous: `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.2.0` (previous: `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.1.3 (current)
+## 0.2.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `350fc28`, run `34753117255`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (60 tests, 190 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 51 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.2.0.transport.zip`, SHA-256
+  `b8525cda8326f08102025f9e2f2f7c0bbf5ea9baaad52079175f4c1f7f11cc8e` (141585 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.1.3`: resource read-back API (`GET /resources/{id}`, `resource:read`, `resource_read`
+  MCP tool, `getResource()` in both SDKs) and the packaged `aibridge_version` setting (20 settings).
+- Additive only: no schema/migration change, no API contract break.
+- See `docs/release/0.2.0.md`.
+
+## 0.1.3 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `93fa4fd`, run `34751162661`:

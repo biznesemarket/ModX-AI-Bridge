@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–49
 
-**Status: STABLE — `0.1.3` (`v0.1.3`), superseding `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.2.0` (`v0.2.0`), superseding `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -72,9 +72,14 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `STABLE certification gates passed.`); tag `v0.1.3`. Evidence:
   `docs/testing/iteration-50-release-0.1.3.md`, `docs/release/0.1.3.md`
 - Iteration 51 — resource read-back API + `aibridge_version`: `GET /api/ai/v2/resources/{id}` (scope
-  `resource:read`, `resource_not_found` → 404), `getResource()` в PHP/TS SDK, MCP-инструмент `resource_read`,
-  настройка `aibridge_version` (20 настроек), `/health` и `/ready` отдают версию из настройки; live E2E
-  проверяет состояние после update. Evidence: `docs/testing/iteration-51-readback-api.md`
+  `resource:read`, `resource_not_found` -> 404), `getResource()` in the PHP/TS SDKs, the `resource_read` MCP
+  tool, the `aibridge_version` setting (20 settings) reported by `/health` and `/ready`; the live E2E verifies
+  the state after an update. Evidence: `docs/testing/iteration-51-readback-api.md`
+- Iteration 52 — `0.2.0` minor release: all version identities (including README and the SDK `User-Agent`
+  0.1 -> 0.2) committed in the bump commit; gate green on `350fc28` (run `34753117255`;
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `b8525cda…`,
+  `OK (129 tests, 650 assertions)`, `STABLE certification gates passed.`); tag `v0.2.0`. Evidence:
+  `docs/testing/iteration-52-release-0.2.0.md`, `docs/release/0.2.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
