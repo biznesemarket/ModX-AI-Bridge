@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- CI hardening: the `Quality Gates` `deterministic` job now runs the PHP `sdk` suite and the TypeScript SDK
+  gate (`./scripts/sdk-typescript-check.sh`) with a pinned Node.js 24 toolchain, so a broken SDK build fails
+  fast; workflows moved to Node.js 24 action runtimes (`actions/checkout@v7`, `actions/setup-node@v7`,
+  `ramsey/composer-install@v4`); the `Release` certification job uploads `dist/**` (archive, `.sha256`,
+  release metadata) as a `release-evidence-<sha>` workflow artifact.
+
 ## 0.1.0 — Stable (2026-09-12)
 
 - Unblocked TypeScript SDK certification: added the missing `sdk/typescript/package-lock.json`, fixed

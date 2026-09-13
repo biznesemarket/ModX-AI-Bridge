@@ -88,9 +88,16 @@ if (!is_dir($distDir) && !mkdir($distDir, 0775, true) && !is_dir($distDir)) {
     fwrite(STDERR, "Unable to create dist directory.\n");
     exit(5);
 }
+$distPackagePath = $distDir . '/' . basename($packagePath);
+if (!copy($packagePath, $distPackagePath)) {
+    fwrite(STDERR, "Unable to copy the transport package into the dist directory.\n");
+    exit(6);
+}
 $metadataPath = $distDir . '/' . $packageName . '.release.json';
+$shaLine = $metadata['sha256'] . '  ' . basename($packagePath) . "\n";
 file_put_contents($metadataPath, json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
-file_put_contents($packagePath . '.sha256', $metadata['sha256'] . '  ' . basename($packagePath) . "\n");
+file_put_contents($packagePath . '.sha256', $shaLine);
+file_put_contents($distPackagePath . '.sha256', $shaLine);
 
 fwrite(STDOUT, ($config['release'] !== '' ? 'RELEASE CANDIDATE: ' : 'RELEASE: ') . "{$packageName}\n");
 foreach ($metadata as $key => $value) {
@@ -98,3 +105,4 @@ foreach ($metadata as $key => $value) {
     fwrite(STDOUT, '  ' . $key . ': ' . $rendered . "\n");
 }
 fwrite(STDOUT, "  metadata: {$metadataPath}\n");
+fwrite(STDOUT, "  archive: {$distPackagePath}\n");
