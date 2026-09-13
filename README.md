@@ -6,7 +6,7 @@ Iteration 17 added an operational console inside MODX Manager. It provides visib
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Stable `0.5.0`** (tag `v0.5.0`; certified `aibridge-0.5.0.transport.zip`)
+Status: **Stable `0.6.0`** (tag `v0.6.0`; certified `aibridge-0.6.0.transport.zip`)
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
@@ -22,9 +22,9 @@ certified on commit `160a659` (run `34716441523`); `0.1.1` fixed system-settings
 supply-chain pinning; `0.1.3` added the TypeScript SDK live HTTP E2E; `0.2.0` added the resource read-back API,
 `getResource()` in both SDKs, `resource_read` MCP tool and the `aibridge_version` setting; `0.3.0` added
 template variables to the read-back projection (`tvs`); `0.4.0` added the filtered, paginated resource list;
-`0.5.0` is the current Stable minor release and adds the MCP resource template `modx://resource/{id}`
-(`resources/templates/list`). Evidence:
-`docs/release/0.5.0.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
+`0.5.0` added the MCP resource template `modx://resource/{id}`; `0.6.0` is the current Stable minor release and
+adds the `tv_name`/`tv_value` filter to the resource list. Evidence:
+`docs/release/0.6.0.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
 
 ## AI Agent Development
 

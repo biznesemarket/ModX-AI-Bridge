@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-09-13
+
+- Template-variable filter for the resource list: `GET /api/ai/v2/resources` and the `resource_list` MCP tool
+  accept `tv_name` (resources with an explicit value for that TV) and optional `tv_value` (LIKE match).
+  `tv_value` without `tv_name`, or an unknown `tv_name`, returns `400 invalid_filter`; a known TV with no
+  matches returns an empty result. Values are trimmed, length-capped and LIKE-escaped.
+- Additive: two new query parameters on the existing `resource.list` / `resource:read` operation; no new scope,
+  schema, migration or setting. Only explicit per-resource TV overrides are matched (not TV `default_text`).
+- xPDO note: avoid partial `select()` on collection queries (missing PK triggers an unfiltered lazy load and
+  memory exhaustion) — see `docs/testing/iteration-56-list-tv-filter.md`.
+
 ## 0.5.0 — 2026-09-13
 
 - MCP resource template `modx://resource/{id}`: `resources/read` now resolves URI templates (extracting `id`)

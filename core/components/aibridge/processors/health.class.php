@@ -13,7 +13,7 @@ final class HealthProcessor extends Processor
         return $this->success('', [
             'component' => 'modx-ai-bridge',
             'status' => 'ok',
-            'version' => '0.5.0',
+            'version' => '0.6.0',
         ]);
     }
 }

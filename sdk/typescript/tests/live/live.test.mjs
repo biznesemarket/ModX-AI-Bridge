@@ -10,6 +10,7 @@ if (!rawContext) {
 const context = JSON.parse(rawContext);
 
 const client = new BridgeClient({ baseUrl: context.base_url, token: context.token, timeoutMs: 15000 });
+const tvExplicit = 'live-tv-explicit';
 let resourceId = 0;
 let createdAlias = '';
 
@@ -21,7 +22,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.5.0');
+  assert.equal(health.version, '0.6.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -89,6 +90,7 @@ test('resource create flows through the queue and returns a resource id', async 
       alias,
       template: context.template_id,
       content: '<h1>TS live E2E page</h1><p>created by the TypeScript SDK live test</p>',
+      tvs: { [context.tv_name]: tvExplicit },
     },
     'ts-live-create-' + alias,
   );
@@ -124,7 +126,7 @@ test('resource read-back exposes the updated state and template variables', asyn
   assert.equal(response.data.resource.id, resourceId);
   assert.equal(response.data.resource.pagetitle, 'TS live E2E page updated');
   assert.equal(response.data.resource.template, context.template_id);
-  assert.equal(response.data.resource.tvs[context.tv_name], context.tv_value);
+  assert.equal(response.data.resource.tvs[context.tv_name], tvExplicit);
 });
 
 test('resource read-back returns 404 for a missing resource', async () => {
@@ -142,6 +144,16 @@ test('resource list returns the created resource with filters', async () => {
   assert.ok(response.data.total >= 1);
   assert.ok(response.data.resources.some((item) => item.id === resourceId));
   assert.equal(typeof response.data.count, 'number');
+});
+
+test('resource list filters by template variable', async () => {
+  assert.ok(resourceId > 0, 'create test must run first');
+  const response = await client.listResources({ tv_name: context.tv_name, tv_value: tvExplicit, limit: 5 });
+  assert.equal(response.success, true);
+  assert.ok(response.data.resources.some((item) => item.id === resourceId));
+
+  const missing = await client.listResources({ tv_name: context.tv_name, tv_value: 'live-tv-missing-' + Date.now().toString(36) });
+  assert.equal(missing.data.total, 0);
 });
 
 test('delete stays disabled and publish stays approval-gated', async () => {
@@ -162,7 +174,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.5.0');
+  assert.equal(init.result.serverInfo.version, '0.6.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
@@ -176,9 +188,9 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const readBack = await mcp.callTool('resource_read', { id: resourceId });
   const readBackPayload = JSON.parse(readBack.result.content[0].text);
   assert.equal(readBackPayload.data.resource.pagetitle, 'TS live E2E page updated');
-  assert.equal(readBackPayload.data.resource.tvs[context.tv_name], context.tv_value);
+  assert.equal(readBackPayload.data.resource.tvs[context.tv_name], tvExplicit);
 
-  const listBack = await mcp.callTool('resource_list', { q: createdAlias, limit: 5 });
+  const listBack = await mcp.callTool('resource_list', { q: createdAlias, tv_name: context.tv_name, tv_value: tvExplicit, limit: 5 });
   const listPayload = JSON.parse(listBack.result.content[0].text);
   assert.ok(listPayload.data.resources.some((item) => item.id === resourceId));
 
@@ -188,7 +200,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const templateRead = await mcp.readResource('modx://resource/' + resourceId);
   const templatePayload = JSON.parse(templateRead.result.contents[0].text);
   assert.equal(templatePayload.data.resource.pagetitle, 'TS live E2E page updated');
-  assert.equal(templatePayload.data.resource.tvs[context.tv_name], context.tv_value);
+  assert.equal(templatePayload.data.resource.tvs[context.tv_name], tvExplicit);
 
   const missingRead = await mcp.readResource('modx://resource/99999999');
   assert.equal(missingRead.error.code, -32002);

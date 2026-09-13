@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'namespace' => 'aibridge',
-    'version' => '0.5.0',
+    'version' => '0.6.0',
     'api_version' => 'v2',
     'environment' => 'development',
     'rest_enabled' => false,
