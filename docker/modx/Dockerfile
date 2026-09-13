@@ -1,4 +1,4 @@
-FROM php:8.2-apache@sha256:0970c7c14b21003bce8178af2985b491a65b71e800ff5366053de544306ed2a1
+FROM php:8.5-apache@sha256:609de4eac65a03f20975441c9c3f313811d785575f0d02413c630753ab5c5532
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
