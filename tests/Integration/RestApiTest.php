@@ -91,6 +91,9 @@ final class RestApiTest extends TestCase
         self::assertSame(200, $response['status']);
         self::assertTrue((bool) ($response['body']['success'] ?? false));
         self::assertNotEmpty($response['body']['data'] ?? []);
+        $contexts = array_column($response['body']['data']['contexts'] ?? [], 'key');
+        self::assertContains('web', $contexts);
+        self::assertContains('mgr', $contexts);
     }
 
     public function testSiteSchemaAndFingerprint(): void
@@ -251,6 +254,10 @@ final class RestApiTest extends TestCase
         self::assertSame(2, $page['body']['data']['total'] ?? null);
         self::assertSame(1, $page['body']['data']['count'] ?? null);
         self::assertSame(1, $page['body']['data']['limit'] ?? null);
+
+        $byPublished = $this->call('GET', '/resources', query: ['q' => $prefix, 'sort' => 'publishedon', 'dir' => 'desc']);
+        self::assertSame(200, $byPublished['status']);
+        self::assertSame(2, $byPublished['body']['data']['total'] ?? null);
 
         $byTemplate = $this->call('GET', '/resources', query: ['template' => (string) self::$templateId, 'limit' => '1']);
         self::assertSame(200, $byTemplate['status']);

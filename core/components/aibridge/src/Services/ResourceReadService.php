@@ -109,6 +109,8 @@ final class ResourceReadService
             $and['published'] = $published ? 1 : 0;
         }
 
+        $tvId = null;
+        $tvValueNeedle = null;
         $tvNameParam = isset($query['tv_name']) ? trim((string) $query['tv_name']) : '';
         $tvValueParam = isset($query['tv_value']) ? trim((string) $query['tv_value']) : '';
         if ($tvValueParam !== '' && $tvNameParam === '') {
@@ -122,29 +124,13 @@ final class ResourceReadService
             if (!$tv) {
                 return $this->invalidFilter('tv_name', 'Unknown template variable: ' . $tvNameParam . '.');
             }
-            $tvCriteria = ['tmplvarid' => (int) $tv->get('id')];
+            $tvId = (int) $tv->get('id');
             if ($tvValueParam !== '') {
                 if (strlen($tvValueParam) > 191) {
                     return $this->invalidFilter('tv_value');
                 }
-                $tvCriteria['value:LIKE'] = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $tvValueParam) . '%';
+                $tvValueNeedle = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $tvValueParam) . '%';
             }
-            $tvQuery = $this->modx->newQuery(\MODX\Revolution\modTemplateVarResource::class);
-            $tvQuery->where($tvCriteria);
-            $ids = [];
-            foreach ($this->modx->getCollection(\MODX\Revolution\modTemplateVarResource::class, $tvQuery) ?: [] as $row) {
-                $ids[] = (int) $row->get('contentid');
-            }
-            if ($ids === []) {
-                return ['success' => true, 'data' => [
-                    'resources' => [],
-                    'count' => 0,
-                    'total' => 0,
-                    'limit' => $limit,
-                    'offset' => $offset,
-                ]];
-            }
-            $and['id:IN'] = $ids;
         }
 
         $searchNeedle = null;
@@ -178,10 +164,10 @@ final class ResourceReadService
             }
         }
 
-        $total = (int) $this->modx->getCount(\MODX\Revolution\modResource::class, $this->listQuery($and, $searchNeedle));
-        $page = $this->listQuery($and, $searchNeedle);
+        $total = (int) $this->modx->getCount(\MODX\Revolution\modResource::class, $this->listQuery($and, $searchNeedle, $tvId, $tvValueNeedle));
+        $page = $this->listQuery($and, $searchNeedle, $tvId, $tvValueNeedle);
         $page->limit($limit, $offset);
-        $page->sortby($sort, $dir);
+        $page->sortby('modResource.' . $sort, $dir);
         $collection = $this->modx->getCollection(\MODX\Revolution\modResource::class, $page);
 
         $items = [];
@@ -201,11 +187,20 @@ final class ResourceReadService
     /**
      * Build the list filter query. The LIKE search is a single OR group so it is
      * combined with the AND filters (`deleted`, `parent`, ...), unlike the flat
-     * `OR:` criteria keys which would OR the whole clause.
+     * `OR:` criteria keys which would OR the whole clause. A TV filter is applied
+     * as a join on `modTemplateVarResource` (one row per resource/TV), so no ids
+     * are materialized and `count`/`total` stay a single aggregate query.
      */
-    private function listQuery(array $and, ?string $searchNeedle): \xPDO\Om\xPDOQuery
+    private function listQuery(array $and, ?string $searchNeedle, ?int $tvId = null, ?string $tvValueNeedle = null): \xPDO\Om\xPDOQuery
     {
         $query = $this->modx->newQuery(\MODX\Revolution\modResource::class);
+        if ($tvId !== null) {
+            $query->innerJoin(\MODX\Revolution\modTemplateVarResource::class, 'aibridge_tv', 'modResource.id = aibridge_tv.contentid');
+            $query->where(['aibridge_tv.tmplvarid' => $tvId]);
+            if ($tvValueNeedle !== null) {
+                $query->where(['aibridge_tv.value:LIKE' => $tvValueNeedle]);
+            }
+        }
         $query->where($and);
         if ($searchNeedle !== null) {
             $query->where([
