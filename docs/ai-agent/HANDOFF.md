@@ -1,21 +1,22 @@
 # Handoff — ModX AI Bridge (Stable `0.1.2`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.1.2`** (tag `v0.1.2`, GitHub Release опубликован с 3 ассетами). `main` = `5fdb98d`
-(релизная документация; последний code-коммит `ad92ab5`), дерево чистое.
+Состояние: **STABLE `0.1.2`** (tag `v0.1.2`, GitHub Release опубликован с 3 ассетами). `main` = `6d5099e`
+(нерелизная Iteration 49 поверх релизной документации `5fdb98d`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `5fdb98d541f3c70fe671a4edd5dd54fc29334333` (синхронизирован с origin; последний code-коммит
-  `ad92ab5`), дерево чистое.
+- `main` = `6d5099e32f029d430aec03c24a7420cade10694b` (синхронизирован с origin; последний релизный
+  code-коммит `ad92ab5`, релизная документация `5fdb98d`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`). GitHub Releases: `v0.1.2`
   (latest), `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+6d5099e Iteration 49: TypeScript SDK live HTTP E2E
 5fdb98d Iteration 48: Correct 0.1.2 artifact checksum after README packaging
 c8ac594 Iteration 48: Record Stable 0.1.2 certification      (tag v0.1.2)
 ad92ab5 Iteration 48: Cut 0.1.2 patch release
@@ -37,7 +38,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`.
 > Исторические теги/релизы **не переписывать**.
 
-## 2. Что сделано (Iterations 30–48)
+## 2. Что сделано (Iterations 30–49)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -78,6 +79,15 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   - **Грабля:** README встраивается в manifest пакета. В `0.1.2` README обновлён уже после dispatch-гейта
     (в evidence-коммите), поэтому pre-release хеш `b1b985bf…` ≠ релизный `eedd5f64…`. На следующий релиз:
     обновлять **все** version-identity, включая README, в bump-коммите **до** запуска гейта (как в `0.1.1`).
+- **49 — TS live-HTTP E2E.** `scripts/ts-live-runtime.php` (container: test-настройки, профиль `ts-live-e2e`,
+  scoped-токен, template, JSON-контекст), `scripts/ts-live-check.sh` (host: gateway в allowlist, `npm ci` +
+  build, stop-file worker-loop, `node --test tests/live/live.test.mjs`, restore allowlist в trap),
+  11 live-тестов (auth/401, capabilities, profile isolation, schema/fingerprint, contract/validate,
+  create+update через реальную очередь, delete/publish-отказы, MCP). Шаг 10b в `test-modx.sh`; в
+  `modx-integration.yml` добавлен pinned Node 24. Найден и исправлен **Defect #35**: `waitForJob()` в PHP и
+  TS SDK читал только `data.status`/`status`, а реальный ответ `GET /api/ai/v2/jobs/{id}` —
+  `{success, job:{status}}` → таймаут; теперь `job.status`, закреплено runtime-тестами.
+  Evidence: `docs/testing/iteration-49-live-http-e2e.md`.
 
 ## 3. Доказательства
 
@@ -86,8 +96,9 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
-  `iteration-47-supply-chain-pinning.md`, `iteration-48-release-0.1.2.md`.
-- Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1).
+  `iteration-47-supply-chain-pinning.md`, `iteration-48-release-0.1.2.md`,
+  `iteration-49-live-http-e2e.md`.
+- Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
 Сертификационные прогоны (`STABLE certification gates passed.`):
@@ -120,6 +131,12 @@ digest ассета совпадает; локальная сборка == CI-а
 `26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`; `aibridge-0.1.0.transport.zip` sha256
 `859c6599…` (историч.).
 
+Iteration 49 (локально, `6d5099e`): `bash scripts/ts-live-check.sh` — 11/11 PASS (create/update через
+реальную очередь, MCP, security-отказы); `sdk-typescript-check.sh` — 12/12; `unit,contract,security` 58,
+`sdk` 11; allowlist после прогона восстановлен, worker не остаётся. Push-CI на `6d5099e`
+(`Quality Gates` 34749324445, `MODX Integration` 34749324491) на момент записи в очереди из-за GitHub-инцидента
+2026-09-13 09:16 UTC (API degraded: `https://stspg.io/8f3xch4y0v2k`) — прогоны не потеряны, статус перепроверить.
+
 ## 4. Как работать в этой среде
 
 Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. Полный гейт — на CI (`ubuntu-latest`);
@@ -142,6 +159,9 @@ docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=
 
 # TypeScript SDK (build + runtime-тесты) локально
 & "C:\Program Files\Git\bin\bash.exe" -lc 'cd "/e/projects/ModX AI Bridge" && bash scripts/sdk-typescript-check.sh'
+
+# TypeScript SDK live HTTP E2E (нужен поднятый стек и Node на хосте; создаёт профиль/токен/ресурсы)
+& "C:\Program Files\Git\bin\bash.exe" -lc 'cd "/e/projects/ModX AI Bridge" && bash scripts/ts-live-check.sh'
 
 # PHP deterministic внутри контейнера
 docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && composer validate --no-check-publish --strict && composer lint && composer verify-static-contract && composer test -- --testsuite unit,contract,security && composer test -- --testsuite sdk'
@@ -176,8 +196,11 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE.
 - `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
   невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
-- TS-тесты используют fake `fetch` — live-HTTP E2E против поднятого MODX из TS нет (серверная сторона
-  покрыта PHP runtime/integration).
+- TS-тесты используют fake `fetch`; live-HTTP E2E (Iteration 49) закрывает этот пробел, но требует Node на
+  хосте и поднятый стек. `resource.delete` запрещён политикой, поэтому live-прогон оставляет созданный
+  ресурс в persistent-стеке (CI сносит стек через `docker compose down -v`).
+- `scripts/ts-live-runtime.php` печатает токен в stdout — только test/dev, не логировать вывод; harness
+  передаёт его в Node через окружение.
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт.
 - README встроен в manifest пакета — любая правка меняет sha256 артефакта; фиксировать README до гейта
   (см. §4).
@@ -186,17 +209,19 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.1.2` выпущен и опубликован (GitHub Release, 3 ассета); обязательных гейтов нет. `main` =
-релизная документация `0.1.2`; нерелизных коммитов поверх нет.
+Stable `0.1.2` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `6d5099e` содержит нерелизную
+Iteration 49 (TS live E2E + Defect #35). Перед следующим релизом убедиться, что push-CI на `6d5099e` зелёный
+(был в очереди из-за GitHub-инцидента 2026-09-13).
 
 Приоритетные кандидаты:
 
-1. **TS live-HTTP E2E** (опционально): прогон SDK против реального `/api/ai/v2/*` на поднятом MODX.
+1. **Патч `0.1.3`**: зафиксировать Iteration 49 (live E2E, `waitForJob` fix) — bump-коммит со всеми
+   version-identity **включая README**, гейт, tag-run, GitHub Release (см. грабли `0.1.2`).
 2. **Следующий minor `0.2.0`**: определиться с ветвлением (`develop`) и составом; новый CHANGELOG-раздел.
 3. Мелочи: нет MODX-настройки `aibridge_version` (используются кодовые дефолты) — при желании добавить в
    `_build/elements/settings.php`.
 
-Выполнено: supply-chain pinning + `sha_pinning_required` (Iteration 47) и релиз `0.1.2` (Iteration 48).
+Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E (49).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
