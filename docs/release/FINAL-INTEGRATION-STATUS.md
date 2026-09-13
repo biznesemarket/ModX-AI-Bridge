@@ -1,9 +1,9 @@
 # Final Integration & Stabilization — Status
 
-Status: **STABLE** — current release `0.3.0` (tag `v0.3.0`), superseding `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and
-`0.1.0`. Evidence: `docs/release/stable-status.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
-`docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
-`docs/testing/iteration-53-readback-tvs.md`.
+Status: **STABLE** — current release `0.4.0` (tag `v0.4.0`), superseding `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`,
+`0.1.1` and `0.1.0`. Evidence: `docs/release/stable-status.md`, `docs/release/0.4.0.md`,
+`docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`, `docs/release/0.1.2.md`,
+`docs/release/0.1.1.md`, `docs/release/0.1.0.md`, `docs/testing/iteration-54-resource-list.md`.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
 `docker-compose.yml`, plus a GitHub Actions `ubuntu-latest` runner (Docker + PHP + Composer + Node) for the

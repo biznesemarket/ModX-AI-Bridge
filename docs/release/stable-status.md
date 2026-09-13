@@ -1,8 +1,36 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.3.0` (previous: `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.4.0` (previous: `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.3.0 (current)
+## 0.4.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `07f3c72`, run `34758755913`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (62 tests, 192 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.4.0.transport.zip`, SHA-256
+  `778d061a4c013f19c06e04814f5edd42fbab76f993864dd59634bffc417c864e` (143830 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.3.0`: filtered, paginated `GET /resources` list (`resource.list`, summary projection,
+  filters/pagination, `resource_list` MCP tool, `listResources()` in both SDKs, capability entry).
+- Additive only: no new scope, schema/migration change or API contract break.
+- See `docs/release/0.4.0.md`.
+
+## 0.3.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `dc3bd8a`, run `34756679369`:

@@ -41,7 +41,7 @@ The same two patterns exist in older manager code (`ResourceExplorerService::sea
 
 ## Evidence
 
-Local run against the Docker stack (MODX 3.2.2-pl, PHP 8.2.33):
+Local run against the Docker stack (MODX 3.2.2-pl, PHP 8.2.33), version identities at `0.4.0`:
 
 ```text
 composer lint                                        PASS
@@ -49,13 +49,15 @@ composer verify-static-contract                      Static contract: PASS
 composer test -- --testsuite unit,contract,security  OK (62 tests, 192 assertions)
 composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
 bash scripts/sdk-typescript-check.sh                 TYPESCRIPT SDK: PASS (14 runtime tests)
-MODX_ROOT=... vendor/bin/phpunit --testsuite integration   OK (62 tests, 3112 assertions)
+MODX_ROOT=... vendor/bin/phpunit --testsuite integration   OK (62 tests, 3292 assertions)
 bash scripts/ts-live-check.sh                        TYPESCRIPT SDK LIVE HTTP: PASS (14 tests)
 bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
 
 # container: rebuild + install, restart for opcache
-Transport Package installation: PASS (Signature: aibridge-0.3.0, pre-bump)
-PACKAGE REPRODUCIBILITY: PASS (aibridge-0.3.0, 697b4303…, pre-bump)
+Transport Package installation: PASS (Signature: aibridge-0.4.0)
+curl /api/ai/v2/health                               {"status":"ok","version":"0.4.0",...}
+MODX runtime verification: PASS
+PACKAGE REPRODUCIBILITY: PASS (aibridge-0.4.0, sha256 778d061a4c013f19c06e04814f5edd42fbab76f993864dd59634bffc417c864e, 143830 bytes)
 
 # new/changed coverage
 + RestApiTest::testResourceListFiltersAndPagination  (q filter, total/count, limit/offset, summary shape, 400s)
@@ -74,8 +76,14 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.3.0, 697b4303…, pre-bump)
 - The list projection excludes `content` and TVs; it exposes metadata only, and `delete`/`publish` policy is
   untouched.
 
+## Certification
+
+`Release` dispatch on `main`, commit `07f3c72`, run `34758755913`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (135 tests, 700 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `778d061a…` (143830 bytes) matches
+the local build. Evidence artifact: `release-evidence-07f3c729766b2f06f1422e8074d52fcfe95b6eac`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.4.0` (additive minor). Next, per the
-established flow: bump all identity files (including README and the SDK `User-Agent`) -> full CI gate ->
-evidence/tag -> tag-run -> GitHub Release.
+Stable `0.4.0`, certified by run `34758755913`; tag `v0.4.0` and the GitHub Release are recorded in
+`docs/release/0.4.0.md`.
