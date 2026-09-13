@@ -272,6 +272,49 @@ final class RestApiTest extends TestCase
         self::assertSame('insufficient_scope', $response['body']['error']['code'] ?? null);
     }
 
+    public function testResourceListFiltersByTemplateVariable(): void
+    {
+        $tvName = 'rest_list_tv_' . bin2hex(random_bytes(4));
+        self::templateVariable($tvName);
+
+        $alias = 'rest-list-tv-' . bin2hex(random_bytes(5));
+        $response = $this->call('POST', '/resources', [
+            'pagetitle' => 'REST list TV page',
+            'alias' => $alias,
+            'template' => self::$templateId,
+            'content' => '<h1>REST list TV page</h1>',
+        ], ['Idempotency-Key' => $alias]);
+        self::assertSame(202, $response['status']);
+        self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['alias' => $alias]);
+        self::assertNotNull($resource);
+        $id = (int) $resource->get('id');
+        self::assertTrue($resource->setTVValue($tvName, 'tv-filter-value'));
+        self::$modx->getCacheManager()->refresh();
+
+        $byTv = $this->call('GET', '/resources', query: ['tv_name' => $tvName]);
+        self::assertSame(200, $byTv['status']);
+        self::assertSame(1, $byTv['body']['data']['total'] ?? null);
+        self::assertSame($id, $byTv['body']['data']['resources'][0]['id'] ?? null);
+
+        $byTvValue = $this->call('GET', '/resources', query: ['tv_name' => $tvName, 'tv_value' => 'filter-val']);
+        self::assertSame(200, $byTvValue['status']);
+        self::assertSame(1, $byTvValue['body']['data']['total'] ?? null);
+
+        $noMatch = $this->call('GET', '/resources', query: ['tv_name' => $tvName, 'tv_value' => 'no-such-value']);
+        self::assertSame(200, $noMatch['status']);
+        self::assertSame(0, $noMatch['body']['data']['total'] ?? null);
+
+        $orphanValue = $this->call('GET', '/resources', query: ['tv_value' => 'value']);
+        self::assertSame(400, $orphanValue['status']);
+        self::assertSame('invalid_filter', $orphanValue['body']['error']['code'] ?? null);
+
+        $unknownTv = $this->call('GET', '/resources', query: ['tv_name' => 'rest_no_such_tv_' . bin2hex(random_bytes(4))]);
+        self::assertSame(400, $unknownTv['status']);
+        self::assertSame('invalid_filter', $unknownTv['body']['error']['code'] ?? null);
+    }
+
     public function testResourceReadRequiresScopeAndReturnsNotFound(): void
     {
         $missing = $this->call('GET', '/resources/99999999');

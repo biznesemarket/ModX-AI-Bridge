@@ -54,6 +54,7 @@ final class ResourceReadService
      * Filtered, paginated read-back of non-deleted resources.
      *
      * Supported filters: `parent`, `template`, `context_key`, `published`,
+     * `tv_name`/`tv_value` (match an explicit template-variable value),
      * `q`/`search` (pagetitle/alias/description LIKE), `limit` (1..100, default
      * 25), `offset`, `sort` (whitelisted column), `dir` (`asc`/`desc`). Invalid
      * or out-of-range values return `invalid_filter`; unknown keys are ignored.
@@ -106,6 +107,44 @@ final class ResourceReadService
                 return $this->invalidFilter('published');
             }
             $and['published'] = $published ? 1 : 0;
+        }
+
+        $tvNameParam = isset($query['tv_name']) ? trim((string) $query['tv_name']) : '';
+        $tvValueParam = isset($query['tv_value']) ? trim((string) $query['tv_value']) : '';
+        if ($tvValueParam !== '' && $tvNameParam === '') {
+            return $this->invalidFilter('tv_value', 'tv_value requires tv_name.');
+        }
+        if ($tvNameParam !== '') {
+            if (strlen($tvNameParam) > 191) {
+                return $this->invalidFilter('tv_name');
+            }
+            $tv = $this->modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvNameParam]);
+            if (!$tv) {
+                return $this->invalidFilter('tv_name', 'Unknown template variable: ' . $tvNameParam . '.');
+            }
+            $tvCriteria = ['tmplvarid' => (int) $tv->get('id')];
+            if ($tvValueParam !== '') {
+                if (strlen($tvValueParam) > 191) {
+                    return $this->invalidFilter('tv_value');
+                }
+                $tvCriteria['value:LIKE'] = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $tvValueParam) . '%';
+            }
+            $tvQuery = $this->modx->newQuery(\MODX\Revolution\modTemplateVarResource::class);
+            $tvQuery->where($tvCriteria);
+            $ids = [];
+            foreach ($this->modx->getCollection(\MODX\Revolution\modTemplateVarResource::class, $tvQuery) ?: [] as $row) {
+                $ids[] = (int) $row->get('contentid');
+            }
+            if ($ids === []) {
+                return ['success' => true, 'data' => [
+                    'resources' => [],
+                    'count' => 0,
+                    'total' => 0,
+                    'limit' => $limit,
+                    'offset' => $offset,
+                ]];
+            }
+            $and['id:IN'] = $ids;
         }
 
         $searchNeedle = null;
@@ -268,9 +307,9 @@ final class ResourceReadService
         return null;
     }
 
-    private function invalidFilter(string $name): array
+    private function invalidFilter(string $name, ?string $message = null): array
     {
-        return ['success' => false, 'error' => ['code' => 'invalid_filter', 'message' => 'Invalid filter: ' . $name . '.']];
+        return ['success' => false, 'error' => ['code' => 'invalid_filter', 'message' => $message ?? ('Invalid filter: ' . $name . '.')]];
     }
 
     private function notFound(): array

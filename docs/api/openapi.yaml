@@ -39,6 +39,8 @@ paths:
         - {in: query, name: template, required: false, schema: {type: integer, minimum: 1}}
         - {in: query, name: context_key, required: false, schema: {type: string}}
         - {in: query, name: published, required: false, schema: {type: boolean}}
+        - {in: query, name: tv_name, required: false, schema: {type: string}}
+        - {in: query, name: tv_value, required: false, schema: {type: string}}
         - {in: query, name: q, required: false, schema: {type: string}}
         - {in: query, name: limit, required: false, schema: {type: integer, minimum: 1, maximum: 100}}
         - {in: query, name: offset, required: false, schema: {type: integer, minimum: 0}}
