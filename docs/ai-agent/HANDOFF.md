@@ -1,20 +1,24 @@
-# Handoff — ModX AI Bridge (Stable `0.1.1`; main ahead with unreleased hardening)
+# Handoff — ModX AI Bridge (Stable `0.1.2`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.1.1`** (tag `v0.1.1`, GitHub Release опубликован). `main` ушёл вперёд на
-нерелизные улучшения (Iterations 45–47).
+Состояние: **STABLE `0.1.2`** (tag `v0.1.2`, GitHub Release опубликован с 3 ассетами). `main` = `5fdb98d`
+(релизная документация; последний code-коммит `ad92ab5`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `98a592f79f4636562bb105e85a92920e66f5af2e` (синхронизирован с origin; последний code-коммит
-  `93ac2bd`), дерево чистое.
-- Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`). GitHub Releases: `v0.1.1`, `v0.1.0` (оба не prerelease).
+- `main` = `5fdb98d541f3c70fe671a4edd5dd54fc29334333` (синхронизирован с origin; последний code-коммит
+  `ad92ab5`), дерево чистое.
+- Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`). GitHub Releases: `v0.1.2`
+  (latest), `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+5fdb98d Iteration 48: Correct 0.1.2 artifact checksum after README packaging
+c8ac594 Iteration 48: Record Stable 0.1.2 certification      (tag v0.1.2)
+ad92ab5 Iteration 48: Cut 0.1.2 patch release
 98a592f Iteration 47: Update handoff for supply-chain pinning closure
 93ac2bd Iteration 47: Pin container images and CI actions (supply chain)
 8326fda Iteration 46: TypeScript SDK runtime tests
@@ -30,10 +34,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 77bb849 Iteration 40: Unblock TypeScript SDK certification gate
 ```
 
-> `v0.1.1` указывает на `6780a0a`; `main` (`98a592f`) содержит ещё Iterations 45–47 (Unreleased).
+> `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`.
 > Исторические теги/релизы **не переписывать**.
 
-## 2. Что сделано (Iterations 30–47)
+## 2. Что сделано (Iterations 30–48)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -64,15 +68,25 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   комментарием тега. Добавлены `.github/dependabot.yml` (недельные `github-actions`/`docker` PR) и гейт
   `scripts/verify-supply-chain-pins.sh` (вызывается из `scripts/quality-gate.sh`). `sha_pinning_required`
   включён на уровне репозитория. Application-код и transport-архив не менялись (sha256 `0.1.1` актуален).
+- **48 — `0.1.2`.** Патч-релиз 45–47: версия поднята во всех identity (package `_build/config.inc.php`,
+  runtime `/health`/MCP/console/readiness, PHP и TS SDK, `package-lock.json`, `scripts/test-modx.sh`),
+  новый раздел CHANGELOG. Гейт зелёный дважды: dispatch `34748277073` (`ad92ab5`) и tag-run `34748489085`
+  (`c8ac594`). Артефакт `aibridge-0.1.2.transport.zip` sha256
+  `eedd5f643fe97b378f5a4304fb3296b61a88db045d78302887417d88f8cb582d` (139585 bytes), локальная сборка == CI.
+  GitHub Release `v0.1.2` (3 ассета, latest). Evidence: `docs/testing/iteration-48-release-0.1.2.md`,
+  `docs/release/0.1.2.md`.
+  - **Грабля:** README встраивается в manifest пакета. В `0.1.2` README обновлён уже после dispatch-гейта
+    (в evidence-коммите), поэтому pre-release хеш `b1b985bf…` ≠ релизный `eedd5f64…`. На следующий релиз:
+    обновлять **все** version-identity, включая README, в bump-коммите **до** запуска гейта (как в `0.1.1`).
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.1.1.md`, `docs/release/0.1.0.md`, `docs/release/stable-status.md`,
-  `docs/release/FINAL-INTEGRATION-STATUS.md`.
+- Release/status: `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
+  `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
-  `iteration-47-supply-chain-pinning.md`.
+  `iteration-47-supply-chain-pinning.md`, `iteration-48-release-0.1.2.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -85,20 +99,26 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 1f1005b run 34743048978   (reproducible)
 db949b5 run 34743692154   (0.1.1 dispatch)
 6780a0a run 34744125531   (tag v0.1.1)
+98a592f run 34747385780   (Iteration 47 hardening)
+ad92ab5 run 34748277073   (0.1.2 dispatch)
+c8ac594 run 34748489085   (tag v0.1.2)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полный гейт на `98a592f` (`Release`, dispatch, run `34747385780`, 2026-09-13): `verify` PASS
-(`SUPPLY CHAIN PINS: PASS`), `certify` PASS (`STABLE certification gates passed.`,
-`PACKAGE REPRODUCIBILITY: PASS`, sha256 `26ccdee1…`), `package` PASS; артефакт
-`release-evidence-98a592f79f4636562bb105e85a92920e66f5af2e` (99483 bytes, 90 дней).
-Репозиторий: `sha_pinning_required=true` (проверено).
+Полные гейты `Release` 2026-09-13: `98a592f` run `34747385780` (Iteration 47 hardening,
+`SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release sha256 `b1b985bf…`);
+tag `v0.1.2` (`c8ac594`) run `34748489085` (release sha256 `eedd5f64…`, `PACKAGE REPRODUCIBILITY: PASS`,
+`STABLE certification gates passed.`). Evidence-артефакты `release-evidence-{98a592f,ad92ab5,c8ac594}…`
+(90 дней). Репозиторий: `sha_pinning_required=true` (проверено).
 
-Артефакты: `aibridge-0.1.1.transport.zip` sha256 `26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`
-(воспроизводим: локальная сборка == CI-артефакт); `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
+Артефакты: `aibridge-0.1.2.transport.zip` sha256
+`eedd5f643fe97b378f5a4304fb3296b61a88db045d78302887417d88f8cb582d` (139585 bytes; GitHub Release `v0.1.2`,
+digest ассета совпадает; локальная сборка == CI-артефакт). `aibridge-0.1.1.transport.zip` sha256
+`26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`; `aibridge-0.1.0.transport.zip` sha256
+`859c6599…` (историч.).
 
 ## 4. Как работать в этой среде
 
@@ -107,7 +127,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.1.1.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.1.2.transport.zip'
 ```
 
 Полезные команды:
@@ -145,6 +165,9 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - Supply chain: любой `uses:` — только полный 40-символьный commit SHA; образы — только `@sha256:` digest.
   После добавления/обновления action или образа прогонять `bash scripts/verify-supply-chain-pins.sh`.
   `sha_pinning_required=true`, поэтому незакреплённый action ломает запуск workflow (это намеренно).
+- Релиз: `README.md` встраивается в manifest transport-пакета, поэтому его правка меняет sha256 архива.
+  Обновлять README (и все прочие version-identity) в bump-коммите **до** certification-прогона, иначе
+  pre-release и tag-run артефакты разойдутся (случай `0.1.2`).
 - Коммит/пуш — по явной команде; git identity настроена локально (`githubcms`), `composer.lock` в репозитории.
 
 ## 5. Остаточные риски
@@ -156,14 +179,15 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - TS-тесты используют fake `fetch` — live-HTTP E2E против поднятого MODX из TS нет (серверная сторона
   покрыта PHP runtime/integration).
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт.
+- README встроен в manifest пакета — любая правка меняет sha256 артефакта; фиксировать README до гейта
+  (см. §4).
 - Исторические записи не менять: `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*`,
   `docs/testing/iteration-39-stable-certification.md`.
 
 ## 6. Что делать дальше
 
-Stable `0.1.1` выпущен; обязательных гейтов нет. `main` содержит нерелизные 45–47 — при следующем релизе они
-войдут в новый патч/минор (`0.1.2`/`0.2.0`) с новым тегом и прогоном
-`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` (+ обновление release/evidence).
+Stable `0.1.2` выпущен и опубликован (GitHub Release, 3 ассета); обязательных гейтов нет. `main` =
+релизная документация `0.1.2`; нерелизных коммитов поверх нет.
 
 Приоритетные кандидаты:
 
@@ -172,7 +196,7 @@ Stable `0.1.1` выпущен; обязательных гейтов нет. `ma
 3. Мелочи: нет MODX-настройки `aibridge_version` (используются кодовые дефолты) — при желании добавить в
    `_build/elements/settings.php`.
 
-Выполнено: supply-chain pinning (Iteration 47) и включение `sha_pinning_required` — этот пункт закрыт.
+Выполнено: supply-chain pinning + `sha_pinning_required` (Iteration 47) и релиз `0.1.2` (Iteration 48).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
