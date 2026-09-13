@@ -21,6 +21,24 @@ core/packages/aibridge-0.1.0.transport.zip
 A release-candidate build carries an extra suffix (for example `aibridge-0.1.0-rc1.transport.zip`); the
 Stable build has no suffix.
 
+## Reproducible builds
+
+The builder produces a byte-reproducible archive:
+
+- every vehicle gets a deterministic guid derived from its natural key (xPDO otherwise uses
+  `md5(uniqid(rand(), true))`, which changes vehicle paths, signatures and the manifest on every run);
+- the archive is rewritten with sorted entries and a fixed modification time.
+
+Set `SOURCE_DATE_EPOCH` to choose the timestamp; the default is `315532800` (1980-01-01 UTC, the minimum DOS
+timestamp). Verify reproducibility with:
+
+```bash
+MODX_ROOT=/absolute/path/to/modx php scripts/verify-package-reproducibility.php
+```
+
+which builds the package twice and fails unless both archives hash identically. `scripts/test-modx.sh` runs
+this as step 15.
+
 ## Installation
 
 ```bash

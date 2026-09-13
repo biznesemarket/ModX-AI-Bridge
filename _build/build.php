@@ -25,6 +25,76 @@ $modx->initialize('mgr');
 $modx->setLogLevel(modX::LOG_LEVEL_INFO);
 $modx->setLogTarget(XPDO_CLI_MODE ? 'ECHO' : 'HTML');
 
+/**
+ * Deterministic vehicle identifier for reproducible transport packages.
+ *
+ * xPDO derives the vehicle file name from md5(class . '_' . guid) and generates a
+ * random guid with md5(uniqid(rand(), true)) when none is supplied. Passing a
+ * stable guid keeps vehicle paths, signatures and the manifest reproducible.
+ */
+function aibridge_vehicle_guid(string $kind, string $identity): string
+{
+    return md5('modx-ai-bridge/' . $kind . '/' . $identity);
+}
+
+/**
+ * Rewrite a transport zip with sorted entries and a fixed modification time so
+ * identical package contents produce identical bytes.
+ *
+ * xPDO embeds build time in every entry header; SOURCE_DATE_EPOCH (default
+ * 1980-01-01 UTC, the minimum DOS timestamp) is used instead.
+ */
+function aibridge_normalize_transport_zip(string $path, int $epoch): void
+{
+    if (!is_file($path)) {
+        throw new RuntimeException('Transport package not found for normalization: ' . $path);
+    }
+    $archive = new ZipArchive();
+    if ($archive->open($path) !== true) {
+        throw new RuntimeException('Unable to open transport package for normalization: ' . $path);
+    }
+    $entries = [];
+    for ($index = 0; $index < $archive->numFiles; $index++) {
+        $name = (string) $archive->getNameIndex($index);
+        $entries[$name] = (string) $archive->getFromIndex($index);
+    }
+    $archive->close();
+    ksort($entries, SORT_STRING);
+
+    $temporary = $path . '.normalize.tmp';
+    if (is_file($temporary)) {
+        unlink($temporary);
+    }
+    $normalized = new ZipArchive();
+    if ($normalized->open($temporary, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+        throw new RuntimeException('Unable to create a normalized transport package.');
+    }
+    if (!method_exists($normalized, 'setMtimeName')) {
+        throw new RuntimeException('ZipArchive::setMtimeName is required (PHP 8.0+).');
+    }
+    $timezone = date_default_timezone_get();
+    date_default_timezone_set('UTC');
+    try {
+        foreach ($entries as $name => $content) {
+            if (str_ends_with($name, '/')) {
+                $normalized->addEmptyDir($name);
+            } else {
+                $normalized->addFromString($name, $content);
+            }
+            if ($normalized->setMtimeName($name, $epoch) === false) {
+                throw new RuntimeException('Unable to normalize the modification time of ' . $name);
+            }
+        }
+        $normalized->setArchiveComment('');
+        $normalized->close();
+    } finally {
+        date_default_timezone_set($timezone);
+    }
+    if (!rename($temporary, $path)) {
+        throw new RuntimeException('Unable to replace the transport package with its normalized copy.');
+    }
+}
+
 $root = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 $sources = [
     'root' => $root,
@@ -43,9 +113,23 @@ $builder->createPackage(
 $builder->registerNamespace(
     $config['name_lower'],
     false,
-    true,
+    false,
     '{core_path}components/aibridge/'
 );
+
+/*
+ * The namespace vehicle is created here instead of via registerNamespace() so its
+ * guid (and therefore its vehicle path and signature) is deterministic. xPDO
+ * derives the path from md5(class . '_' . guid) and randomizes the guid otherwise.
+ */
+$builder->putVehicle($builder->createVehicle($builder->{'namespace'}, [
+    xPDOTransport::UNIQUE_KEY => 'name',
+    xPDOTransport::PRESERVE_KEYS => true,
+    xPDOTransport::UPDATE_OBJECT => true,
+    xPDOTransport::RESOLVE_FILES => true,
+    xPDOTransport::RESOLVE_PHP => true,
+    'guid' => aibridge_vehicle_guid('namespace', $config['name_lower']),
+]));
 
 /*
  * MODX 3 menu definition.
@@ -70,6 +154,7 @@ foreach ($menus as $text => $data) {
         xPDOTransport::PRESERVE_KEYS => true,
         xPDOTransport::UPDATE_OBJECT => true,
         xPDOTransport::UNIQUE_KEY => ['text', 'parent'],
+        'guid' => aibridge_vehicle_guid('menu', $text . ':' . ($data['parent'] ?? 'components')),
     ]));
 }
 
@@ -87,6 +172,7 @@ foreach ($settings as $setting) {
         xPDOTransport::PRESERVE_KEYS => true,
         xPDOTransport::UPDATE_OBJECT => true,
         xPDOTransport::UNIQUE_KEY => 'key',
+        'guid' => aibridge_vehicle_guid('setting', (string) $setting->get('key')),
     ]);
 
     $builder->putVehicle($vehicle);
@@ -98,6 +184,7 @@ foreach ($settings as $setting) {
  */
 $coreVehicle = $builder->createVehicle($modx->newObject('modSystemSetting'), [
     xPDOTransport::PRESERVE_KEYS => true,
+    'guid' => aibridge_vehicle_guid('core', 'files'),
 ]);
 
 $coreVehicle->resolve('file', [
@@ -133,6 +220,9 @@ $package = MODX_CORE_PATH
     . $config['version']
     . ($config['release'] !== '' ? '-' . $config['release'] : '')
     . '.transport.zip';
+
+$sourceDateEpoch = (int) (getenv('SOURCE_DATE_EPOCH') ?: 315532800);
+aibridge_normalize_transport_zip($package, $sourceDateEpoch);
 
 fwrite(STDOUT, "Built: {$package}\n");
 

@@ -10,5 +10,9 @@ printed `STABLE certification gates passed.` on commit `160a659` (run `347164415
 (tag `v0.1.0`) supersedes the Release Candidate. See `docs/release/0.1.0.md`.
 
 The Transport Package must be rebuilt from the exact Git commit that passed all gates. The resulting archive
-must be hashed and retained with the release metadata (transport archives are not byte-reproducible because
-they embed file timestamps, so every build records its own SHA-256).
+must be hashed and retained with the release metadata.
+
+Starting after `0.1.0`, transport builds are byte-reproducible: the builder assigns deterministic vehicle
+guids and normalizes entry timestamps, so the same sources produce the same SHA-256
+(`scripts/verify-package-reproducibility.php`). The `0.1.0` archive predates this change and is identified by
+its recorded SHA-256.

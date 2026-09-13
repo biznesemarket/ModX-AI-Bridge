@@ -17,7 +17,7 @@ The deterministic job pins Node.js 24 via `actions/setup-node` with npm caching 
 
 ## Runtime
 
-The Docker job provisions MySQL and MODX 3.2.x, installs the Extra, generates xPDO models, then executes integration and E2E suites.
+The Docker job provisions MySQL and MODX 3.2.x, installs the Extra, generates xPDO models, then executes integration and E2E suites. It also builds the transport package twice and asserts a byte-identical SHA-256 (`scripts/verify-package-reproducibility.php`, step 15 of `scripts/test-modx.sh`).
 
 A runtime job must fail when a required runtime dependency is unavailable. It must not downgrade a missing MODX environment to a successful mock test.
 
