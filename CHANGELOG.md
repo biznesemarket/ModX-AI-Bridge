@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.9.1 — 2026-09-13
+
+- Fixed `OperationsConsoleService` list methods: `limit`/`sortby` were passed as `getCollection()`'s cache flag
+  and silently ignored, so the Operations Console overview returned unbounded rows in arbitrary order. All
+  lists now build an `xPDOQuery` with `limit()` (1..500); `jobs`, `audit`, `fingerprints` and `changes` are
+  ordered by `created_at DESC` and `approvals` by `requested_at DESC`.
+- Fixed `ResourceRollbackProcessor`: `RollbackService` exceptions (unknown/invalid snapshot, missing target
+  resource) escaped `Processor::run()` and surfaced as connector errors. The processor now returns a JSON
+  failure (`rollback_failed`); a missing `snapshot_id` reports `invalid_snapshot`.
+- Hardened `ResourceExplorerService::tree()` against empty collections and documented the depth semantics
+  (0 = flat list; each level adds one nested `children` level; deeper levels are capped at 100 items).
+- New integration coverage: `OperationsConsoleServiceTest`, `ResourceRollbackProcessorTest` and
+  `ResourceExplorerServiceTest::testTreeDepthExpandsNestedChildrenAndHidesDeletedSubtrees`.
+- Patch release: bug fixes and tests only, no scope, route, schema, migration or setting change.
+
 ## 0.9.0 — 2026-09-13
 
 - Recursive `parent` list filter: `GET /api/ai/v2/resources` and the `resource_list` MCP tool accept an

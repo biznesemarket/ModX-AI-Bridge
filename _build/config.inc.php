@@ -20,7 +20,7 @@ $modxRoot = rtrim($modxRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 return [
     'name' => 'ModX AI Bridge',
     'name_lower' => 'aibridge',
-    'version' => '0.9.0',
+    'version' => '0.9.1',
     'release' => '',
     'install' => false,
     'modx_root' => $modxRoot,
