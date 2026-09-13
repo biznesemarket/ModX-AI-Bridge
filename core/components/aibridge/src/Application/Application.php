@@ -35,7 +35,7 @@ final class Application
 
     public function health(): array
     {
-        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.2.0'];
+        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.3.0'];
     }
 
     public function discoverSite(array $input = []): array

@@ -20,7 +20,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.2.0');
+  assert.equal(health.version, '0.3.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -115,13 +115,14 @@ test('resource update flows through the queue', async () => {
   assert.equal(parseJobResult(job).success, true);
 });
 
-test('resource read-back exposes the updated state', async () => {
+test('resource read-back exposes the updated state and template variables', async () => {
   assert.ok(resourceId > 0, 'create test must run first');
   const response = await client.getResource(resourceId);
   assert.equal(response.success, true);
   assert.equal(response.data.resource.id, resourceId);
   assert.equal(response.data.resource.pagetitle, 'TS live E2E page updated');
   assert.equal(response.data.resource.template, context.template_id);
+  assert.equal(response.data.resource.tvs[context.tv_name], context.tv_value);
 });
 
 test('resource read-back returns 404 for a missing resource', async () => {
@@ -150,7 +151,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.2.0');
+  assert.equal(init.result.serverInfo.version, '0.3.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
@@ -162,7 +163,9 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   assert.equal(JSON.parse(call.result.content[0].text).valid, true);
 
   const readBack = await mcp.callTool('resource_read', { id: resourceId });
-  assert.equal(JSON.parse(readBack.result.content[0].text).data.resource.pagetitle, 'TS live E2E page updated');
+  const readBackPayload = JSON.parse(readBack.result.content[0].text);
+  assert.equal(readBackPayload.data.resource.pagetitle, 'TS live E2E page updated');
+  assert.equal(readBackPayload.data.resource.tvs[context.tv_name], context.tv_value);
 
   const fingerprint = await mcp.readResource('modx://site/fingerprint');
   assert.ok(fingerprint.result.contents[0].text.length > 0);

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 — 2026-09-13
+
+- Read-back now includes template variables: `GET /api/ai/v2/resources/{id}` and the `resource_read` MCP tool
+  return a `tvs` map (TV name -> `string|null`; structured TV values are JSON-encoded) for every TV bound to the
+  resource template. Additive: the same `resource.read` operation/`resource:read` scope, no schema or migration,
+  no new route or setting; a resource without TVs returns `tvs: {}`.
+- `resource.read` is now listed in the capability catalog (`/capabilities`). The TypeScript SDK types the read
+  projection (`ResourceProjection`/`ResourceTvValues`/`ResourceReadResponse`); both SDK `User-Agent`s and the MCP
+  client `initialize` version move to `0.3`.
+
 ## 0.2.0 — 2026-09-13
 
 - Read-back API: `GET /api/ai/v2/resources/{id}` returns a whitelisted resource projection through the

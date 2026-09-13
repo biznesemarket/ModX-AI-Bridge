@@ -43,7 +43,7 @@ test('request sends auth and JSON headers and trims the base URL', async () => {
   assert.equal(headers.Authorization, 'Bearer tok');
   assert.equal(headers.Accept, 'application/json');
   assert.equal(headers['Content-Type'], 'application/json');
-  assert.equal(headers['User-Agent'], 'modx-ai-bridge-sdk-ts/0.2');
+  assert.equal(headers['User-Agent'], 'modx-ai-bridge-sdk-ts/0.3');
   assert.equal(
     calls[0].init.body,
     JSON.stringify({ content: { title: 'x' }, contract: { type: 'object' } }),
@@ -77,13 +77,14 @@ test('deleteResource sends no body', async () => {
   assert.equal(headersOf(calls[0])['Idempotency-Key'], 'idem-3');
 });
 
-test('getResource reads a resource by id', async () => {
-  const { client, calls } = makeClient([() => jsonResponse({ success: true, data: { resource: { id: 9 } } })]);
+test('getResource reads a resource by id and exposes template variables', async () => {
+  const { client, calls } = makeClient([() => jsonResponse({ success: true, data: { resource: { id: 9, tvs: { rest_read_tv: 'rest-tv-value' } } } })]);
   const response = await client.getResource(9);
   assert.equal(calls[0].url, 'https://bridge.example/api/ai/v2/resources/9');
   assert.equal(calls[0].init.method, 'GET');
   assert.equal(calls[0].init.body, undefined);
   assert.equal(response.data.resource.id, 9);
+  assert.equal(response.data.resource.tvs.rest_read_tv, 'rest-tv-value');
 });
 
 test('publishResource sends the approval_id', async () => {
@@ -174,7 +175,7 @@ test('McpClient wraps calls in JSON-RPC envelopes with incrementing ids', async 
   assert.equal(first.jsonrpc, '2.0');
   assert.equal(first.method, 'initialize');
   assert.equal(first.id, 1);
-  assert.equal(first.params.clientInfo.version, '0.2.0');
+  assert.equal(first.params.clientInfo.version, '0.3.0');
   const second = JSON.parse(String(calls[1].init.body));
   assert.equal(second.method, 'tools/call');
   assert.equal(second.id, 2);
