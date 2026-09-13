@@ -67,8 +67,16 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.7.0, sha256 63df401306df5765c40f4a0556
 - The TV join runs inside the same `resource.list` / `resource:read` operation and remains read-only; the
   summary projection still excludes `content`/TVs.
 
+## Certification
+
+`Release` dispatch on `main`, commit `82e9917`, run `34764596898`. The first attempt failed at step 3 because
+the MODX entrypoint did not create `/var/www/html/.modx-ready` within the timeout — an infrastructure flake
+before this code was installed; `gh run rerun 34764596898 --failed` then passed: `verify` PASS (incl.
+`SUPPLY CHAIN PINS: PASS`), `certify` PASS (`OK (139 tests, 736 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `63df4013…` (145536 bytes) matches
+the local build. Evidence artifact: `release-evidence-82e9917ddd6f10a77ab9d7468435deb085fedbaa`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.7.0` (additive minor). Next, per the
-established flow: bump all identity files (including README and the SDK `User-Agent`) -> full CI gate ->
-evidence/tag -> tag-run -> GitHub Release.
+Stable `0.7.0`, certified by run `34764596898` (rerun); tag `v0.7.0` and the GitHub Release are recorded in
+`docs/release/0.7.0.md`.

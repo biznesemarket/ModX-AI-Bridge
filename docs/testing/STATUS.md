@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–56
+# Testing Status — Iterations 21–57
 
-**Status: STABLE — `0.6.0` (`v0.6.0`), superseding `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.7.0` (`v0.7.0`), superseding `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -109,6 +109,14 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `19c1398b…`,
   `OK (139 tests, 732 assertions)`, `STABLE certification gates passed.`); tag `v0.6.0`. Evidence:
   `docs/testing/iteration-56-list-tv-filter.md`, `docs/release/0.6.0.md`
+- Iteration 57 — `0.7.0` minor release: available contexts in `/capabilities` (`key`/`name`/`description`) and a
+  join-based TV list filter (no `contentid` materialization; `count`/`total` single aggregate); `publishedon`
+  sort confirmed and covered. All version identities (including README, `aibridge_version` and the SDK
+  `User-Agent` `0.6` -> `0.7`) committed before the gate. Gate green on `82e9917` run `34764596898` after a
+  rerun (first attempt: MODX-readiness flake at step 3, before install; `gh run rerun --failed` then passed):
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `63df4013…`,
+  `OK (139 tests, 736 assertions)`, `STABLE certification gates passed.`; tag `v0.7.0`. Evidence:
+  `docs/testing/iteration-57-readback-polish.md`, `docs/release/0.7.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

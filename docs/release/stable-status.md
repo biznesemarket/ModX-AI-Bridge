@@ -1,8 +1,37 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.6.0` (previous: `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.7.0` (previous: `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.6.0 (current)
+## 0.7.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `82e9917`, run `34764596898` (successful on rerun; the first attempt hit a
+MODX-readiness flake at step 3, before this code was installed):
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (63 tests, 201 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.7.0.transport.zip`, SHA-256
+  `63df401306df5765c40f4a055664b08ac9239108f378f23ac75a17398f0c84a7` (145536 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.6.0`: available contexts in `/capabilities` and a join-based TV list filter
+  (`publishedon` sort confirmed and covered).
+- Additive only: no new scope, schema/migration change or API contract break.
+- See `docs/release/0.7.0.md`.
+
+## 0.6.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `bb3f621`, run `34762964883`:
