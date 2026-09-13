@@ -82,7 +82,9 @@ xPDO — `fromArray()` возвращает void.
   во времени стоит пиннить digest образа `php:8.2-apache`.
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт, не
   переписывался.
-- `sdk/typescript` покрыт только `tsc` build + type-check; runtime-тестов клиента нет.
+- `sdk/typescript`: добавлены runtime-тесты (`tests/runtime/client.test.mjs`, `node --test`, 11 тестов); они
+  используют fake `fetch` и проверяют заголовки/идемпотентность/ошибки/`waitForJob`/MCP. Реальный HTTP к
+  поднятому MODX из TS-тестов не выполняется (это отдельный E2E-уровень).
 - `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*` — исторические записи, не менять.
 
 ## 6. Следующий шаг
@@ -90,4 +92,5 @@ xPDO — `fromArray()` возвращает void.
 Stable `0.1.1` выпущен; обязательных гейтов нет. Дальнейшие изменения — цикл
 `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT` с прогоном
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` и обновлением release/evidence документов.
-Кандидаты: runtime-тесты TypeScript SDK, pinning образов и actions по SHA, следующий minor (`0.2.0`).
+Кандидаты: pinning образов и actions по SHA, TS-тесты против реального HTTP-эндпоинта, следующий minor
+(`0.2.0`).

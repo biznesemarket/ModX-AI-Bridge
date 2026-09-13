@@ -6,6 +6,10 @@
   after the file tree is fully materialized, and `scripts/test-modx.sh` waits for that marker instead of
   `config.core.php` — the latter could appear in the middle of `cp -a` and race the CLI install step
   (`setup/config.xml: No such file or directory`).
+- TypeScript SDK runtime tests: `sdk/typescript/tests/runtime/client.test.mjs` exercises the compiled client
+  against a fake `fetch` (auth/JSON headers, idempotency keys, `updateResource` id merge, error mapping,
+  `waitForJob` polling/timeout, MCP JSON-RPC envelopes). `npm test` runs them with `node --test`; no new
+  dependencies, and `scripts/sdk-typescript-check.sh` now covers build + runtime tests + types.
 
 ## 0.1.1 — 2026-09-13
 

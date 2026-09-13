@@ -47,7 +47,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   certified on commit `db949b5` (run `34743692154`, `PACKAGE REPRODUCIBILITY: PASS`,
   `STABLE certification gates passed.`); tag `v0.1.1`. Evidence:
   `docs/testing/iteration-44-settings-packaging-0.1.1.md`, `docs/release/0.1.1.md`
+- Iteration 45 — deterministic MODX provisioning readiness: `.modx-ready` sentinel removes the
+  `setup/config.xml` race in `test-modx.sh`. Evidence:
+  `docs/testing/iteration-45-provisioning-readiness.md`
+- Iteration 46 — TypeScript SDK runtime tests (11 tests, `node --test`, no new dependencies). Evidence:
+  `docs/testing/iteration-46-typescript-runtime-tests.md`
 
-No remaining gates: TypeScript SDK PASS, package reproducibility PASS, settings packaging fixed, and the
+No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
+packaging fixed, provisioning deterministic, and the
 single-command `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` passes on a host/CI runner with
 Docker. A missing runtime remains a failure of certification, not a pass.
