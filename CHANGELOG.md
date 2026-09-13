@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.0 — 2026-09-13
+
+- Filtered, paginated resource list: `GET /api/ai/v2/resources` (operation `resource.list`, scope
+  `resource:read`) returns a summary projection plus `count`, `total`, `limit` and `offset`. Whitelisted
+  filters: `parent`, `template`, `context_key`, `published`, `q` (pagetitle/alias/description match), `limit`
+  (1..100, default 25), `offset`, `sort`, `dir`; invalid values return `400 invalid_filter`. Also exposed as
+  the `resource_list` MCP tool, `listResources()` in both SDKs and a `resource.list` capability entry.
+- Additive: no new scope, schema, migration, setting or mutation; the list projection excludes `content` and
+  TVs. xPDO note: query options go through `newQuery()` (`limit`/`sortby`), and the LIKE search uses a grouped
+  OR condition — see `docs/testing/iteration-54-resource-list.md`.
+
 ## 0.3.0 — 2026-09-13
 
 - Read-back now includes template variables: `GET /api/ai/v2/resources/{id}` and the `resource_read` MCP tool

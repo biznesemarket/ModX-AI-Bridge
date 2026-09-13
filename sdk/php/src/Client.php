@@ -11,6 +11,7 @@ final class Client {
  public function validateContent(array $content,array $contract): array { return $this->http->request('POST','/api/ai/v2/content/validate',[],['content'=>$content,'contract'=>$contract]); }
  public function createResource(array $resource,string $idempotencyKey): array { return $this->http->request('POST','/api/ai/v2/resources', ['Idempotency-Key'=>$idempotencyKey],$resource); }
  public function getResource(int $id): array { return $this->http->request('GET','/api/ai/v2/resources/'.$id); }
+ public function listResources(array $filters=[]): array { $q=$filters?'?'.http_build_query($filters):''; return $this->http->request('GET','/api/ai/v2/resources'.$q); }
  public function updateResource(int $id,array $resource,string $idempotencyKey): array { $resource['id']=$id; return $this->http->request('PATCH','/api/ai/v2/resources/'.$id,['Idempotency-Key'=>$idempotencyKey],$resource); }
  public function deleteResource(int $id,string $idempotencyKey): array { return $this->http->request('DELETE','/api/ai/v2/resources/'.$id,['Idempotency-Key'=>$idempotencyKey]); }
  public function previewResource(array $resource): array { return $this->http->request('POST','/api/ai/v2/resources/preview',[], $resource); }
@@ -21,7 +22,7 @@ final class Client {
 }
 final class McpClient {
  public function __construct(private readonly HttpClient $http) {}
- public function initialize(array $clientInfo=['name'=>'modx-ai-bridge-sdk','version'=>'0.3.0']): array { return $this->call('initialize',['clientInfo'=>$clientInfo]); }
+ public function initialize(array $clientInfo=['name'=>'modx-ai-bridge-sdk','version'=>'0.4.0']): array { return $this->call('initialize',['clientInfo'=>$clientInfo]); }
  public function tools(): array { return $this->call('tools/list'); }
  public function callTool(string $name,array $arguments=[]): array { return $this->call('tools/call',['name'=>$name,'arguments'=>$arguments]); }
  public function resources(): array { return $this->call('resources/list'); }

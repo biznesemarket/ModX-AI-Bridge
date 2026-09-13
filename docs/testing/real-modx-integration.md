@@ -54,7 +54,7 @@ MODX_ROOT=/absolute/path/to/modx php _build/build.php
 The expected artifact is:
 
 ```text
-core/packages/aibridge-0.3.0.transport.zip
+core/packages/aibridge-0.4.0.transport.zip
 ```
 
 The build uses the MODX 3 namespaced `modPackageBuilder` and `xPDOTransport` classes.
@@ -63,7 +63,7 @@ The build uses the MODX 3 namespaced `modPackageBuilder` and `xPDOTransport` cla
 
 ```bash
 MODX_ROOT=/absolute/path/to/modx \
-php scripts/install-package.php aibridge-0.3.0
+php scripts/install-package.php aibridge-0.4.0
 ```
 
 The installer performs:

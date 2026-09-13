@@ -11,6 +11,7 @@ const context = JSON.parse(rawContext);
 
 const client = new BridgeClient({ baseUrl: context.base_url, token: context.token, timeoutMs: 15000 });
 let resourceId = 0;
+let createdAlias = '';
 
 function parseJobResult(job) {
   const raw = job.job?.result_json ?? job.result_json;
@@ -20,7 +21,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.3.0');
+  assert.equal(health.version, '0.4.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -81,6 +82,7 @@ test('content validation accepts valid content and reports errors', async () => 
 
 test('resource create flows through the queue and returns a resource id', async () => {
   const alias = 'ts-live-' + Date.now().toString(36);
+  createdAlias = alias;
   const queued = await client.createResource(
     {
       pagetitle: 'TS live E2E page',
@@ -133,6 +135,15 @@ test('resource read-back returns 404 for a missing resource', async () => {
   });
 });
 
+test('resource list returns the created resource with filters', async () => {
+  assert.ok(resourceId > 0, 'create test must run first');
+  const response = await client.listResources({ q: createdAlias, limit: 5, template: context.template_id });
+  assert.equal(response.success, true);
+  assert.ok(response.data.total >= 1);
+  assert.ok(response.data.resources.some((item) => item.id === resourceId));
+  assert.equal(typeof response.data.count, 'number');
+});
+
 test('delete stays disabled and publish stays approval-gated', async () => {
   assert.ok(resourceId > 0, 'create test must run first');
   await assert.rejects(client.deleteResource(resourceId, 'ts-live-delete-' + resourceId), (error) => {
@@ -151,7 +162,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.3.0');
+  assert.equal(init.result.serverInfo.version, '0.4.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
@@ -166,6 +177,10 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const readBackPayload = JSON.parse(readBack.result.content[0].text);
   assert.equal(readBackPayload.data.resource.pagetitle, 'TS live E2E page updated');
   assert.equal(readBackPayload.data.resource.tvs[context.tv_name], context.tv_value);
+
+  const listBack = await mcp.callTool('resource_list', { q: createdAlias, limit: 5 });
+  const listPayload = JSON.parse(listBack.result.content[0].text);
+  assert.ok(listPayload.data.resources.some((item) => item.id === resourceId));
 
   const fingerprint = await mcp.readResource('modx://site/fingerprint');
   assert.ok(fingerprint.result.contents[0].text.length > 0);
