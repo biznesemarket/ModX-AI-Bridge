@@ -19,6 +19,7 @@ final class ResourceReadService
 {
     public const LIST_LIMIT_DEFAULT = 25;
     public const LIST_LIMIT_MAX = 100;
+    public const LIST_DEPTH_MAX = 10;
 
     private const STRING_FIELDS = [
         'pagetitle', 'longtitle', 'description', 'introtext', 'content', 'alias',
@@ -32,7 +33,7 @@ final class ResourceReadService
     ];
     private const LIST_INT_FIELDS = ['id', 'parent', 'template', 'menuindex'];
     private const LIST_BOOL_FIELDS = ['published', 'hidemenu', 'searchable'];
-    private const SORTABLE = ['id', 'pagetitle', 'alias', 'menuindex', 'editedon', 'createdon', 'publishedon'];
+    private const SORTABLE = ['id', 'parent', 'pagetitle', 'alias', 'menuindex', 'editedon', 'createdon', 'publishedon'];
 
     public function __construct(private readonly modX $modx) {}
 
@@ -53,11 +54,13 @@ final class ResourceReadService
     /**
      * Filtered, paginated read-back of non-deleted resources.
      *
-     * Supported filters: `parent`, `template`, `context_key`, `published`,
-     * `tv_name`/`tv_value` (match an explicit template-variable value),
-     * `q`/`search` (pagetitle/alias/description LIKE), `limit` (1..100, default
-     * 25), `offset`, `sort` (whitelisted column), `dir` (`asc`/`desc`). Invalid
-     * or out-of-range values return `invalid_filter`; unknown keys are ignored.
+     * Supported filters: `parent` (optionally with `depth` 1..10 to include
+     * descendants; 1 = direct children, the default), `template`, `context_key`,
+     * `published`, `tv_name`/`tv_value` (match an explicit template-variable
+     * value), `q`/`search` (pagetitle/alias/description LIKE), `limit` (1..100,
+     * default 25), `offset`, `sort` (whitelisted column), `dir` (`asc`/`desc`).
+     * Invalid or out-of-range values return `invalid_filter`; unknown keys are
+     * ignored.
      */
     public function list(array $query): array
     {
@@ -79,11 +82,24 @@ final class ResourceReadService
 
         $and = ['deleted' => 0];
 
+        $parentId = null;
         if (isset($query['parent']) && $query['parent'] !== '') {
             if (!is_numeric($query['parent']) || (int) $query['parent'] < 0) {
                 return $this->invalidFilter('parent');
             }
-            $and['parent'] = (int) $query['parent'];
+            $parentId = (int) $query['parent'];
+            $and['parent'] = $parentId;
+        }
+
+        $depth = 1;
+        if (isset($query['depth']) && $query['depth'] !== '') {
+            if ($parentId === null) {
+                return $this->invalidFilter('depth', 'depth requires parent.');
+            }
+            if (!is_numeric($query['depth']) || (int) $query['depth'] < 1 || (int) $query['depth'] > self::LIST_DEPTH_MAX) {
+                return $this->invalidFilter('depth');
+            }
+            $depth = (int) $query['depth'];
         }
 
         if (isset($query['template']) && $query['template'] !== '') {
@@ -164,6 +180,15 @@ final class ResourceReadService
             }
         }
 
+        if ($depth > 1) {
+            unset($and['parent']);
+            $descendants = $this->descendantIds((int) $parentId, $depth);
+            if ($descendants === []) {
+                return $this->emptyPage($limit, $offset);
+            }
+            $and['id:IN'] = $descendants;
+        }
+
         $total = (int) $this->modx->getCount(\MODX\Revolution\modResource::class, $this->listQuery($and, $searchNeedle, $tvId, $tvValueNeedle));
         $page = $this->listQuery($and, $searchNeedle, $tvId, $tvValueNeedle);
         $page->limit($limit, $offset);
@@ -210,6 +235,45 @@ final class ResourceReadService
             ], \xPDO\Om\xPDOQuery::SQL_OR);
         }
         return $query;
+    }
+
+    /**
+     * Collect the descendant ids of `$parentId` down to `$depth` levels
+     * (1 = direct children only), skipping soft-deleted resources. Materialized
+     * ids keep the filtered page/total ordinary `id:IN` queries, and
+     * `LIST_DEPTH_MAX` bounds the recursion. Only the PK column is selected so
+     * large subtrees are not hydrated as full rows.
+     *
+     * @return list<int>
+     */
+    private function descendantIds(int $parentId, int $depth): array
+    {
+        $ids = [];
+        $frontier = [$parentId];
+        for ($level = 0; $level < $depth && $frontier !== []; $level++) {
+            $query = $this->modx->newQuery(\MODX\Revolution\modResource::class);
+            $query->select('id');
+            $query->where(['parent:IN' => $frontier, 'deleted' => 0]);
+            $collection = $this->modx->getCollection(\MODX\Revolution\modResource::class, $query);
+            $frontier = [];
+            foreach ($collection ?: [] as $child) {
+                $id = (int) $child->get('id');
+                $ids[] = $id;
+                $frontier[] = $id;
+            }
+        }
+        return $ids;
+    }
+
+    private function emptyPage(int $limit, int $offset): array
+    {
+        return ['success' => true, 'data' => [
+            'resources' => [],
+            'count' => 0,
+            'total' => 0,
+            'limit' => $limit,
+            'offset' => $offset,
+        ]];
     }
 
     private function project(\xPDOObject $resource): array

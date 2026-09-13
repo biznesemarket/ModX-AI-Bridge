@@ -43,6 +43,7 @@ paths:
       summary: List persisted resources (read-back, scope resource:read)
       parameters:
         - {in: query, name: parent, required: false, schema: {type: integer, minimum: 0}}
+        - {in: query, name: depth, required: false, description: 'Descendant levels for parent (1 = direct children; requires parent)', schema: {type: integer, minimum: 1, maximum: 10}}
         - {in: query, name: template, required: false, schema: {type: integer, minimum: 1}}
         - {in: query, name: context_key, required: false, schema: {type: string}}
         - {in: query, name: published, required: false, schema: {type: boolean}}
@@ -51,7 +52,7 @@ paths:
         - {in: query, name: q, required: false, schema: {type: string}}
         - {in: query, name: limit, required: false, schema: {type: integer, minimum: 1, maximum: 100}}
         - {in: query, name: offset, required: false, schema: {type: integer, minimum: 0}}
-        - {in: query, name: sort, required: false, schema: {type: string, enum: [id, pagetitle, alias, menuindex, editedon, createdon, publishedon]}}
+        - {in: query, name: sort, required: false, schema: {type: string, enum: [id, parent, pagetitle, alias, menuindex, editedon, createdon, publishedon]}}
         - {in: query, name: dir, required: false, schema: {type: string, enum: [asc, desc]}}
       responses:
         '200': {description: OK}

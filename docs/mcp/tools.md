@@ -51,9 +51,10 @@ Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resour
 
 ## resource_list
 
-Lists persisted, non-deleted MODX resources with optional filters: `parent`, `template`, `context_key`, `published`,
-`tv_name`/`tv_value` (match an explicit template-variable value), `q` (pagetitle/alias/description match),
-`limit` (1..100, default 25), `offset`, `sort`, `dir`. Returns a paginated
+Lists persisted, non-deleted MODX resources with optional filters: `parent` (optionally with `depth` 1..10 to
+include descendants; `depth` 1, the default, returns direct children and requires `parent`), `template`,
+`context_key`, `published`, `tv_name`/`tv_value` (match an explicit template-variable value), `q`
+(pagetitle/alias/description match), `limit` (1..100, default 25), `offset`, `sort`, `dir`. Returns a paginated
 summary projection (id/parent/pagetitle/alias/template/context/timestamps/state, without `content` or TVs) plus
 `count`, `total`, `limit` and `offset`. Invalid filter values return `invalid_filter` in the tool result payload.
 

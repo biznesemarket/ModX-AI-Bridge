@@ -305,6 +305,72 @@ final class RestApiTest extends TestCase
         self::assertSame('insufficient_scope', $response['body']['error']['code'] ?? null);
     }
 
+    public function testResourceListFiltersByParentDepthAndSortsByParent(): void
+    {
+        $prefix = 'rest-tree-' . bin2hex(random_bytes(4));
+
+        $rootA = $this->createResource($prefix . '-a');
+        $rootB = $this->createResource($prefix . '-b');
+        $childA1 = $this->createResource($prefix . '-a1', $rootA);
+        $childA2 = $this->createResource($prefix . '-a2', $rootA);
+        $grandchild = $this->createResource($prefix . '-a1g', $childA1);
+        $greatGrandchild = $this->createResource($prefix . '-a1gg', $grandchild);
+        $this->createResource($prefix . '-b1', $rootB);
+
+        $direct = $this->call('GET', '/resources', query: ['parent' => (string) $rootA]);
+        self::assertSame(200, $direct['status']);
+        self::assertSame(2, $direct['body']['data']['total'] ?? null, 'Without depth, parent stays a direct-children filter.');
+
+        $twoLevels = $this->call('GET', '/resources', query: ['parent' => (string) $rootA, 'depth' => '2']);
+        self::assertSame(200, $twoLevels['status']);
+        self::assertSame(3, $twoLevels['body']['data']['total'] ?? null, 'depth=2 must include children and grandchildren only.');
+        $ids = array_column($twoLevels['body']['data']['resources'] ?? [], 'id');
+        self::assertContains($childA1, $ids);
+        self::assertContains($childA2, $ids);
+        self::assertContains($grandchild, $ids);
+        self::assertNotContains($greatGrandchild, $ids);
+
+        $all = $this->call('GET', '/resources', query: ['parent' => (string) $rootA, 'depth' => '10']);
+        self::assertSame(200, $all['status']);
+        self::assertSame(4, $all['body']['data']['total'] ?? null);
+
+        $otherTree = $this->call('GET', '/resources', query: ['parent' => (string) $rootB, 'depth' => '10']);
+        self::assertSame(200, $otherTree['status']);
+        self::assertSame(1, $otherTree['body']['data']['total'] ?? null, 'Recursion must not leak into sibling trees.');
+
+        $empty = $this->call('GET', '/resources', query: ['parent' => (string) $greatGrandchild, 'depth' => '10']);
+        self::assertSame(200, $empty['status']);
+        self::assertSame(0, $empty['body']['data']['total'] ?? null);
+        self::assertSame([], $empty['body']['data']['resources'] ?? null);
+
+        $orphanDepth = $this->call('GET', '/resources', query: ['depth' => '2']);
+        self::assertSame(400, $orphanDepth['status']);
+        self::assertSame('invalid_filter', $orphanDepth['body']['error']['code'] ?? null);
+
+        foreach (['0', '11', 'abc'] as $badDepth) {
+            $bad = $this->call('GET', '/resources', query: ['parent' => '0', 'depth' => $badDepth]);
+            self::assertSame(400, $bad['status'], 'depth=' . $badDepth . ' must be rejected.');
+            self::assertSame('invalid_filter', $bad['body']['error']['code'] ?? null);
+        }
+
+        $sorted = $this->call('GET', '/resources', query: ['q' => $prefix, 'sort' => 'parent', 'dir' => 'asc', 'limit' => '100']);
+        self::assertSame(200, $sorted['status']);
+        $parents = array_column($sorted['body']['data']['resources'] ?? [], 'parent');
+        $ascending = $parents;
+        sort($ascending);
+        self::assertSame($ascending, $parents, 'sort=parent must order by the parent column.');
+
+        $deleted = self::$modx->getObject(\MODX\Revolution\modResource::class, $grandchild);
+        self::assertNotNull($deleted);
+        $deleted->set('deleted', 1);
+        $deleted->save();
+        self::$modx->getCacheManager()->refresh();
+
+        $afterDelete = $this->call('GET', '/resources', query: ['parent' => (string) $rootA, 'depth' => '10']);
+        self::assertSame(200, $afterDelete['status']);
+        self::assertSame(2, $afterDelete['body']['data']['total'] ?? null, 'A soft-deleted subtree must not be walked.');
+    }
+
     public function testResourceListFiltersByTemplateVariable(): void
     {
         $tvName = 'rest_list_tv_' . bin2hex(random_bytes(4));
@@ -444,6 +510,27 @@ final class RestApiTest extends TestCase
 
         $job = $queue->get($jobId);
         return $job !== null ? $job->raw() : [];
+    }
+
+    private function createResource(string $alias, ?int $parent = null): int
+    {
+        $payload = [
+            'pagetitle' => $alias,
+            'alias' => $alias,
+            'template' => self::$templateId,
+            'content' => '<h1>' . $alias . '</h1>',
+        ];
+        if ($parent !== null) {
+            $payload['parent'] = $parent;
+        }
+
+        $response = $this->call('POST', '/resources', $payload, ['Idempotency-Key' => 'rest-create-' . $alias]);
+        self::assertSame(202, $response['status']);
+        self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['alias' => $alias]);
+        self::assertNotNull($resource);
+        return (int) $resource->get('id');
     }
 
     private static function setting(string $key, string $value): void
