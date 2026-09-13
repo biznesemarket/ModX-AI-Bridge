@@ -80,10 +80,13 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.9.1, sha256 06e808433bad894dc89423fc50
 
 ## Certification
 
-Pending — release target `0.9.1` (patch).
+`Release` dispatch on `main`, commit `330b78a`, run `34773039854`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (158 tests, 923 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256
+`06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes) matches the local build.
+Evidence artifact: `release-evidence-330b78acb15952209c56e9cbdd97b7119ed21c0d`.
 
 ## Status
 
-Implementation complete and locally verified; release target `0.9.1`. Next, per the established flow: bump
-all identity files (README included, SDK `User-Agent` stays `0.9`) -> full CI gate -> evidence/tag ->
-tag-run -> GitHub Release.
+Stable `0.9.1`, certified by run `34773039854`; tag `v0.9.1` and the GitHub Release are recorded in
+`docs/release/0.9.1.md`.

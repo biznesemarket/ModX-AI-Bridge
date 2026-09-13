@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–60
+# Testing Status — Iterations 21–61
 
-**Status: STABLE — `0.9.0` (`v0.9.0`), superseding `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.9.1` (`v0.9.1`), superseding `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -138,6 +138,14 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `59d4f0ab…`,
   `OK (150 tests, 860 assertions)`, `STABLE certification gates passed.`); tag `v0.9.0`. Evidence:
   `docs/testing/iteration-60-parent-depth-filter.md`, `docs/release/0.9.0.md`
+- Iteration 61 — `0.9.1` patch release: `OperationsConsoleService` limits/ordering now applied (options were
+  the `getCollection()` cache flag), `ResourceRollbackProcessor` converts `RollbackService` exceptions into
+  JSON `rollback_failed` failures, `ResourceExplorerService::tree()` hardened and depth semantics locked.
+  New `OperationsConsoleServiceTest`, `ResourceRollbackProcessorTest`, expanded `ResourceExplorerServiceTest`.
+  All version identities committed before the gate (SDK `User-Agent` stays `0.9`). Gate green on `330b78a`
+  (run `34773039854`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `06e80843…`,
+  `OK (158 tests, 923 assertions)`, `STABLE certification gates passed.`); tag `v0.9.1`. Evidence:
+  `docs/testing/iteration-61-manager-coverage.md`, `docs/release/0.9.1.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
