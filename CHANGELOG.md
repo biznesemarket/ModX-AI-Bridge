@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Deterministic MODX provisioning: `docker/modx/entrypoint.sh` writes `/var/www/html/.modx-ready` only
+  after the file tree is fully materialized, and `scripts/test-modx.sh` waits for that marker instead of
+  `config.core.php` — the latter could appear in the middle of `cp -a` and race the CLI install step
+  (`setup/config.xml: No such file or directory`).
+
 ## 0.1.1 — 2026-09-13
 
 - Fixed the transport package dropping all system settings: `_build/elements/settings.php` chained

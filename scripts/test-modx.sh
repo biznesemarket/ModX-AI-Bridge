@@ -16,13 +16,19 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "== 3. Wait for MODX container =="
-for i in $(seq 1 60); do
-  if docker compose -f "${ROOT}/docker-compose.yml" exec -T modx test -f /var/www/html/config.core.php 2>/dev/null; then
+echo "== 3. Wait for MODX files to be materialized =="
+modx_ready=0
+for i in $(seq 1 90); do
+  if docker compose -f "${ROOT}/docker-compose.yml" exec -T modx test -f /var/www/html/.modx-ready 2>/dev/null; then
+    modx_ready=1
     break
   fi
   sleep 2
 done
+if [ "${modx_ready}" != "1" ]; then
+  echo "MODX entrypoint did not signal readiness (/var/www/html/.modx-ready missing)." >&2
+  exit 1
+fi
 
 echo "== 4. Install MODX =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \

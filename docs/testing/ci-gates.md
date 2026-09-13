@@ -19,6 +19,8 @@ The deterministic job pins Node.js 24 via `actions/setup-node` with npm caching 
 
 The Docker job provisions MySQL and MODX 3.2.x, installs the Extra, generates xPDO models, then executes integration and E2E suites. It also builds the transport package twice and asserts a byte-identical SHA-256 (`scripts/verify-package-reproducibility.php`, step 15 of `scripts/test-modx.sh`).
 
+Provisioning readiness is explicit: `docker/modx/entrypoint.sh` writes `/var/www/html/.modx-ready` only after the MODX file tree is fully copied, and `scripts/test-modx.sh` waits for that marker. It must not wait for `config.core.php`, which appears during `cp -a` and can race the CLI install.
+
 A runtime job must fail when a required runtime dependency is unavailable. It must not downgrade a missing MODX environment to a successful mock test.
 
 ## Evidence retention
