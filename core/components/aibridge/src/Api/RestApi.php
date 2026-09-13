@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.2'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.3'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,7 +58,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.2'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.3'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -194,6 +194,7 @@ final class RestApi
             'idempotency_key' => $idempotencyKey,
             'approval_id' => (string) ($input['approval_id'] ?? ''),
             'change_id' => (int) ($input['change_id'] ?? 0),
+            'resource_id' => (int) ($input['id'] ?? 0),
         ];
 
         $job = new Job(

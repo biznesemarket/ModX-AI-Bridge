@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.9.3 — 2026-09-13
+
+- Security: the publish approval is now bound to the caller. `SecurityDecisionPipeline::isApprovedForChange()`
+  verifies the referenced `ChangeRequest` is a `resource.publish` change, belongs to the caller's profile
+  (when the principal is profile-scoped) and targets the same resource as the request. Previously any approved
+  `Approval` row could authorize publishing an arbitrary resource — including one from another profile — and
+  could be replayed. All request paths now pass the target `resource_id` into the pipeline.
+- Fixed the manager-connector MCP surface: the trusted `channel` is propagated from the MCP transport into the
+  tool-handler requests, so manager-channel mutations are accepted by the execution-layer pipeline instead of
+  being rejected `ip_not_allowed` (the previous behavior failed closed; no privilege change).
+- Fixed the workflow verification mismatch for `published`: `ChangeRequestService::create()` drops `published`
+  for create/update, so the recorded `after_json` matches what execution applies and the change no longer
+  fails post-execution verification after committing the other fields.
+- The `resource_publish` MCP tool now declares `change_id` as required, matching the enforced pipeline
+  contract.
+- Docs: corrected the SDK identity note (`clientInfo` bumps to `0.9.3`; the SDK `User-Agent` stays `0.9` on
+  patches) and the `install-package.php` examples (full path/`.transport.zip`).
+- Tests: new cross-profile and wrong-resource publish rejection cases in `McpPublishApprovalTest`; the new
+  integration tests now clean up their fixtures (`tearDownAfterClass`).
+- Patch release: security and correctness fixes; no new scope, route, schema, migration or setting.
+
 ## 0.9.2 — 2026-09-13
 
 - Security: publishing can no longer be performed through `resource.update`/`resource.create`. `published`

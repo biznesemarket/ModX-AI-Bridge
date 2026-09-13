@@ -47,3 +47,6 @@ Register captured during planning review. Items are resolved in the referenced i
 | 41 | `Services/CacheInvalidationService` | `invalidateResource()` сбрасывает весь `db`-кеш MODX вместо ресурса | backlog (P3, perf) |
 | 42 | `Manager/OperationsConsoleService::changes()/approvals()` | Возвращают сырой `toArray()` без проекции (в отличие от остальных list-методов) | backlog (P3) |
 | 43 | `Manager/OperationsConsoleService` | Конструктор `private modX $modx` без `readonly`; мелкие стилевые несогласованности | backlog (P3, style) |
+| 44 | `SecurityDecisionPipeline::isApprovedForChange()` | Approval не привязан к profile/operation/resource и многоразовый → cross-profile/replay publish через MCP/REST | исправлено (0.9.3) |
+| 45 | `processors/mcp.class.php` + `McpServer` handlers | Trusted `channel` не пробрасывался в execution-pipeline → manager-MCP мутации падали `ip_not_allowed` (fail closed) | исправлено (0.9.3) |
+| 46 | `ChangeRequestService::create()` | `after_json` строился из сырого input с `published` → post-execution verification падал после коммита остальных полей | исправлено (0.9.3) |

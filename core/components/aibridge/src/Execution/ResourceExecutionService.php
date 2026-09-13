@@ -59,7 +59,7 @@ final class ResourceExecutionService
     private function mutate(string $operation, array $input, array $principal, array $request): array
     {
         $requestId = (string) ($request['request_id'] ?? bin2hex(random_bytes(16)));
-        $decision = $this->security->decide($request + ['request_id' => $requestId], $principal, $operation);
+        $decision = $this->security->decide($request + ['request_id' => $requestId, 'resource_id' => (int) ($input['id'] ?? 0)], $principal, $operation);
         if (!$decision->allowed()) return (new ExecutionResult(false, $operation, [], [], $decision->code(), 'Security policy denied.'))->toArray();
 
         $key = trim((string) ($request['idempotency_key'] ?? $input['idempotency_key'] ?? ''));

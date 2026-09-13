@@ -16,6 +16,8 @@ final class SiteDiscoveryDeterminismTest extends TestCase
 {
     private static ?\MODX\Revolution\modX $modx = null;
     private static string $suffix = '';
+    /** @var list<array{0:class-string,1:int}> */
+    private static array $created = [];
 
     public static function setUpBeforeClass(): void
     {
@@ -52,6 +54,19 @@ final class SiteDiscoveryDeterminismTest extends TestCase
         self::templateVariable('aaa_aibridge_det_' . self::$suffix);
     }
 
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$modx !== null) {
+            foreach (self::$created as [$class, $id]) {
+                $row = self::$modx->getObject($class, $id);
+                if ($row) {
+                    $row->remove();
+                }
+            }
+        }
+        self::$created = [];
+    }
+
     public function testInspectorSectionsAreNameSorted(): void
     {
         $contract = (new SiteIntelligenceService(self::$modx))->discover()['contract'];
@@ -84,6 +99,7 @@ final class SiteDiscoveryDeterminismTest extends TestCase
         $row = self::$modx->newObject(\MODX\Revolution\modTemplate::class);
         $row->fromArray(['templatename' => $name, 'content' => '[[*content]]', 'createdon' => time(), 'editedon' => time()]);
         $row->save();
+        self::$created[] = [\MODX\Revolution\modTemplate::class, (int) $row->get('id')];
     }
 
     private static function chunk(string $name): void
@@ -92,6 +108,7 @@ final class SiteDiscoveryDeterminismTest extends TestCase
         $row = self::$modx->newObject(\MODX\Revolution\modChunk::class);
         $row->fromArray(['name' => $name, 'snippet' => '[[+value]]']);
         $row->save();
+        self::$created[] = [\MODX\Revolution\modChunk::class, (int) $row->get('id')];
     }
 
     private static function snippet(string $name): void
@@ -100,6 +117,7 @@ final class SiteDiscoveryDeterminismTest extends TestCase
         $row = self::$modx->newObject(\MODX\Revolution\modSnippet::class);
         $row->fromArray(['name' => $name, 'snippet' => 'return "";']);
         $row->save();
+        self::$created[] = [\MODX\Revolution\modSnippet::class, (int) $row->get('id')];
     }
 
     private static function templateVariable(string $name): void
@@ -108,5 +126,6 @@ final class SiteDiscoveryDeterminismTest extends TestCase
         $row = self::$modx->newObject(\MODX\Revolution\modTemplateVar::class);
         $row->fromArray(['name' => $name, 'caption' => $name, 'type' => 'text', 'default_text' => '']);
         $row->save();
+        self::$created[] = [\MODX\Revolution\modTemplateVar::class, (int) $row->get('id')];
     }
 }

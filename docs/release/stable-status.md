@@ -24,8 +24,8 @@ STABLE certification gates passed.
 
 - Release artifact: `aibridge-0.9.2.transport.zip`, SHA-256
   `721e9ce0b794e0fdeaf4441b1f2b146c48a93b508665466b31d2a2d70a95d34a` (147647 bytes); local build == CI
-  artifact. README and all version identities were committed before the gate (SDK `User-Agent` bumps to
-  `0.9.2`).
+  artifact. README and all version identities were committed before the gate (SDK `clientInfo` bumps to
+  `0.9.2`; the SDK `User-Agent` stays `0.9` for patch releases).
 - Patch release over `0.9.1`: publish-approval bypass fix, deterministic site discovery (fingerprint),
   workflow list limits/ordering, CIDR hardening, manager-connector MCP permission guard/trusted identity and
   MCP publish approval forwarding.

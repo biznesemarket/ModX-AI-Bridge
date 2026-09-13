@@ -87,7 +87,7 @@ return [
         'key' => 'aibridge_environment', 'value' => 'production', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
     ]),
     $setting([
-        'key' => 'aibridge_version', 'value' => '0.9.2', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
+        'key' => 'aibridge_version', 'value' => '0.9.3', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
     ]),
     $setting([
         'key' => 'aibridge_api_version', 'value' => 'v2', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'api',

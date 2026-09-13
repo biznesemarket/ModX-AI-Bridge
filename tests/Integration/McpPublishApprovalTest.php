@@ -23,6 +23,8 @@ final class McpPublishApprovalTest extends TestCase
     private static int $profileId = 0;
     private static string $token = '';
     private static int $templateId = 0;
+    /** @var list<array{0:class-string,1:int}> */
+    private static array $cleanup = [];
 
     public static function setUpBeforeClass(): void
     {
@@ -57,11 +59,34 @@ final class McpPublishApprovalTest extends TestCase
             'name' => 'McpPublishApprovalTest ' . $suffix,
             'site_key' => 'mcp-publish-approval-' . $suffix,
         ])->toArray()['id'] ?? 0);
+        self::track(\AIBridge\Model\Profile::class, self::$profileId);
 
-        self::$token = (string) (new TokenManager(self::$modx, ConfigFactory::fromModx(self::$modx)))
-            ->issue('mcp-publish-' . $suffix, ['resource:read', 'resource:write', 'resource:publish'], self::$profileId)['token'];
+        $issued = (new TokenManager(self::$modx, ConfigFactory::fromModx(self::$modx)))
+            ->issue('mcp-publish-' . $suffix, ['resource:read', 'resource:write', 'resource:publish'], self::$profileId);
+        self::$token = (string) $issued['token'];
+        self::track(\AIBridge\Model\Token::class, (int) $issued['id']);
 
         self::$templateId = self::template();
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$modx !== null) {
+            foreach (array_reverse(self::$cleanup) as [$class, $id]) {
+                $row = self::$modx->getObject($class, $id);
+                if ($row) {
+                    $row->remove();
+                }
+            }
+        }
+        self::$cleanup = [];
+    }
+
+    private static function track(string $class, int $id): void
+    {
+        if ($id > 0) {
+            self::$cleanup[] = [$class, $id];
+        }
     }
 
     public function testPublishToolExecutesWithApprovedChange(): void
@@ -78,10 +103,12 @@ final class McpPublishApprovalTest extends TestCase
         $changes = new ChangeRequestService(self::$modx);
         $change = $changes->create('resource.publish', ['id' => $resourceId], $manager, ['request_id' => bin2hex(random_bytes(8))], []);
         $changeId = (int) $change['id'];
+        self::track(\AIBridge\Model\ChangeRequest::class, $changeId);
         $changes->submit($changeId, $manager);
 
         $approvals = new ApprovalService(self::$modx);
         $approvalId = (int) $approvals->create($changeId, $manager)['id'];
+        self::track(\AIBridge\Model\Approval::class, $approvalId);
         $approvals->decide($approvalId, 'approved', $manager);
 
         $response = $this->mcp([
@@ -125,10 +152,94 @@ final class McpPublishApprovalTest extends TestCase
         self::assertSame(0, (int) $resource->get('published'));
     }
 
-    /** @return array{status:int,body:array<string,mixed>,headers:array<string,string>} */
-    private function mcp(array $body): array
+    public function testPublishToolRejectsApprovalForAnotherResource(): void
     {
-        return (new RestApi(self::$modx))->handle('POST', '/mcp', ['Authorization' => 'Bearer ' . self::$token], $body, '127.0.0.1', []);
+        $resourceA = $this->createResource();
+        $resourceB = $this->createResource();
+        $approval = $this->approvedPublishChange($resourceA);
+
+        $response = $this->mcp([
+            'jsonrpc' => '2.0',
+            'id' => 22,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'resource_publish',
+                'arguments' => [
+                    'id' => $resourceB,
+                    'idempotency_key' => 'mcp-publish-' . bin2hex(random_bytes(8)),
+                    'approval_id' => (string) $approval['approval_id'],
+                    'change_id' => $approval['change_id'],
+                ],
+            ],
+        ]);
+
+        self::assertSame(-32003, $response['body']['error']['code'] ?? null);
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, $resourceB);
+        self::assertSame(0, (int) $resource->get('published'));
+    }
+
+    public function testPublishToolRejectsCrossProfileApproval(): void
+    {
+        $resourceId = $this->createResource();
+        $approval = $this->approvedPublishChange($resourceId);
+
+        $suffix = bin2hex(random_bytes(4));
+        $otherProfileId = (int) ((new ProfileService(self::$modx))->create([
+            'name' => 'McpPublishOther ' . $suffix,
+            'site_key' => 'mcp-publish-other-' . $suffix,
+        ])->toArray()['id'] ?? 0);
+        self::track(\AIBridge\Model\Profile::class, $otherProfileId);
+        $otherToken = (new TokenManager(self::$modx, ConfigFactory::fromModx(self::$modx)))
+            ->issue('mcp-publish-other-' . $suffix, ['resource:read', 'resource:write', 'resource:publish'], $otherProfileId);
+        self::track(\AIBridge\Model\Token::class, (int) $otherToken['id']);
+
+        $response = $this->mcp([
+            'jsonrpc' => '2.0',
+            'id' => 23,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'resource_publish',
+                'arguments' => [
+                    'id' => $resourceId,
+                    'idempotency_key' => 'mcp-publish-' . bin2hex(random_bytes(8)),
+                    'approval_id' => (string) $approval['approval_id'],
+                    'change_id' => $approval['change_id'],
+                ],
+            ],
+        ], (string) $otherToken['token']);
+
+        self::assertSame(-32003, $response['body']['error']['code'] ?? null);
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, $resourceId);
+        self::assertSame(0, (int) $resource->get('published'));
+    }
+
+    /**
+     * @return array{change_id:int,approval_id:int}
+     */
+    private function approvedPublishChange(int $resourceId): array
+    {
+        $manager = [
+            'id' => '1',
+            'type' => 'manager',
+            'scopes' => ['*'],
+            'manager_authorized' => true,
+            'profile_id' => self::$profileId,
+        ];
+        $changes = new ChangeRequestService(self::$modx);
+        $changeId = (int) $changes->create('resource.publish', ['id' => $resourceId], $manager, ['request_id' => bin2hex(random_bytes(8))], [])['id'];
+        self::track(\AIBridge\Model\ChangeRequest::class, $changeId);
+        $changes->submit($changeId, $manager);
+        $approvals = new ApprovalService(self::$modx);
+        $approvalId = (int) $approvals->create($changeId, $manager)['id'];
+        self::track(\AIBridge\Model\Approval::class, $approvalId);
+        $approvals->decide($approvalId, 'approved', $manager);
+        return ['change_id' => $changeId, 'approval_id' => $approvalId];
+    }
+
+    /** @return array{status:int,body:array<string,mixed>,headers:array<string,string>} */
+    private function mcp(array $body, ?string $token = null): array
+    {
+        return (new RestApi(self::$modx))->handle('POST', '/mcp', ['Authorization' => 'Bearer ' . ($token ?? self::$token)], $body, '127.0.0.1', []);
     }
 
     private function createResource(): int
@@ -149,6 +260,7 @@ final class McpPublishApprovalTest extends TestCase
         if (!$resource->save()) {
             throw new \RuntimeException('Failed to create the publish-test resource.');
         }
+        self::track(\MODX\Revolution\modResource::class, (int) $resource->get('id'));
         return (int) $resource->get('id');
     }
 

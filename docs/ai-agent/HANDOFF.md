@@ -269,7 +269,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   change работает, без approval — `-32003`). Новые `SiteDiscoveryDeterminismTest`, `McpPublishApprovalTest`,
   `ResourceMutationE2ETest::testUpdateCannotBypassPublishApproval`,
   `IpAllowlistTest::testRejectsMalformedPrefixLengths`. Все identity (включая README, `aibridge_version` и
-  SDK `User-Agent`/clientInfo) подняты до `0.9.2` в bump-коммите. Гейты: dispatch `34779262020`
+  SDK `clientInfo`) подняты до `0.9.2` (SDK `User-Agent` остаётся `0.9` — patch) в bump-коммите. Гейты: dispatch `34779262020`
   (`a808254`) и tag-run `34779625520` (`e5514de`) — успех; оба sha256
   `721e9ce0b794e0fdeaf4441b1f2b146c48a93b508665466b31d2a2d70a95d34a` (147647 bytes), локальная сборка
   совпала. Push-CI на `a808254`: `Quality Gates` `34779253660`, `MODX Integration` `34779253650` — success.

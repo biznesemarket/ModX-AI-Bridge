@@ -12,11 +12,24 @@ final class SecurityDecisionPipeline {
   if(!$this->authorization->allows($principal,$operation,$request))return new SecurityDecision(false,'insufficient_scope',['scope']);
   if($operation==='resource.delete'&&!$this->config->isEnabled('allow_resource_delete'))return new SecurityDecision(false,'operation_disabled',['resource_delete']);
   if($operation==='settings.write'&&!$this->config->isEnabled('allow_setting_write'))return new SecurityDecision(false,'operation_disabled',['settings_write']);
-  if($operation==='resource.publish'&&$this->config->isEnabled('approval_required_for_publish')){
-   $approvalId=(int)($request['approval_id']??0);$changeId=(int)($request['change_id']??0);if($approvalId<1||$changeId<1)return new SecurityDecision(false,'approval_required',['publish_approval']);
-   if(!$this->isApprovedForChange($approvalId,$changeId))return new SecurityDecision(false,'approval_invalid',['publish_approval']);
-  }
+   if($operation==='resource.publish'&&$this->config->isEnabled('approval_required_for_publish')){
+    $approvalId=(int)($request['approval_id']??0);$changeId=(int)($request['change_id']??0);if($approvalId<1||$changeId<1)return new SecurityDecision(false,'approval_required',['publish_approval']);
+    if(!$this->isApprovedForChange($approvalId,$changeId,$principal,$request))return new SecurityDecision(false,'approval_invalid',['publish_approval']);
+   }
   $policy=$this->policyService->authorize($operation,$request+$principal);if(empty($policy['allowed']))return new SecurityDecision(false,(string)($policy['code']??'policy_denied'),$policy['reasons']??[]);return new SecurityDecision(true,'allowed');
  }
- private function isApprovedForChange(int $approvalId,int $changeId):bool {if(!$this->modx)return false;$row=$this->modx->getObject(\AIBridge\Model\Approval::class,['id'=>$approvalId,'change_id'=>$changeId,'status'=>'approved']);return $row!==null;}
+ private function isApprovedForChange(int $approvalId,int $changeId,array $principal=[],array $request=[]):bool {
+  if(!$this->modx)return false;
+  $approval=$this->modx->getObject(\AIBridge\Model\Approval::class,['id'=>$approvalId,'change_id'=>$changeId,'status'=>'approved']);
+  if($approval===null)return false;
+  $change=$this->modx->getObject(\AIBridge\Model\ChangeRequest::class,$changeId);
+  if($change===null)return false;
+  if((string)$change->get('operation')!=='resource.publish')return false;
+  $profileId=(int)($principal['profile_id']??0);
+  if($profileId>0&&(int)$change->get('profile_id')!==$profileId)return false;
+  $requestedId=(int)($request['resource_id']??0);
+  $boundId=(int)$change->get('resource_id');
+  if($requestedId>0&&$boundId>0&&$requestedId!==$boundId)return false;
+  return true;
+ }
 }

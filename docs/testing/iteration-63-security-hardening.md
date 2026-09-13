@@ -75,8 +75,8 @@ PACKAGE REPRODUCIBILITY               -> PASS (aibridge-0.9.2, sha256 721e9ce0b7
 - No schema, route, scope or setting change. Additive/behavioral only:
   `published` is no longer accepted as an update/create field (undocumented); the REST/MCP shapes are
   otherwise unchanged.
-- SDK `User-Agent`/clientInfo version is bumped to `0.9.2` (patch identity), consistent with previous patch
-  releases.
+- SDK `clientInfo` version is bumped to `0.9.2` (patch identity); the SDK `User-Agent` stays `0.9`,
+  consistent with previous patch releases.
 
 ## Remaining risks
 
