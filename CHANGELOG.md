@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- TypeScript SDK live HTTP E2E: `scripts/ts-live-check.sh` + `scripts/ts-live-runtime.php` run the compiled SDK
+  against a real MODX `/api/ai/v2/*` boundary (11 `node:test` cases: auth/401, capabilities, profile
+  isolation, schema/fingerprint, content contract/validation, resource create/update through the queue,
+  delete/publish policy denials, MCP). Wired into `scripts/test-modx.sh` as step 10b; `npm test` stays
+  offline, `npm run test:live` is the live suite.
+- Fixed Defect #35 found by that E2E: `waitForJob()` in the PHP and TypeScript SDKs only read
+  `data.status`/`status`, while `GET /api/ai/v2/jobs/{id}` returns `{success, job:{status}}`, so polling
+  timed out against the real service. Both clients now read `job.status`; runtime tests lock the shape.
+
 ## 0.1.2 — 2026-09-13
 
 - Deterministic MODX provisioning: `docker/modx/entrypoint.sh` writes `/var/www/html/.modx-ready` only

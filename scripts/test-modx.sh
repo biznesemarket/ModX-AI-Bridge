@@ -67,6 +67,9 @@ docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'set -e; code=$(curl -s -o /tmp/health.json -w "%{http_code}" http://localhost/api/ai/v2/health); test "$code" = "200"; grep -q "\"status\":\"ok\"" /tmp/health.json; code=$(curl -s -o /tmp/caps.json -w "%{http_code}" http://localhost/api/ai/v2/capabilities); test "$code" = "401"'
 
+echo "== 10b. TypeScript SDK live HTTP E2E =="
+bash "${ROOT}/scripts/ts-live-check.sh"
+
 echo "== 11. HTTP security regression =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
   bash -lc 'MODX_ROOT=/var/www/html php /workspace/modx-ai-bridge/scripts/security-regression-http.php'

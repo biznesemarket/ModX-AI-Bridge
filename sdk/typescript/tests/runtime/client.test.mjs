@@ -132,6 +132,16 @@ test('waitForJob polls until a terminal state', async () => {
   assert.equal(calls.length, 2);
 });
 
+test('waitForJob reads the real /jobs envelope (success.job.status)', async () => {
+  const { client, calls } = makeClient([
+    () => jsonResponse({ success: true, job: { id: 1, status: 'queued' } }),
+    () => jsonResponse({ success: true, job: { id: 1, status: 'completed' } }),
+  ]);
+  const job = await client.waitForJob('1', 5000, 1);
+  assert.equal(job.job.status, 'completed');
+  assert.equal(calls.length, 2);
+});
+
 test('waitForJob throws a 408 ApiError on timeout', async () => {
   const { client } = makeClient([() => jsonResponse({ data: { status: 'queued' } })]);
   await assert.rejects(client.waitForJob('job-2', 20, 5), (error) => {

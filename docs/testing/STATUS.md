@@ -1,4 +1,4 @@
-# Testing Status — Iterations 21–44
+# Testing Status — Iterations 21–49
 
 **Status: STABLE — `0.1.2` (`v0.1.2`), superseding `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
@@ -62,6 +62,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   Note: the package embeds `README.md` in its manifest, so the release README update changes the artifact hash
   (pre-release `b1b985bf…` → release `eedd5f64…`). Evidence:
   `docs/testing/iteration-48-release-0.1.2.md`, `docs/release/0.1.2.md`
+- Iteration 49 — TypeScript SDK live HTTP E2E: 11 tests against the real REST/MCP boundary through a queue
+  worker (auth, capabilities, profile isolation, schema/fingerprint, contract/validation, create/update via
+  the queue, delete/publish denials, MCP), wired into `test-modx.sh` step 10b; found and fixed Defect #35
+  (`waitForJob()` envelope mismatch in both SDKs). Evidence: `docs/testing/iteration-49-live-http-e2e.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

@@ -93,6 +93,16 @@ final class ClientContractTest extends TestCase
         self::assertSame('completed', $result['data']['status']);
     }
 
+    public function testWaitForJobReadsTheJobEnvelope(): void
+    {
+        $http = new RecordingHttpClient([
+            ['success' => true, 'job' => ['status' => 'running']],
+            ['success' => true, 'job' => ['status' => 'completed']],
+        ]);
+        $result = (new Client($http))->waitForJob('9', 5, 1);
+        self::assertSame('completed', $result['job']['status']);
+    }
+
     public function testWaitForJobTimesOutWithTypedError(): void
     {
         $http = new RecordingHttpClient(array_fill(0, 5, ['data' => ['status' => 'queued']]));

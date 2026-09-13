@@ -38,3 +38,4 @@ Register captured during planning review. Items are resolved in the referenced i
 | 32 | Apache mapping | `Alias` не отдаёт PATH_INFO; server-context rewrite не наследуется vhost | исправлено vhost rewrite |
 | 33 | Legacy class names | `modResource`/`modTemplateVar` и инспекторы | заменены на FQCN MODX 3 |
 | 34 | `_build/elements/settings.php` | `fromArray()` chained off `new` returns void → array of `null` → all 19 `aibridge_*` settings skipped by `build.php` and never packaged | исправлено (0.1.1) |
+| 35 | `sdk/{php,typescript}` `waitForJob()` | Читал только `data.status`/`status`, а реальный ответ `GET /api/ai/v2/jobs/{id}` — `{success, job:{status}}` → поллинг никогда не видел терминального статуса и падал в таймаут. Найдено live HTTP E2E | исправлено (Iteration 49), закреплено runtime-тестами |

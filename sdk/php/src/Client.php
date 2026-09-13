@@ -15,7 +15,7 @@ final class Client {
  public function previewResource(array $resource): array { return $this->http->request('POST','/api/ai/v2/resources/preview',[], $resource); }
  public function publishResource(int $id,string $approvalId,string $idempotencyKey): array { return $this->http->request('POST','/api/ai/v2/resources/'.$id.'/publish',['Idempotency-Key'=>$idempotencyKey],['approval_id'=>$approvalId]); }
  public function job(string $id): array { return $this->http->request('GET','/api/ai/v2/jobs/'.$id); }
- public function waitForJob(string $id,int $timeoutSeconds=60,int $pollSeconds=1): array { $deadline=time()+$timeoutSeconds; do{$job=$this->job($id);$status=(string)($job['data']['status']??$job['status']??'');if(in_array($status,['completed','failed','cancelled'],true))return $job;sleep(max(1,$pollSeconds));}while(time()<$deadline); throw new ApiException('Job polling timeout',408,'job_timeout',['job_id'=>$id]); }
+ public function waitForJob(string $id,int $timeoutSeconds=60,int $pollSeconds=1): array { $deadline=time()+$timeoutSeconds; do{$job=$this->job($id);$status=(string)($job['data']['status']??$job['job']['status']??$job['status']??'');if(in_array($status,['completed','failed','cancelled'],true))return $job;sleep(max(1,$pollSeconds));}while(time()<$deadline); throw new ApiException('Job polling timeout',408,'job_timeout',['job_id'=>$id]); }
  public function mcp(McpClient $mcp): McpClient { return $mcp; }
 }
 final class McpClient {
