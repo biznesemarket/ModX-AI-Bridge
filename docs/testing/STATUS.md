@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–58
+# Testing Status — Iterations 21–59
 
-**Status: STABLE — `0.7.1` (`v0.7.1`), superseding `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.8.0` (`v0.8.0`), superseding `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -124,6 +124,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `0223e5e` (run `34766913833`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256
   `f9ee3089…`, `OK (142 tests, 744 assertions)`, `STABLE certification gates passed.`); tag `v0.7.1`. Evidence:
   `docs/testing/iteration-58-manager-xpdo-fixes.md`, `docs/release/0.7.1.md`
+- Iteration 59 — `0.8.0` minor release: `context_key`/`template_id` filters (and a real `limit`) for the
+  site-schema resource list; integration coverage for `AdminProcessor` (3 branches) and
+  `ResourceExplorerService::get/contract/qa/fingerprintDiff`; `publishedon` summary assertion. All version
+  identities committed before the gate. Gate green on `d49c044` (run `34769066811`;
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `c0b96adb…`,
+  `OK (149 tests, 783 assertions)`, `STABLE certification gates passed.`); tag `v0.8.0`. Evidence:
+  `docs/testing/iteration-59-manager-coverage-site-filters.md`, `docs/release/0.8.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

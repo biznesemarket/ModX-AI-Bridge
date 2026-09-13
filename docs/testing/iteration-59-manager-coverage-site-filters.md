@@ -62,8 +62,14 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.8.0, sha256 c0b96adb89c991a9c30b2164fd
 - `AdminProcessor` behaviour is unchanged; the new tests assert the existing guard. No scope, schema, migration
   or setting change.
 
+## Certification
+
+`Release` dispatch on `main`, commit `d49c044`, run `34769066811`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (149 tests, 783 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `c0b96adb…` (145761 bytes) matches
+the local build. Evidence artifact: `release-evidence-d49c04428824201573e248c0c87593a5417facd3`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.8.0` (additive minor). Next, per the
-established flow: bump all identity files (including README and the SDK `User-Agent`) -> full CI gate ->
-evidence/tag -> tag-run -> GitHub Release.
+Stable `0.8.0`, certified by run `34769066811`; tag `v0.8.0` and the GitHub Release are recorded in
+`docs/release/0.8.0.md`.
