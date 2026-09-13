@@ -2,18 +2,19 @@
 
 Дата: 2026-09-13
 Состояние: **STABLE `0.1.1`** (tag `v0.1.1`, GitHub Release опубликован). `main` ушёл вперёд на
-нерелизные улучшения (Iterations 45–46).
+нерелизные улучшения (Iterations 45–47).
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `8326fda2e465c6863691e312c1b06b09051d2d9d` (синхронизирован с origin), дерево чистое.
+- `main` = `93ac2bde5fa62d3e042b233ed9b18f698fcd1110` (синхронизирован с origin), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`). GitHub Releases: `v0.1.1`, `v0.1.0` (оба не prerelease).
 
 Ключевые коммиты (новые сверху):
 
 ```text
+93ac2bd Iteration 47: Pin container images and CI actions (supply chain)
 8326fda Iteration 46: TypeScript SDK runtime tests
 0b97dcd Iteration 45: Deterministic MODX provisioning readiness marker
 6780a0a Iteration 44: Record Stable 0.1.1 release and evidence
@@ -27,10 +28,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 77bb849 Iteration 40: Unblock TypeScript SDK certification gate
 ```
 
-> `v0.1.1` указывает на `6780a0a`; `main` (`8326fda`) содержит ещё Iterations 45–46 (Unreleased).
+> `v0.1.1` указывает на `6780a0a`; `main` (`93ac2bd`) содержит ещё Iterations 45–47 (Unreleased).
 > Исторические теги/релизы **не переписывать**.
 
-## 2. Что сделано (Iterations 30–46)
+## 2. Что сделано (Iterations 30–47)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -56,6 +57,11 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `test-modx.sh` ждёт этот маркер и явно падает, если его нет.
 - **46 — Runtime-тесты TS SDK.** `sdk/typescript/tests/runtime/client.test.mjs` — 11 тестов на `node:test`
   против собранного `dist` с fake `fetch`; `npm test` = `node --test`; без новых зависимостей.
+- **47 — Supply-chain pinning.** Образы закреплены по digest (`php:8.2-apache`, `composer:2` в
+  `docker/modx/Dockerfile`; `mysql:8.0` в обоих compose), все `uses:` — по 40-символьному commit SHA с
+  комментарием тега. Добавлены `.github/dependabot.yml` (недельные `github-actions`/`docker` PR) и гейт
+  `scripts/verify-supply-chain-pins.sh` (вызывается из `scripts/quality-gate.sh`). `sha_pinning_required`
+  включён на уровне репозитория. Application-код и transport-архив не менялись (sha256 `0.1.1` актуален).
 
 ## 3. Доказательства
 
@@ -63,7 +69,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
-  `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`.
+  `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
+  `iteration-47-supply-chain-pinning.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -127,13 +134,17 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   SecurityDecisionPipeline обязательны.
 - `composer lint` — unix-only (`find|xargs`), только в контейнере. Entrypoint `/var/www/html/.modx-ready` —
   маркер готовности MODX; `test-modx.sh` ждёт именно его.
+- Supply chain: любой `uses:` — только полный 40-символьный commit SHA; образы — только `@sha256:` digest.
+  После добавления/обновления action или образа прогонять `bash scripts/verify-supply-chain-pins.sh`.
+  `sha_pinning_required=true`, поэтому незакреплённый action ломает запуск workflow (это намеренно).
 - Коммит/пуш — по явной команде; git identity настроена локально (`githubcms`), `composer.lock` в репозитории.
 
 ## 5. Остаточные риски
 
-- Кросс-среда воспроизводимость доказана для текущего тулчейна (PHP 8.2.33, zlib 1.3.1); для устойчивости
-  во времени стоит пиннить digest образа `php:8.2-apache`.
-- Actions закреплены плавающими мажорами (`@v7`, `@v4`, `@v2`), не по SHA; `sha_pinning_required=false`.
+- Digest-пины образов и SHA-пины actions обновляются только через Dependabot-PR (`.github/dependabot.yml`,
+  раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE.
+- `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
+  невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
 - TS-тесты используют fake `fetch` — live-HTTP E2E против поднятого MODX из TS нет (серверная сторона
   покрыта PHP runtime/integration).
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт.
@@ -142,17 +153,18 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.1.1` выпущен; обязательных гейтов нет. `main` содержит нерелизные 45–46 — при следующем релизе они
+Stable `0.1.1` выпущен; обязательных гейтов нет. `main` содержит нерелизные 45–47 — при следующем релизе они
 войдут в новый патч/минор (`0.1.2`/`0.2.0`) с новым тегом и прогоном
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` (+ обновление release/evidence).
 
 Приоритетные кандидаты:
 
-1. **Supply-chain pinning**: digest `php:8.2-apache`/`mysql:8.0` в `docker-compose.yml` и actions по commit SHA.
-2. **TS live-HTTP E2E** (опционально): прогон SDK против реального `/api/ai/v2/*` на поднятом MODX.
-3. **Следующий minor `0.2.0`**: определиться с ветвлением (`develop`) и составом; новый CHANGELOG-раздел.
-4. Мелочи: нет MODX-настройки `aibridge_version` (используются кодовые дефолты) — при желании добавить в
+1. **TS live-HTTP E2E** (опционально): прогон SDK против реального `/api/ai/v2/*` на поднятом MODX.
+2. **Следующий minor `0.2.0`**: определиться с ветвлением (`develop`) и составом; новый CHANGELOG-раздел.
+3. Мелочи: нет MODX-настройки `aibridge_version` (используются кодовые дефолты) — при желании добавить в
    `_build/elements/settings.php`.
+
+Выполнено: supply-chain pinning (Iteration 47) и включение `sha_pinning_required` — этот пункт закрыт.
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
