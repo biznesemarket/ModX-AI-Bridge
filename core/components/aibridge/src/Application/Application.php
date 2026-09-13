@@ -35,7 +35,7 @@ final class Application
 
     public function health(): array
     {
-        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.6.0'];
+        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.7.0'];
     }
 
     public function discoverSite(array $input = []): array
@@ -57,7 +57,7 @@ final class Application
 
     public function aiCapabilities(): array
     {
-        return (new CapabilityService())->manifest();
+        return (new CapabilityService(modx: $this->modx))->manifest();
     }
 
     public function dispatchJob(Job $job): string

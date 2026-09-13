@@ -22,7 +22,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.6.0');
+  assert.equal(health.version, '0.7.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -41,6 +41,7 @@ test('capabilities with the scoped token exposes REST and MCP', async () => {
   assert.equal(response.data.interfaces.rest.version, 'v2');
   assert.equal(response.data.interfaces.mcp.protocolVersion, '2025-06-18');
   assert.ok(response.data.capabilities.length > 0);
+  assert.ok(response.data.contexts.some((item) => item.key === 'web'));
 });
 
 test('profiles are isolated to the live profile', async () => {
@@ -174,7 +175,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.6.0');
+  assert.equal(init.result.serverInfo.version, '0.7.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));

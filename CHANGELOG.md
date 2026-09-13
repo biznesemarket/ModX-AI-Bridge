@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — 2026-09-13
+
+- `/capabilities` now advertises the available MODX contexts (`key`, `name`, `description`), so clients know the
+  valid `context_key` filter values.
+- The resource-list TV filter is join-based: it matches an explicit `modTemplateVarResource` value through a
+  join instead of materializing `contentid`s and applying `id:IN`, so `count`/`total` stay a single aggregate
+  query. Public filter contract unchanged.
+- `publishedon` is confirmed as a supported `sort` column and is now covered by an integration test.
+- Additive: no new scope, schema, migration or setting; the resource list response is unchanged.
+
 ## 0.6.0 — 2026-09-13
 
 - Template-variable filter for the resource list: `GET /api/ai/v2/resources` and the `resource_list` MCP tool
