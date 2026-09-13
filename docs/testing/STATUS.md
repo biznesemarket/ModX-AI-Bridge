@@ -57,8 +57,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   and image build verified on the pinned toolchain. Evidence:
   `docs/testing/iteration-47-supply-chain-pinning.md`
 - Iteration 48 — `0.1.2` patch release: version bump across package/runtime/SDK identity, CHANGELOG section,
-  full gate green on `ad92ab5` (run `34748277073`; `PACKAGE REPRODUCIBILITY: PASS`, sha256 `b1b985bf…`;
-  `STABLE certification gates passed.`); tag `v0.1.2`. Evidence:
+  full gate green on `ad92ab5` (run `34748277073`) and again on the tagged `c8ac594` (tag run `34748489085`;
+  `PACKAGE REPRODUCIBILITY: PASS`, sha256 `eedd5f64…`; `STABLE certification gates passed.`); tag `v0.1.2`.
+  Note: the package embeds `README.md` in its manifest, so the release README update changes the artifact hash
+  (pre-release `b1b985bf…` → release `eedd5f64…`). Evidence:
   `docs/testing/iteration-48-release-0.1.2.md`, `docs/release/0.1.2.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings

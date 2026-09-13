@@ -21,8 +21,12 @@ package reproducibility                              PACKAGE REPRODUCIBILITY: PA
 STABLE certification gates passed.
 ```
 
-- Certified artifact: `aibridge-0.1.2.transport.zip`, SHA-256
-  `b1b985bffdd3a661bd3f99cfa1b333fee854a5339b0fb0d34468e1575b9acf94` (local build == CI artifact).
+- Release artifact: `aibridge-0.1.2.transport.zip`, SHA-256
+  `eedd5f643fe97b378f5a4304fb3296b61a88db045d78302887417d88f8cb582d` (139585 bytes), reproduced locally from
+  the tagged commit `c8ac594`; the pre-release dispatch run `34748277073` certified the same code and produced
+  `b1b985bf…` before the release README update was embedded into the package manifest.
+- The published artifact is built and certified again by the `v0.1.2` tag run `34748489085`
+  (`STABLE certification gates passed.`).
 - Patch release over `0.1.1`: deterministic provisioning marker, TypeScript SDK runtime tests and
   supply-chain pinning (images by digest, actions by SHA, `sha_pinning_required=true`).
 - See `docs/release/0.1.2.md`.

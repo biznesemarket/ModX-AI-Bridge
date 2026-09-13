@@ -39,23 +39,35 @@ Transport Package installation: PASS (Signature: aibridge-0.1.2)
 MODX runtime verification: PASS (namespace, xPDO models, service container, menu, processor)
 SELECT COUNT(*) ... aibridge_%                        19
 PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.2, sha256 b1b985bffdd3a661bd3f99cfa1b333fee854a5339b0fb0d34468e1575b9acf94)
+# pre-release tree; after the README release update the tagged tree reproduces eedd5f64… (see Packaging note)
 ```
 
 ## Certification
 
-`Release` dispatch on `main`, commit `ad92ab5`, run `34748277073`: `verify` PASS (incl.
-`SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS.
+Pre-release `Release` dispatch on `main`, commit `ad92ab5`, run `34748277073`: `verify` PASS (incl.
+`SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS; artifact sha256 `b1b985bf…` (139544 bytes).
+
+Release commit `c8ac594` (tag `v0.1.2`), tag run `34748489085`: all three jobs PASS again, including the full
+`AIBRIDGE_RUNTIME=1` gate:
 
 ```text
 Transport Package installation: PASS (Signature: aibridge-0.1.2)
 MODX runtime verification: PASS
 OK (123 tests, 626 assertions)
-PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.2, sha256 b1b985bffdd3a661bd3f99cfa1b333fee854a5339b0fb0d34468e1575b9acf94)
+PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.2, sha256 eedd5f643fe97b378f5a4304fb3296b61a88db045d78302887417d88f8cb582d)
 STABLE certification gates passed.
 ```
 
-Local build and CI artifact hash identically (`b1b985bf…`). Evidence artifact:
-`release-evidence-ad92ab5caee304ef0a62c6a8a53183a9b1be97a2` (99476 bytes, 90 days).
+A local rebuild of the tagged tree reproduces `eedd5f64…` exactly. Evidence artifacts:
+`release-evidence-ad92ab5…` (99476 bytes) and `release-evidence-c8ac594…` (99525 bytes), 90 days.
+
+## Packaging note (process)
+
+`_build/build.php` embeds the repository `README.md` into the package manifest. The release record updates
+README from `0.1.1` to `0.1.2`, so the artifact hash changes between the pre-release certification and the
+tagged tree (`b1b985bf…` → `eedd5f64…`); the tag run re-certifies the final bytes. **Process rule for the next
+release:** update every version identity, including `README.md`, in the bump commit *before* dispatching the
+gate, so the certified artifact and the tag run produce the same hash (as happened for `0.1.1`).
 
 ## Notes
 
