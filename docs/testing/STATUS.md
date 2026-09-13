@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–49
+# Testing Status — Iterations 21–53
 
-**Status: STABLE — `0.2.0` (`v0.2.0`), superseding `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.3.0` (`v0.3.0`), superseding `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -80,6 +80,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `b8525cda…`,
   `OK (129 tests, 650 assertions)`, `STABLE certification gates passed.`); tag `v0.2.0`. Evidence:
   `docs/testing/iteration-52-release-0.2.0.md`, `docs/release/0.2.0.md`
+- Iteration 53 — `0.3.0` minor release: template variables in the read-back projection (`tvs` map on
+  `GET /resources/{id}` and the `resource_read` MCP tool), `resource.read` in the capability catalog and typed
+  TypeScript SDK read-back (`ResourceProjection`/`ResourceReadResponse`); all version identities (including
+  README, `aibridge_version` and the SDK `User-Agent` `0.2` -> `0.3`) committed before the gate. Gate green on
+  `dc3bd8a` (run `34756679369`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256
+  `9c3e547d…`, `OK (130 tests, 663 assertions)`, `STABLE certification gates passed.`); tag `v0.3.0`. Evidence:
+  `docs/testing/iteration-53-readback-tvs.md`, `docs/release/0.3.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

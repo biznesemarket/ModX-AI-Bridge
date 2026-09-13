@@ -1,8 +1,37 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.2.0` (previous: `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.3.0` (previous: `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.2.0 (current)
+## 0.3.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `dc3bd8a`, run `34756679369`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (60 tests, 190 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 51 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.3.0.transport.zip`, SHA-256
+  `9c3e547daace05e226480e3d31fe13e4d11a27ecd154e4eb8ac5b9125d132106` (142077 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.2.0`: template variables in the read-back projection (`tvs` map on
+  `GET /resources/{id}` and the `resource_read` MCP tool), `resource.read` in the capability catalog and typed
+  TypeScript SDK read-back types.
+- Additive only: no schema/migration change, no new route/scope/setting, no API contract break.
+- See `docs/release/0.3.0.md`.
+
+## 0.2.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `350fc28`, run `34753117255`:

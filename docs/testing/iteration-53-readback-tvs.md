@@ -60,8 +60,14 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.3.0, sha256 9c3e547daace05e226480e3d31
   tokens, queue internals or audit data, and no existing behavior is altered.
 - `GET /resources/{id}` and the `resource_read` MCP tool (same operation) both return the `tvs` map.
 
+## Certification
+
+`Release` dispatch on `main`, commit `dc3bd8a`, run `34756679369`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (130 tests, 663 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `9c3e547d…` (142077 bytes) matches
+the local build. Evidence artifact: `release-evidence-dc3bd8a1935d43043829cc4fc2b3b652d6167289`.
+
 ## Status
 
-Implementation complete and locally verified; version identities bumped to `0.3.0` (minor: additive read-back
-feature plus capability listing). Target release: `0.3.0`. Next, per the established flow: full CI gate
-(`gh workflow run release.yml --ref main`) -> evidence/tag -> tag-run -> GitHub Release.
+Stable `0.3.0`, certified by run `34756679369`; tag `v0.3.0` and the GitHub Release are recorded in
+`docs/release/0.3.0.md`.
