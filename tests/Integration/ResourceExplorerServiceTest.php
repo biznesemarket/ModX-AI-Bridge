@@ -77,6 +77,45 @@ final class ResourceExplorerServiceTest extends TestCase
         self::assertSame([1, 2], array_column($tree, 'menuindex'));
     }
 
+    public function testTreeDepthExpandsNestedChildrenAndHidesDeletedSubtrees(): void
+    {
+        $service = new ResourceExplorerService(self::$modx);
+        $root = self::createResource(self::$prefix . ' depth root', 0, 0);
+        $child = self::createResource(self::$prefix . ' depth child', $root, 1);
+        $grandchild = self::createResource(self::$prefix . ' depth grandchild', $child, 1);
+        $greatGrandchild = self::createResource(self::$prefix . ' depth great', $grandchild, 1);
+        self::createResource(self::$prefix . ' depth greatgreat', $greatGrandchild, 1);
+
+        $flat = $service->tree($root, 50, 0);
+        self::assertCount(1, $flat);
+        self::assertSame($child, (int) $flat[0]['id']);
+        self::assertTrue((bool) $flat[0]['has_children']);
+        self::assertArrayNotHasKey('children', $flat[0], 'Depth 0 is a flat list.');
+
+        $oneLevel = $service->tree($root, 50, 1);
+        self::assertCount(1, $oneLevel);
+        $childNode = $oneLevel[0]['children'][0] ?? null;
+        self::assertNotNull($childNode);
+        self::assertSame($grandchild, (int) $childNode['id']);
+        self::assertArrayNotHasKey('children', $childNode, 'Depth 1 adds exactly one child level.');
+
+        $twoLevels = $service->tree($root, 50, 2);
+        self::assertCount(1, $twoLevels);
+        $childNode = $twoLevels[0]['children'][0] ?? null;
+        self::assertNotNull($childNode);
+        $grandchildNode = $childNode['children'][0] ?? null;
+        self::assertNotNull($grandchildNode);
+        self::assertSame($greatGrandchild, (int) $grandchildNode['id']);
+        self::assertArrayNotHasKey('children', $grandchildNode, 'Depth 2 stops after two nested child levels.');
+
+        $childObject = self::$modx->getObject(\MODX\Revolution\modResource::class, $child);
+        self::assertNotNull($childObject);
+        $childObject->set('deleted', 1);
+        $childObject->save();
+
+        self::assertSame([], $service->tree($root, 50, 2), 'A soft-deleted child hides its whole subtree.');
+    }
+
     public function testGetReturnsDetailsAndTemplateVariables(): void
     {
         $service = new ResourceExplorerService(self::$modx);

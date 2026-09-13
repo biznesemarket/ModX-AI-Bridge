@@ -40,9 +40,9 @@ final class OperationsConsoleService
 
     public function profiles(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Profile', [], ['limit' => max(1, min(500, $limit))]);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Profile', $this->query('AIBridge\\Model\\Profile', $limit));
         $items = [];
-        foreach ($objects as $profile) {
+        foreach ($objects ?: [] as $profile) {
             $items[] = [
                 'id' => (int) $profile->get('id'),
                 'name' => (string) $profile->get('name'),
@@ -59,9 +59,9 @@ final class OperationsConsoleService
 
     public function tokens(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Token', [], ['limit' => max(1, min(500, $limit))]);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Token', $this->query('AIBridge\\Model\\Token', $limit));
         $items = [];
-        foreach ($objects as $token) {
+        foreach ($objects ?: [] as $token) {
             $scopes = json_decode((string) $token->get('scopes_json'), true);
             $items[] = [
                 'id' => (int) $token->get('id'),
@@ -80,9 +80,9 @@ final class OperationsConsoleService
 
     public function policies(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Policy', [], ['limit' => max(1, min(500, $limit))]);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Policy', $this->query('AIBridge\\Model\\Policy', $limit));
         $items = [];
-        foreach ($objects as $policy) {
+        foreach ($objects ?: [] as $policy) {
             $rules = json_decode((string) $policy->get('rules_json'), true);
             $items[] = [
                 'id' => (int) $policy->get('id'),
@@ -98,9 +98,9 @@ final class OperationsConsoleService
 
     public function jobs(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Job', [], ['limit' => max(1, min(500, $limit)), 'sortby' => 'created_at', 'sortdir' => 'DESC']);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Job', $this->query('AIBridge\\Model\\Job', $limit, 'created_at', 'DESC'));
         $items = [];
-        foreach ($objects as $job) {
+        foreach ($objects ?: [] as $job) {
             $items[] = [
                 'id' => (int) $job->get('id'),
                 'profile_id' => (int) $job->get('profile_id'),
@@ -121,9 +121,9 @@ final class OperationsConsoleService
 
     public function audit(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\AuditEvent', [], ['limit' => max(1, min(500, $limit)), 'sortby' => 'created_at', 'sortdir' => 'DESC']);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\AuditEvent', $this->query('AIBridge\\Model\\AuditEvent', $limit, 'created_at', 'DESC'));
         $items = [];
-        foreach ($objects as $event) {
+        foreach ($objects ?: [] as $event) {
             $context = json_decode((string) $event->get('context_json'), true);
             $items[] = [
                 'id' => (int) $event->get('id'),
@@ -143,9 +143,9 @@ final class OperationsConsoleService
 
     public function fingerprints(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Fingerprint', [], ['limit' => max(1, min(500, $limit)), 'sortby' => 'created_at', 'sortdir' => 'DESC']);
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Fingerprint', $this->query('AIBridge\\Model\\Fingerprint', $limit, 'created_at', 'DESC'));
         $items = [];
-        foreach ($objects as $fingerprint) {
+        foreach ($objects ?: [] as $fingerprint) {
             $items[] = [
                 'id' => (int) $fingerprint->get('id'),
                 'profile_id' => (int) $fingerprint->get('profile_id'),
@@ -159,14 +159,14 @@ final class OperationsConsoleService
 
     public function changes(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\ChangeRequest', [], ['limit' => max(1, min(500, $limit)), 'sortby' => 'created_at', 'sortdir' => 'DESC']);
-        $items=[]; foreach($objects as $row){ $items[]=$row->toArray(); } return $items;
+        $objects = $this->modx->getCollection('AIBridge\\Model\\ChangeRequest', $this->query('AIBridge\\Model\\ChangeRequest', $limit, 'created_at', 'DESC'));
+        $items=[]; foreach($objects ?: [] as $row){ $items[]=$row->toArray(); } return $items;
     }
 
     public function approvals(int $limit = 100): array
     {
-        $objects = $this->modx->getCollection('AIBridge\\Model\\Approval', [], ['limit' => max(1, min(500, $limit)), 'sortby' => 'requested_at', 'sortdir' => 'DESC']);
-        $items=[]; foreach($objects as $row){ $items[]=$row->toArray(); } return $items;
+        $objects = $this->modx->getCollection('AIBridge\\Model\\Approval', $this->query('AIBridge\\Model\\Approval', $limit, 'requested_at', 'DESC'));
+        $items=[]; foreach($objects ?: [] as $row){ $items[]=$row->toArray(); } return $items;
     }
 
     public function setProfileStatus(int $id, string $status): bool
@@ -195,6 +195,16 @@ final class OperationsConsoleService
         if (!$policy) return false;
         $policy->set('status', $status);
         return (bool) $policy->save();
+    }
+
+    private function query(string $class, int $limit, ?string $sortBy = null, string $sortDir = 'ASC'): \xPDO\Om\xPDOQuery
+    {
+        $query = $this->modx->newQuery($class);
+        $query->limit(max(1, min(500, $limit)));
+        if ($sortBy !== null) {
+            $query->sortby($sortBy, $sortDir);
+        }
+        return $query;
     }
 
     private function databaseReady(): bool

@@ -13,6 +13,12 @@ final class ResourceExplorerService
 {
     public function __construct(private readonly modX $modx) {}
 
+    /**
+     * Nested resource tree below `$parent`. `$depth` is the number of nested
+     * `children` levels: 0 is a flat list, 1 adds one child level, and so on;
+     * `$limit` bounds each level and deeper levels are capped at 100 items.
+     * Soft-deleted resources are never walked.
+     */
     public function tree(int $parent = 0, int $limit = 100, int $depth = 2): array
     {
         $limit = max(1, min(500, $limit));
@@ -21,7 +27,7 @@ final class ResourceExplorerService
         $query->limit($limit)->sortby('modResource.menuindex', 'ASC');
         $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $query);
         $items = [];
-        foreach ($resources as $resource) {
+        foreach ($resources ?: [] as $resource) {
             $id = (int) $resource->get('id');
             $items[] = $this->summary($resource, true);
             $items[array_key_last($items)]['has_children'] = (bool) $this->modx->getCount(\MODX\Revolution\modResource::class, ['parent' => $id, 'deleted' => 0]);
