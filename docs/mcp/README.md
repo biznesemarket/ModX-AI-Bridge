@@ -20,8 +20,12 @@ Iteration 10 adds a transport-neutral MCP server over the existing Application a
 - `tools/call`
 - `resources/list`
 - `resources/read`
+- `resources/templates/list`
 - `prompts/list`
 - `prompts/get`
+
+Resource URI templates (for example `modx://resource/{id}`) are advertised through `resources/templates/list`
+and resolved through `resources/read` under the same security pipeline as the matching tool.
 
 The implementation is transport-neutral. An HTTP/SSE or Streamable HTTP adapter can invoke `McpServer::handle()` without duplicating business logic.
 

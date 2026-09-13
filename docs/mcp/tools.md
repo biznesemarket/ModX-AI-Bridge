@@ -9,6 +9,7 @@ The transport adapter forwards JSON-RPC requests to `McpServer::handle()`:
 - `tools/call`
 - `resources/list`
 - `resources/read`
+- `resources/templates/list`
 - `prompts/list`
 - `prompts/get`
 
@@ -55,3 +56,12 @@ summary projection (id/parent/pagetitle/alias/template/context/timestamps/state,
 `count`, `total`, `limit` and `offset`. Invalid filter values return `invalid_filter` in the tool result payload.
 
 Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources`.
+
+## Resource templates
+
+`resources/templates/list` advertises the URI templates the server serves. `modx://resource/{id}` resolves to
+the read-back projection of one persisted resource — the same payload as the `resource_read` tool and
+`GET /api/ai/v2/resources/{id}`. A missing or soft-deleted resource returns JSON-RPC error `-32002`
+(`Resource not found` with `reason: resource_not_found`).
+
+Required scope: `resource:read`.

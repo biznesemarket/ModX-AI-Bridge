@@ -15,5 +15,7 @@ final class McpContractTest extends TestCase
         self::assertStringContainsString('tools/list', $text);
         self::assertStringContainsString('tools/call', $text);
         self::assertStringContainsString('content_validate', $text);
+        self::assertStringContainsString('resources/templates/list', $text);
+        self::assertStringContainsString('modx://resource/{id}', $text);
     }
 }

@@ -14,8 +14,9 @@ The adapter:
 7. preserves request IDs and never logs bearer tokens.
 
 `McpServer::handle()` applies the full security pipeline per tool/resource (`-32003` on denial) and
-supports: `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`, `prompts/list`,
-`prompts/get`; unknown methods return `-32601`, unknown tools `-32602`, unknown resources `-32002`.
+supports: `initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`,
+`resources/templates/list`, `prompts/list`, `prompts/get`; unknown methods return `-32601`, unknown tools
+`-32602`, unknown resources `-32002`.
 
 `resource_publish` requires `approval_id` and `change_id`; the approval record is verified against the
 change before execution. Write/delete/publish tools run through `Application` → `ResourceExecutionService`
