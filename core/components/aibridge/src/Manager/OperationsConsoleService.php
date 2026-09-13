@@ -14,7 +14,7 @@ final class OperationsConsoleService
     {
         return [
             'component' => 'modx-ai-bridge',
-            'version' => (string) $this->modx->getOption('aibridge_version', null, '0.8.0'),
+            'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.0'),
             'php' => PHP_VERSION,
             'modx' => defined('MODX_VERSION') ? MODX_VERSION : 'unknown',
             'environment' => (string) $this->modx->getOption('aibridge_environment', null, 'production'),

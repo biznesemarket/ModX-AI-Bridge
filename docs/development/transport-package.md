@@ -1,6 +1,6 @@
 # Transport Package
 
-Status: Stable (`0.8.0`)
+Status: Stable (`0.9.0`)
 
 Iteration 4.2 replaces the previous placeholder builder with a MODX 3 Transport Package build path.
 
@@ -15,7 +15,7 @@ MODX_ROOT=/absolute/path/to/modx php _build/build.php
 The build script uses the MODX 3 namespaced transport classes and writes:
 
 ```text
-core/packages/aibridge-0.8.0.transport.zip
+core/packages/aibridge-0.9.0.transport.zip
 ```
 
 A release-candidate build carries an extra suffix (for example `aibridge-0.1.0-rc1.transport.zip`); the
@@ -48,7 +48,7 @@ this as step 15.
 
 ```bash
 MODX_ROOT=/absolute/path/to/modx \
-php scripts/install-package.php aibridge-0.8.0
+php scripts/install-package.php aibridge-0.9.0
 ```
 
 The installer invokes MODX's `workspace/packages/scanlocal` and `workspace/packages/install` processors.

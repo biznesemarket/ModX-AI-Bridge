@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 — 2026-09-13
+
+- Recursive `parent` list filter: `GET /api/ai/v2/resources` and the `resource_list` MCP tool accept an
+  optional `depth` (1..10, default 1) alongside `parent`. `depth = 1` keeps the historical direct-children
+  behaviour; higher values include descendants down to that many tree levels. Soft-deleted resources are
+  skipped while walking, so a soft-deleted node hides its subtree. `depth` without `parent`, or a value
+  outside 1..10, returns `400 invalid_filter`.
+- `parent` is now a supported `sort` column.
+- Additive: no new scope, route, schema, migration or setting; the response shape is unchanged.
+
 ## 0.8.0 — 2026-09-13
 
 - Site-schema resource filters: `GET /api/ai/v2/site/schema` (and the `site_schema` MCP tool) accept

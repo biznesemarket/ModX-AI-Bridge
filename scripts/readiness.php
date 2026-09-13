@@ -23,7 +23,7 @@ try {
     http_response_code($ready ? 200 : 503);
     echo json_encode([
         'component' => 'modx-ai-bridge',
-        'version' => (string)$modx->getOption('aibridge_version', null, '0.8.0'),
+        'version' => (string)$modx->getOption('aibridge_version', null, '0.9.0'),
         'status' => $ready ? 'ready' : 'not_ready',
         'checks' => $checks,
     ], JSON_UNESCAPED_SLASHES);
