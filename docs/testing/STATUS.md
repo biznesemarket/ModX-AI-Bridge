@@ -146,6 +146,14 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   (run `34773039854`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `06e80843…`,
   `OK (158 tests, 923 assertions)`, `STABLE certification gates passed.`); tag `v0.9.1`. Evidence:
   `docs/testing/iteration-61-manager-coverage.md`, `docs/release/0.9.1.md`
+- Iteration 62 — manager processor coverage (no release): `ResourcesProcessor`
+  (`tree`/`search`/`get`/`contract`/`qa`/`fingerprint_diff`, unknown-mode fallback), `OverviewProcessor`
+  (bounded console sections + readiness) and `ActionProcessor` (validation + profile/token/policy status
+  transitions), each covered with the manager permission guard. New `ManagerProcessorsTest` (4 tests).
+  Tests/docs only, so the transport package is unchanged and no version bump/release was made; Stable stays
+  `0.9.1`. Dependabot PR #1 (`php:8.2-apache` -> `php:8.5-apache`) reviewed and intentionally not merged
+  (MODX 3.2.2-pl is certified on PHP 8.2 only). Evidence:
+  `docs/testing/iteration-62-manager-processors.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
