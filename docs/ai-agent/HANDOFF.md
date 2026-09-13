@@ -8,12 +8,14 @@
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `93ac2bde5fa62d3e042b233ed9b18f698fcd1110` (синхронизирован с origin), дерево чистое.
+- `main` = `98a592f79f4636562bb105e85a92920e66f5af2e` (синхронизирован с origin; последний code-коммит
+  `93ac2bd`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`). GitHub Releases: `v0.1.1`, `v0.1.0` (оба не prerelease).
 
 Ключевые коммиты (новые сверху):
 
 ```text
+98a592f Iteration 47: Update handoff for supply-chain pinning closure
 93ac2bd Iteration 47: Pin container images and CI actions (supply chain)
 8326fda Iteration 46: TypeScript SDK runtime tests
 0b97dcd Iteration 45: Deterministic MODX provisioning readiness marker
@@ -28,7 +30,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 77bb849 Iteration 40: Unblock TypeScript SDK certification gate
 ```
 
-> `v0.1.1` указывает на `6780a0a`; `main` (`93ac2bd`) содержит ещё Iterations 45–47 (Unreleased).
+> `v0.1.1` указывает на `6780a0a`; `main` (`98a592f`) содержит ещё Iterations 45–47 (Unreleased).
 > Исторические теги/релизы **не переписывать**.
 
 ## 2. Что сделано (Iterations 30–47)
@@ -88,6 +90,12 @@ db949b5 run 34743692154   (0.1.1 dispatch)
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
+
+Полный гейт на `98a592f` (`Release`, dispatch, run `34747385780`, 2026-09-13): `verify` PASS
+(`SUPPLY CHAIN PINS: PASS`), `certify` PASS (`STABLE certification gates passed.`,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `26ccdee1…`), `package` PASS; артефакт
+`release-evidence-98a592f79f4636562bb105e85a92920e66f5af2e` (99483 bytes, 90 дней).
+Репозиторий: `sha_pinning_required=true` (проверено).
 
 Артефакты: `aibridge-0.1.1.transport.zip` sha256 `26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`
 (воспроизводим: локальная сборка == CI-артефакт); `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).

@@ -59,10 +59,21 @@ UNPINNED Dockerfile base image: php:8.2-apache
 SUPPLY CHAIN PINS: FAIL
 ```
 
+Full release gate on `main` (workflow_dispatch, run `34747385780`, HEAD `98a592f`):
+
+```text
+verify:   bash scripts/quality-gate.sh   ... SUPPLY CHAIN PINS: PASS
+certify:  AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh
+          PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.1, sha256 26ccdee1…)
+          STABLE certification gates passed.
+package:  PASS
+artifact: release-evidence-98a592f79f4636562bb105e85a92920e66f5af2e (99483 bytes)
+```
+
 ## Notes
 
-- Repository-level `sha_pinning_required` is still `false`; enabling it is a GitHub setting change, not a code
-  change, and remains a follow-up (see `docs/ai-agent/HANDOFF.md`).
+- Repository-level `sha_pinning_required` is enabled (`true`), so an unpinned `uses:` now fails the workflow
+  instead of only failing the local check.
 - Pinned digests are manifest-list (OCI index) digests, so multi-arch runners keep working.
 - No application code, package contents or the transport archive change: this is a build/CI-only hardening, so
   `aibridge-0.1.1.transport.zip` and its SHA-256 stay valid. The next release still requires a full
