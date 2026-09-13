@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 — 2026-09-13
 
 - TypeScript SDK live HTTP E2E: `scripts/ts-live-check.sh` + `scripts/ts-live-runtime.php` run the compiled SDK
   against a real MODX `/api/ai/v2/*` boundary (11 `node:test` cases: auth/401, capabilities, profile

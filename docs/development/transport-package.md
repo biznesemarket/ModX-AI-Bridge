@@ -1,6 +1,6 @@
 # Transport Package
 
-Status: Stable (`0.1.2`)
+Status: Stable (`0.1.3`)
 
 Iteration 4.2 replaces the previous placeholder builder with a MODX 3 Transport Package build path.
 
@@ -15,7 +15,7 @@ MODX_ROOT=/absolute/path/to/modx php _build/build.php
 The build script uses the MODX 3 namespaced transport classes and writes:
 
 ```text
-core/packages/aibridge-0.1.2.transport.zip
+core/packages/aibridge-0.1.3.transport.zip
 ```
 
 A release-candidate build carries an extra suffix (for example `aibridge-0.1.0-rc1.transport.zip`); the
@@ -48,10 +48,14 @@ this as step 15.
 
 ```bash
 MODX_ROOT=/absolute/path/to/modx \
-php scripts/install-package.php aibridge-0.1.2
+php scripts/install-package.php aibridge-0.1.3
 ```
 
 The installer invokes MODX's `workspace/packages/scanlocal` and `workspace/packages/install` processors.
+
+After installing a **different version** into an already running environment, restart PHP/Apache
+(`docker compose restart modx`): opcache keeps the previous classes and web responses would still report the
+old version until the restart. Fresh containers (CI) are unaffected; workers/CLI always spawn fresh processes.
 
 ## Install-time operations
 
