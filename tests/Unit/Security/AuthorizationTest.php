@@ -29,6 +29,16 @@ final class AuthorizationTest extends TestCase
         $this->assertFalse((new Authorization())->allows(['scopes'=>['site:read']], 'resource.read'));
     }
 
+    public function testResourceReadScopeAllowsResourceList(): void
+    {
+        $this->assertTrue((new Authorization())->allows(['scopes'=>[Authorization::SCOPE_READ_RESOURCE]], 'resource.list'));
+    }
+
+    public function testSiteReadScopeDoesNotAllowResourceList(): void
+    {
+        $this->assertFalse((new Authorization())->allows(['scopes'=>['site:read']], 'resource.list'));
+    }
+
     public function testWildcardAllowsKnownOperation(): void
     {
         $this->assertTrue((new Authorization())->allows(['scopes'=>['*']], 'resource.update'));

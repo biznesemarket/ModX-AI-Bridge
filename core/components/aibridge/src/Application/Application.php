@@ -35,7 +35,7 @@ final class Application
 
     public function health(): array
     {
-        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.3.0'];
+        return ['component' => 'modx-ai-bridge', 'status' => 'ok', 'version' => '0.4.0'];
     }
 
     public function discoverSite(array $input = []): array
@@ -82,6 +82,9 @@ final class Application
 
     public function resourceRead(int $id): array
     { return (new ResourceReadService($this->modx))->read($id); }
+
+    public function resourceList(array $filters = []): array
+    { return (new ResourceReadService($this->modx))->list($filters); }
 
     public function resourceUpdate(array $input, array $principal, array $request = []): array
     { return (new ResourceExecutionService($this->modx))->update($input, $principal, $request); }

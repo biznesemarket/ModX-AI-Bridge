@@ -32,6 +32,23 @@ paths:
   /api/ai/v2/content/validate:
     post: {summary: Validate proposed content, responses: {'200': {description: OK}}}
   /api/ai/v2/resources:
+    get:
+      summary: List persisted resources (read-back, scope resource:read)
+      parameters:
+        - {in: query, name: parent, required: false, schema: {type: integer, minimum: 0}}
+        - {in: query, name: template, required: false, schema: {type: integer, minimum: 1}}
+        - {in: query, name: context_key, required: false, schema: {type: string}}
+        - {in: query, name: published, required: false, schema: {type: boolean}}
+        - {in: query, name: q, required: false, schema: {type: string}}
+        - {in: query, name: limit, required: false, schema: {type: integer, minimum: 1, maximum: 100}}
+        - {in: query, name: offset, required: false, schema: {type: integer, minimum: 0}}
+        - {in: query, name: sort, required: false, schema: {type: string, enum: [id, pagetitle, alias, menuindex, editedon, createdon, publishedon]}}
+        - {in: query, name: dir, required: false, schema: {type: string, enum: [asc, desc]}}
+      responses:
+        '200': {description: OK}
+        '400': {description: Invalid filter}
+        '401': {description: Unauthenticated}
+        '403': {description: Denied by security policy}
     post:
       summary: Create resource
       parameters:

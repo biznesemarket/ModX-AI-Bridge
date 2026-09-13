@@ -20,7 +20,7 @@ final class Authorization
     {
         if (($principal['type'] ?? '') === 'manager' && ($principal['manager_authorized'] ?? false) === true) {
             return in_array($operation, [
-                'resource.preview','resource.read','resource.create','resource.update','resource.delete','resource.publish','resource.rollback',
+                'resource.preview','resource.read','resource.list','resource.create','resource.update','resource.delete','resource.publish','resource.rollback',
                 'site.schema','site.fingerprint','site.read','content.validate'
             ], true);
         }
@@ -30,6 +30,7 @@ final class Authorization
             'content.validate' => [self::SCOPE_VALIDATE],
             'resource.preview' => [self::SCOPE_PREVIEW],
             'resource.read' => [self::SCOPE_READ_RESOURCE],
+            'resource.list' => [self::SCOPE_READ_RESOURCE],
             'resource.create','resource.update' => [self::SCOPE_WRITE],
             'resource.delete' => [self::SCOPE_DELETE],
             'resource.publish' => [self::SCOPE_PUBLISH],

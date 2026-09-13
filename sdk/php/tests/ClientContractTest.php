@@ -73,6 +73,7 @@ final class ClientContractTest extends TestCase
         $client->contentContract(12);
         $client->job('42');
         $client->getResource(23);
+        $client->listResources(['limit' => 5, 'q' => 'x']);
 
         $paths = array_column($http->calls, 'path');
         self::assertSame('/api/ai/v2/capabilities', $paths[0]);
@@ -83,6 +84,7 @@ final class ClientContractTest extends TestCase
         self::assertSame('/api/ai/v2/content/contract?template_id=12', $paths[5]);
         self::assertSame('/api/ai/v2/jobs/42', $paths[6]);
         self::assertSame(['GET', '/api/ai/v2/resources/23'], [$http->calls[7]['method'], $paths[7]]);
+        self::assertSame(['GET', '/api/ai/v2/resources?limit=5&q=x'], [$http->calls[8]['method'], $paths[8]]);
     }
 
     public function testWaitForJobReturnsTerminalState(): void

@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.3.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.4.0'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,7 +58,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.3.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.4.0'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -100,6 +100,7 @@ final class RestApi
             $method === 'POST' && $path === '/content/validate' => $this->read($principal, 'content.validate', $clientIp, $requestId, fn () => $application->validateContent((array) ($body['content'] ?? []), (array) ($body['contract'] ?? []))),
             $method === 'POST' && $path === '/resources/preview' => $this->preview($principal, $body, $clientIp, $requestId),
             $method === 'POST' && $path === '/resources' => $this->mutate('resource.create', $headers, $body, $principal, $clientIp, $requestId),
+            $method === 'GET' && $path === '/resources' => $this->resourceList($principal, $query, $clientIp, $requestId),
             $method === 'PATCH' && preg_match('#^/resources/(\d+)$#', $path, $m) === 1 => $this->mutate('resource.update', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
             $method === 'DELETE' && preg_match('#^/resources/(\d+)$#', $path, $m) === 1 => $this->mutate('resource.delete', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
             $method === 'POST' && preg_match('#^/resources/(\d+)/publish$#', $path, $m) === 1 => $this->mutate('resource.publish', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
@@ -229,6 +230,15 @@ final class RestApi
             return $this->denied($decision->toArray(), $requestId);
         }
         return $this->applicationResult((new Application($this->modx))->resourceRead($id), $requestId);
+    }
+
+    private function resourceList(array $principal, array $query, string $clientIp, string $requestId): array
+    {
+        $decision = $this->decide($principal, 'resource.list', $clientIp, $requestId);
+        if (!$decision->allowed()) {
+            return $this->denied($decision->toArray(), $requestId);
+        }
+        return $this->applicationResult((new Application($this->modx))->resourceList($query), $requestId);
     }
 
     private function job(int $id, array $principal, string $clientIp, string $requestId): array

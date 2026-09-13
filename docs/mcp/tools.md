@@ -46,3 +46,12 @@ included read-only under the `tvs` map (TV name → string value; structured val
 or soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
 
 Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources/{id}`.
+
+## resource_list
+
+Lists persisted, non-deleted MODX resources with optional filters: `parent`, `template`, `context_key`, `published`,
+`q` (pagetitle/alias/description match), `limit` (1..100, default 25), `offset`, `sort`, `dir`. Returns a paginated
+summary projection (id/parent/pagetitle/alias/template/context/timestamps/state, without `content` or TVs) plus
+`count`, `total`, `limit` and `offset`. Invalid filter values return `invalid_filter` in the tool result payload.
+
+Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources`.

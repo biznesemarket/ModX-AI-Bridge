@@ -223,6 +223,55 @@ final class RestApiTest extends TestCase
         self::assertSame('rest-tv-value', $tvs[$tvName] ?? null);
     }
 
+    public function testResourceListFiltersAndPagination(): void
+    {
+        $prefix = 'rest-list-' . bin2hex(random_bytes(4));
+        foreach (['a', 'b'] as $suffix) {
+            $response = $this->call('POST', '/resources', [
+                'pagetitle' => $prefix . ' ' . $suffix,
+                'alias' => $prefix . '-' . $suffix,
+                'template' => self::$templateId,
+                'content' => '<h1>' . $suffix . '</h1>',
+            ], ['Idempotency-Key' => $prefix . '-' . $suffix]);
+            self::assertSame(202, $response['status']);
+            self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+        }
+
+        $list = $this->call('GET', '/resources', query: ['q' => $prefix]);
+        self::assertSame(200, $list['status']);
+        self::assertSame(2, $list['body']['data']['total'] ?? null);
+        self::assertSame(2, $list['body']['data']['count'] ?? null);
+        $items = $list['body']['data']['resources'] ?? [];
+        self::assertCount(2, $items);
+        self::assertArrayHasKey('pagetitle', $items[0]);
+        self::assertArrayNotHasKey('content', $items[0], 'The list projection must not include content.');
+
+        $page = $this->call('GET', '/resources', query: ['q' => $prefix, 'limit' => '1', 'offset' => '0', 'sort' => 'id', 'dir' => 'desc']);
+        self::assertSame(200, $page['status']);
+        self::assertSame(2, $page['body']['data']['total'] ?? null);
+        self::assertSame(1, $page['body']['data']['count'] ?? null);
+        self::assertSame(1, $page['body']['data']['limit'] ?? null);
+
+        $byTemplate = $this->call('GET', '/resources', query: ['template' => (string) self::$templateId, 'limit' => '1']);
+        self::assertSame(200, $byTemplate['status']);
+        self::assertGreaterThanOrEqual(1, $byTemplate['body']['data']['total'] ?? 0);
+
+        $badLimit = $this->call('GET', '/resources', query: ['limit' => '0']);
+        self::assertSame(400, $badLimit['status']);
+        self::assertSame('invalid_filter', $badLimit['body']['error']['code'] ?? null);
+
+        $badSort = $this->call('GET', '/resources', query: ['sort' => 'nope']);
+        self::assertSame(400, $badSort['status']);
+        self::assertSame('invalid_filter', $badSort['body']['error']['code'] ?? null);
+    }
+
+    public function testResourceListRequiresScope(): void
+    {
+        $response = $this->call('GET', '/resources', token: self::$readOnlyToken, query: ['limit' => '1']);
+        self::assertSame(403, $response['status']);
+        self::assertSame('insufficient_scope', $response['body']['error']['code'] ?? null);
+    }
+
     public function testResourceReadRequiresScopeAndReturnsNotFound(): void
     {
         $missing = $this->call('GET', '/resources/99999999');
@@ -290,7 +339,7 @@ final class RestApiTest extends TestCase
     }
 
     /** @return array{status:int,body:array<string,mixed>,headers:array<string,string>} */
-    private function call(string $method, string $path, array $body = [], array $headers = [], string $ip = '127.0.0.1', ?string $token = null, bool $auth = true): array
+    private function call(string $method, string $path, array $body = [], array $headers = [], string $ip = '127.0.0.1', ?string $token = null, bool $auth = true, array $query = []): array
     {
         if ($auth && $token === null) {
             $token = self::$token;
@@ -298,7 +347,7 @@ final class RestApiTest extends TestCase
         if ($token !== null && $token !== '') {
             $headers['Authorization'] = 'Bearer ' . $token;
         }
-        return (new RestApi(self::$modx))->handle($method, $path, $headers, $body, $ip, []);
+        return (new RestApi(self::$modx))->handle($method, $path, $headers, $body, $ip, $query);
     }
 
     /** @return array<string,mixed> */

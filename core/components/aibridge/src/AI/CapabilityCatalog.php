@@ -10,6 +10,7 @@ final class CapabilityCatalog
         ['id'=>'content.contract','type'=>'read','scope'=>'site:read','status'=>'available'],
         ['id'=>'content.validation','type'=>'validate','scope'=>'content:validate','status'=>'available'],
         ['id'=>'resource.read','type'=>'read','scope'=>'resource:read','status'=>'available'],
+        ['id'=>'resource.list','type'=>'read','scope'=>'resource:read','status'=>'available'],
         ['id'=>'resource.preview','type'=>'execute','scope'=>'resource:preview','status'=>'available'],
         ['id'=>'resource.write','type'=>'execute','scope'=>'resource:write','status'=>'guarded'],
         ['id'=>'resource.delete','type'=>'execute','scope'=>'resource:delete','status'=>'disabled-by-default'],
