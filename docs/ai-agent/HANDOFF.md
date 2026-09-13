@@ -1,22 +1,26 @@
-# Handoff — ModX AI Bridge (Stable `0.2.0`)
+# Handoff — ModX AI Bridge (Stable `0.3.0`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.2.0`** (tag `v0.2.0`, GitHub Release опубликован с 3 ассетами). `main` = `ab125e4`
-(релизная документация `0.2.0`), дерево чистое.
+Состояние: **STABLE `0.3.0`** (tag `v0.3.0`, GitHub Release опубликован с 3 ассетами). `main` = `c6bc5ad`
+(релизная документация `0.3.0`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `ab125e4354868f855c8c3d6bd0dbff4b523b8d5f` (синхронизирован с origin; релизные code-коммиты
-  `350fc28`/`a35004e`), дерево чистое.
+- `main` = `c6bc5ad57d228fbe2f91fd1ba91ecfd4531f2126` (синхронизирован с origin; релизные code-коммиты
+  `21abdbb`/`dc3bd8a`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
-  `v0.2.0` (`1a8dfa10…`). GitHub Releases: `v0.2.0` (latest), `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все
-  не prerelease.
+  `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`). GitHub Releases: `v0.3.0` (latest), `v0.2.0`, `v0.1.3`,
+  `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+c6bc5ad Iteration 53: Record Stable 0.3.0 certification      (tag v0.3.0)
+dc3bd8a Iteration 53: Cut 0.3.0 minor release
+21abdbb Iteration 53: Add template variables to read-back projection
+4009414 Iteration 52: Update handoff for Stable 0.2.0
 ab125e4 Iteration 52: Record Stable 0.2.0 certification      (tag v0.2.0)
 350fc28 Iteration 52: Cut 0.2.0 minor release
 a35004e Iteration 51: Add resource read-back API and aibridge_version setting
@@ -41,8 +45,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 77bb849 Iteration 40: Unblock TypeScript SDK certification gate
 ```
 
-> `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`.
-> Исторические теги/релизы **не переписывать**.
+> `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
+> `v0.3.0` — на `c6bc5ad`. Исторические теги/релизы **не переписывать**.
 
 ## 2. Что сделано (Iterations 30–52)
 
@@ -108,18 +112,27 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   гейт зелёный дважды — dispatch `34753117255` (`350fc28`) и tag-run `34753425751` (`ab125e4`), оба sha256
   `b8525cda…` (141585 bytes), локальная сборка совпала. GitHub Release `v0.2.0` (3 ассета, latest).
   Evidence: `docs/testing/iteration-52-release-0.2.0.md`, `docs/release/0.2.0.md`.
+- **53 — `0.3.0`.** Minor-релиз 53: TV-поля в read-back. `ResourceReadService` добавляет карту `tvs` (имя TV →
+  `string|null`; структурированные значения JSON-кодируются) для TV, привязанных к шаблону ресурса; та же
+  операция `resource.read`/scope `resource:read`, без новых роутов/настроек. `resource.read` добавлен в
+  `CapabilityCatalog`; TS SDK типизирует проекцию (`ResourceProjection`/`ResourceTvValues`/`ResourceReadResponse`);
+  README, `aibridge_version` и SDK `User-Agent` (`0.2` → `0.3`) подняты в bump-коммите. Гейты зелёные дважды —
+  dispatch `34756679369` (`dc3bd8a`) и tag-run `34757060107` (`c6bc5ad`), оба sha256
+  `9c3e547daace05e226480e3d31fe13e4d11a27ecd154e4eb8ac5b9125d132106` (142077 bytes), локальная сборка
+  совпала. GitHub Release `v0.3.0` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-53-readback-tvs.md`, `docs/release/0.3.0.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.2.0.md`, `docs/release/0.1.3.md`, `docs/release/0.1.2.md`,
-  `docs/release/0.1.1.md`, `docs/release/0.1.0.md`, `docs/release/stable-status.md`,
+- Release/status: `docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`,
+  `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`, `docs/release/stable-status.md`,
   `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
   `iteration-47-supply-chain-pinning.md`, `iteration-48-release-0.1.2.md`,
   `iteration-49-live-http-e2e.md`, `iteration-50-release-0.1.3.md`, `iteration-51-readback-api.md`,
-  `iteration-52-release-0.2.0.md`.
+  `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -139,29 +152,36 @@ c8ac594 run 34748489085   (tag v0.1.2)
 5fe3d14 run 34751481747   (tag v0.1.3)
 350fc28 run 34753117255   (0.2.0 dispatch)
 ab125e4 run 34753425751   (tag v0.2.0)
+dc3bd8a run 34756679369   (0.3.0 dispatch)
+c6bc5ad run 34757060107   (tag v0.3.0)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `350fc28` run `34753117255` (0.2.0 dispatch: live HTTP E2E PASS,
-`PACKAGE REPRODUCIBILITY: PASS`, sha256 `b8525cda…`, `OK (129 tests, 650 assertions)`); tag `v0.2.0`
-(`ab125e4`) run `34753425751` — тот же sha256. Ранее: `93fa4fd` run `34751162661` (0.1.3 dispatch,
-sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
-hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
-`b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`).
-Evidence-артефакты `release-evidence-{…,350fc28,ab125e4}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
+Полные гейты `Release` 2026-09-13: `dc3bd8a` run `34756679369` (0.3.0 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `9c3e547d…`, `OK (130 tests, 663 assertions)`); tag `v0.3.0`
+(`c6bc5ad`) run `34757060107` — тот же sha256. Ранее: `350fc28` run `34753117255` (0.2.0 dispatch,
+sha256 `b8525cda…`, `OK (129 tests, 650 assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`;
+`93fa4fd` run `34751162661` (0.1.3 dispatch, sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`;
+`98a592f` run `34747385780` (Iteration 47 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073`
+(0.1.2 dispatch → pre-release `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`).
+Evidence-артефакты `release-evidence-{…,350fc28,ab125e4,dc3bd8a,c6bc5ad}…` (90 дней). Репозиторий:
+`sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.2.0.transport.zip` sha256
-`b8525cda8326f08102025f9e2f2f7c0bbf5ea9baaad52079175f4c1f7f11cc8e` (141585 bytes; GitHub Release `v0.2.0`,
-digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.1.3.transport.zip` sha256
-`0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
-sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
+Артефакты: `aibridge-0.3.0.transport.zip` sha256
+`9c3e547daace05e226480e3d31fe13e4d11a27ecd154e4eb8ac5b9125d132106` (142077 bytes; GitHub Release `v0.3.0`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.2.0.transport.zip` sha256
+`b8525cda8326f08102025f9e2f2f7c0bbf5ea9baaad52079175f4c1f7f11cc8e` (141585 bytes; Release `v0.2.0`);
+`aibridge-0.1.3.transport.zip` sha256 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256
+`eedd5f64…`; `aibridge-0.1.1.transport.zip` sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256
+`859c6599…` (историч.).
 
-Iteration 51/52 (локально): `unit,contract,security` 60, `sdk` 11, TS 13, integration 58, live E2E 13
-(включая read-back), reproducibility `b8525cda…`; push-CI на `a35004e` (`Quality Gates` 34752792437,
-`MODX Integration` 34752792454) — success.
+Iteration 53 (локально, `0.3.0`): `unit,contract,security` 60, `sdk` 11, TS 13, integration 59, live E2E 13
+(включая REST+MCP `tvs`), reproducibility `9c3e547d…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `dc3bd8a`
+(`Quality Gates` 34756672860, `MODX Integration` 34756672760) — success. Ранее Iteration 51/52: integration 58,
+reproducibility `b8525cda…`.
 
 ## 4. Как работать в этой среде
 
@@ -170,7 +190,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.2.0.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.3.0.transport.zip'
 ```
 
 Полезные команды:
@@ -213,8 +233,9 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   на одном стеке: оба перезаписывают `aibridge_ip_allowlist`, live-прогон ловит `403 ip_not_allowed`.
   В `test-modx.sh` они идут последовательно. Установка пакета ре-импортирует дефолты настроек — harness
   переустанавливает тестовые значения сам.
-- Read-back: `GET /resources/{id}` требует scope `resource:read`; TVs в проекцию пока не входят (TV-поля —
-  возможный следующий additive-шаг).
+- Read-back: `GET /resources/{id}` требует scope `resource:read`; проекция включает карту `tvs` (TV, привязанные
+  к шаблону ресурса; scalar → `string|null`, структурированные → JSON-строка). Те же данные отдаёт MCP
+  `resource_read`. Read-путь site-level — profile isolation, как в Iteration 51, на него не распространяется.
 - `composer lint` — unix-only (`find|xargs`), только в контейнере. Entrypoint `/var/www/html/.modx-ready` —
   маркер готовности MODX; `test-modx.sh` ждёт именно его.
 - Supply chain: любой `uses:` — только полный 40-символьный commit SHA; образы — только `@sha256:` digest.
@@ -238,6 +259,8 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - `scripts/ts-live-runtime.php` печатает токен в stdout — только test/dev, не логировать вывод; harness
   передаёт его в Node через окружение.
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт.
+- Read-back `tvs` отдаёт значения TV как есть (без redaction): это часть контента ресурса, но если в TV
+  хранятся секреты, они попадут авторизованному клиенту со scope `resource:read`.
 - README встроен в manifest пакета — любая правка меняет sha256 артефакта; фиксировать README до гейта
   (см. §4).
 - Исторические записи не менять: `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*`,
@@ -245,20 +268,20 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.2.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `ab125e4` — релизная документация,
+Stable `0.3.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `c6bc5ad` — релизная документация,
 нерелизных коммитов нет. Обязательных гейтов нет.
 
 Приоритетные кандидаты:
 
-1. **Additive-расширение read-back**: TV-поля и/или `GET /resources` (список с фильтрами) — выпускать
-   патчем/минором по тому же flow (bump всех identity включая README → гейт → evidence → tag → tag-run →
-   GitHub Release).
-2. **Следующий minor `0.2.x`/`0.3.0`**: определиться с составом (например, MCP resource URI
-   `modx://resource/{id}` для read-back). Ветвление — по-прежнему `main` (решение 2026-09-13).
+1. **`GET /resources` (список с фильтрами)** — следующее additive-расширение read-back тем же flow
+   (bump всех identity включая README → гейт → evidence → tag → tag-run → GitHub Release).
+2. **Следующий minor `0.4.0`**: определиться с составом (например, MCP resource URI `modx://resource/{id}`
+   для read-back). Ветвление — по-прежнему `main` (решение 2026-09-13).
 3. Опционально: периодически ревьюить Dependabot-PR по digest/SHA-пинам.
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
-Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52).
+Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
+TV-поля в read-back + релиз `0.3.0` (53).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
