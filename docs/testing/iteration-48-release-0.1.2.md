@@ -43,8 +43,19 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.2, sha256 b1b985bffdd3a661bd3f99cfa1
 
 ## Certification
 
-Pending: the full `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` gate on CI. Evidence is
-appended after the run; only then do the docs claim `Stable 0.1.2`.
+`Release` dispatch on `main`, commit `ad92ab5`, run `34748277073`: `verify` PASS (incl.
+`SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS.
+
+```text
+Transport Package installation: PASS (Signature: aibridge-0.1.2)
+MODX runtime verification: PASS
+OK (123 tests, 626 assertions)
+PACKAGE REPRODUCIBILITY: PASS (aibridge-0.1.2, sha256 b1b985bffdd3a661bd3f99cfa1b333fee854a5339b0fb0d34468e1575b9acf94)
+STABLE certification gates passed.
+```
+
+Local build and CI artifact hash identically (`b1b985bf…`). Evidence artifact:
+`release-evidence-ad92ab5caee304ef0a62c6a8a53183a9b1be97a2` (99476 bytes, 90 days).
 
 ## Notes
 

@@ -1,11 +1,11 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.1.1` (previous: `0.1.0`).
+Status: **STABLE** — current release `0.1.2` (previous: `0.1.1`, `0.1.0`).
 
-## 0.1.1 (current)
+## 0.1.2 (current)
 
-`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green in a single invocation on
-GitHub Actions `ubuntu-latest` (Docker + PHP 8.2 + Composer + Node.js), commit `db949b5`, run `34743692154`:
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `ad92ab5`, run `34748277073`:
 
 ```text
 composer validate --no-check-publish --strict        PASS
@@ -14,17 +14,24 @@ composer verify-static-contract                      PASS
 composer test -- --testsuite unit,contract,security  OK (58 tests, 188 assertions)
 composer test -- --testsuite sdk                     OK (10 tests, 49 assertions)
 ./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
 composer test-modx                                   == MODX INTEGRATION: PASS ==
 package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
 ./scripts/quality-gate.sh                            PASS
 STABLE certification gates passed.
 ```
 
-- Certified artifact: `aibridge-0.1.1.transport.zip`, SHA-256
-  `26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`, reproducible (local build == CI artifact).
-- Fixes Defect #34: `0.1.0` and earlier did not package any `aibridge_*` system settings.
-- `Quality Gates` and `MODX Integration` push runs on `db949b5` are green.
-- See `docs/release/0.1.1.md`.
+- Certified artifact: `aibridge-0.1.2.transport.zip`, SHA-256
+  `b1b985bffdd3a661bd3f99cfa1b333fee854a5339b0fb0d34468e1575b9acf94` (local build == CI artifact).
+- Patch release over `0.1.1`: deterministic provisioning marker, TypeScript SDK runtime tests and
+  supply-chain pinning (images by digest, actions by SHA, `sha_pinning_required=true`).
+- See `docs/release/0.1.2.md`.
+
+## 0.1.1 (previous)
+
+Certified on commit `db949b5`, run `34743692154`; artifact `aibridge-0.1.1.transport.zip` (SHA-256
+`26ccdee1fb27097694dc735795f86e2c75a66136310e2a1e9ca248465c7a729a`). Fixes Defect #34 and makes the
+transport build reproducible; see `docs/release/0.1.1.md`.
 
 ## 0.1.0 (previous)
 

@@ -1,8 +1,8 @@
 # Final Integration & Stabilization — Status
 
-Status: **STABLE** — current release `0.1.1` (tag `v0.1.1`), superseding `0.1.0`. Evidence:
-`docs/release/stable-status.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
-`docs/testing/iteration-44-settings-packaging-0.1.1.md`.
+Status: **STABLE** — current release `0.1.2` (tag `v0.1.2`), superseding `0.1.1` and `0.1.0`. Evidence:
+`docs/release/stable-status.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
+`docs/testing/iteration-48-release-0.1.2.md`.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
 `docker-compose.yml`, plus a GitHub Actions `ubuntu-latest` runner (Docker + PHP + Composer + Node) for the

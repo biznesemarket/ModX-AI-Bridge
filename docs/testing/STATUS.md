@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–44
 
-**Status: STABLE — `0.1.1` (`v0.1.1`), superseding `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.1.2` (`v0.1.2`), superseding `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -56,6 +56,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `mysql:8.0`), GitHub Actions by commit SHA, `.github/dependabot.yml` for weekly pin updates; compose config
   and image build verified on the pinned toolchain. Evidence:
   `docs/testing/iteration-47-supply-chain-pinning.md`
+- Iteration 48 — `0.1.2` patch release: version bump across package/runtime/SDK identity, CHANGELOG section,
+  full gate green on `ad92ab5` (run `34748277073`; `PACKAGE REPRODUCIBILITY: PASS`, sha256 `b1b985bf…`;
+  `STABLE certification gates passed.`); tag `v0.1.2`. Evidence:
+  `docs/testing/iteration-48-release-0.1.2.md`, `docs/release/0.1.2.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

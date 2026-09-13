@@ -1,6 +1,6 @@
 # Transport Package
 
-Status: Stable (`0.1.0`)
+Status: Stable (`0.1.2`)
 
 Iteration 4.2 replaces the previous placeholder builder with a MODX 3 Transport Package build path.
 
