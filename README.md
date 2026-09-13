@@ -6,7 +6,7 @@ Iteration 17 added an operational console inside MODX Manager. It provides visib
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Stable `0.1.3`** (tag `v0.1.3`; certified `aibridge-0.1.3.transport.zip`)
+Status: **Stable `0.2.0`** (tag `v0.2.0`; certified `aibridge-0.2.0.transport.zip`)
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
@@ -19,9 +19,10 @@ Post-execution verification, controlled rollback and the fail-closed `stable-gat
 `Stable` is only declared when `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completes green
 in an environment with Docker, Docker Compose, MODX 3.2.x, MySQL, PHP/Composer and Node.js. `0.1.0` was
 certified on commit `160a659` (run `34716441523`); `0.1.1` fixed system-settings packaging; `0.1.2` added
-supply-chain pinning; `0.1.3` is the current Stable patch release (TypeScript SDK live HTTP E2E and the
-`waitForJob` envelope fix). Evidence:
-`docs/release/0.1.3.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
+supply-chain pinning; `0.1.3` added the TypeScript SDK live HTTP E2E; `0.2.0` is the current Stable minor
+release (resource read-back API, `getResource()` in both SDKs, `resource_read` MCP tool and the
+`aibridge_version` setting). Evidence:
+`docs/release/0.2.0.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
 
 ## AI Agent Development
 

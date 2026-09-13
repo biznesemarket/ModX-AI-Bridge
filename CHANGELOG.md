@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 — 2026-09-13
 
 - Read-back API: `GET /api/ai/v2/resources/{id}` returns a whitelisted resource projection through the
   SecurityDecisionPipeline (new scope `resource:read`, `resource_not_found` -> 404). Added `getResource()` to
