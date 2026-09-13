@@ -42,7 +42,9 @@ function aibridge_vehicle_guid(string $kind, string $identity): string
  * identical package contents produce identical bytes.
  *
  * xPDO embeds build time in every entry header; SOURCE_DATE_EPOCH (default
- * 1980-01-01 UTC, the minimum DOS timestamp) is used instead.
+ * 1980-01-01 UTC, the minimum DOS timestamp) is used instead. Directory entries
+ * are dropped so the archive depends only on files (git does not track empty
+ * directories, so they must not change the artifact).
  */
 function aibridge_normalize_transport_zip(string $path, int $epoch): void
 {
@@ -77,10 +79,9 @@ function aibridge_normalize_transport_zip(string $path, int $epoch): void
     try {
         foreach ($entries as $name => $content) {
             if (str_ends_with($name, '/')) {
-                $normalized->addEmptyDir($name);
-            } else {
-                $normalized->addFromString($name, $content);
+                continue;
             }
+            $normalized->addFromString($name, $content);
             if ($normalized->setMtimeName($name, $epoch) === false) {
                 throw new RuntimeException('Unable to normalize the modification time of ' . $name);
             }

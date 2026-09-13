@@ -27,7 +27,8 @@ The builder produces a byte-reproducible archive:
 
 - every vehicle gets a deterministic guid derived from its natural key (xPDO otherwise uses
   `md5(uniqid(rand(), true))`, which changes vehicle paths, signatures and the manifest on every run);
-- the archive is rewritten with sorted entries and a fixed modification time.
+- the archive is rewritten with sorted file entries, a fixed modification time, and no directory entries,
+  so the artifact depends only on files (git cannot track empty directories).
 
 Set `SOURCE_DATE_EPOCH` to choose the timestamp; the default is `315532800` (1980-01-01 UTC, the minimum DOS
 timestamp). Verify reproducibility with:

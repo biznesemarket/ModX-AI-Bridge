@@ -8,8 +8,8 @@
   `ramsey/composer-install@v4`); the `Release` certification job uploads `dist/**` (archive, `.sha256`,
   release metadata) as a `release-evidence-<sha>` workflow artifact.
 - Reproducible transport builds: `_build/build.php` assigns deterministic vehicle guids (xPDO otherwise uses
-  `md5(uniqid(rand(), true))`) and rewrites the archive with sorted entries and a fixed `SOURCE_DATE_EPOCH`
-  timestamp, so repeated builds of the same sources are byte-identical;
+  `md5(uniqid(rand(), true))`) and rewrites the archive with sorted file entries (directory entries dropped),
+  a fixed `SOURCE_DATE_EPOCH` timestamp, so repeated builds of the same sources are byte-identical;
   `scripts/verify-package-reproducibility.php` (step 15 of `scripts/test-modx.sh`) asserts this.
 
 ## 0.1.0 — Stable (2026-09-12)
