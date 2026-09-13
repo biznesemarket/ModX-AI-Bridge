@@ -71,6 +71,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `PACKAGE REPRODUCIBILITY: PASS`, sha256 `0d66d833…`, `OK (124 tests, 627 assertions)`,
   `STABLE certification gates passed.`); tag `v0.1.3`. Evidence:
   `docs/testing/iteration-50-release-0.1.3.md`, `docs/release/0.1.3.md`
+- Iteration 51 — resource read-back API + `aibridge_version`: `GET /api/ai/v2/resources/{id}` (scope
+  `resource:read`, `resource_not_found` → 404), `getResource()` в PHP/TS SDK, MCP-инструмент `resource_read`,
+  настройка `aibridge_version` (20 настроек), `/health` и `/ready` отдают версию из настройки; live E2E
+  проверяет состояние после update. Evidence: `docs/testing/iteration-51-readback-api.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

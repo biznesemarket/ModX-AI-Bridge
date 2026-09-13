@@ -115,6 +115,23 @@ test('resource update flows through the queue', async () => {
   assert.equal(parseJobResult(job).success, true);
 });
 
+test('resource read-back exposes the updated state', async () => {
+  assert.ok(resourceId > 0, 'create test must run first');
+  const response = await client.getResource(resourceId);
+  assert.equal(response.success, true);
+  assert.equal(response.data.resource.id, resourceId);
+  assert.equal(response.data.resource.pagetitle, 'TS live E2E page updated');
+  assert.equal(response.data.resource.template, context.template_id);
+});
+
+test('resource read-back returns 404 for a missing resource', async () => {
+  await assert.rejects(client.getResource(99999999), (error) => {
+    assert.equal(error.status, 404);
+    assert.equal(error.code, 'resource_not_found');
+    return true;
+  });
+});
+
 test('delete stays disabled and publish stays approval-gated', async () => {
   assert.ok(resourceId > 0, 'create test must run first');
   await assert.rejects(client.deleteResource(resourceId, 'ts-live-delete-' + resourceId), (error) => {
@@ -143,6 +160,9 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
     contract: { fields: { pagetitle: { type: 'string', required: true } } },
   });
   assert.equal(JSON.parse(call.result.content[0].text).valid, true);
+
+  const readBack = await mcp.callTool('resource_read', { id: resourceId });
+  assert.equal(JSON.parse(readBack.result.content[0].text).data.resource.pagetitle, 'TS live E2E page updated');
 
   const fingerprint = await mcp.readResource('modx://site/fingerprint');
   assert.ok(fingerprint.result.contents[0].text.length > 0);

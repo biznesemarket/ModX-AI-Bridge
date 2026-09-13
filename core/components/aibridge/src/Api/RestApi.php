@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => '0.1.3',
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.1.3'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,6 +58,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.1.3'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -102,6 +103,7 @@ final class RestApi
             $method === 'PATCH' && preg_match('#^/resources/(\d+)$#', $path, $m) === 1 => $this->mutate('resource.update', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
             $method === 'DELETE' && preg_match('#^/resources/(\d+)$#', $path, $m) === 1 => $this->mutate('resource.delete', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
             $method === 'POST' && preg_match('#^/resources/(\d+)/publish$#', $path, $m) === 1 => $this->mutate('resource.publish', $headers, array_merge($body, ['id' => (int) $m[1]]), $principal, $clientIp, $requestId),
+            $method === 'GET' && preg_match('#^/resources/(\d+)$#', $path, $m) === 1 => $this->resourceRead((int) $m[1], $principal, $clientIp, $requestId),
             $method === 'GET' && preg_match('#^/jobs/(\d+)$#', $path, $m) === 1 => $this->job((int) $m[1], $principal, $clientIp, $requestId),
             default => $this->error(404, 'not_found', 'Endpoint not found.', ['path' => $path], $requestId),
         };
@@ -220,6 +222,15 @@ final class RestApi
         ]);
     }
 
+    private function resourceRead(int $id, array $principal, string $clientIp, string $requestId): array
+    {
+        $decision = $this->decide($principal, 'resource.read', $clientIp, $requestId);
+        if (!$decision->allowed()) {
+            return $this->denied($decision->toArray(), $requestId);
+        }
+        return $this->applicationResult((new Application($this->modx))->resourceRead($id), $requestId);
+    }
+
     private function job(int $id, array $principal, string $clientIp, string $requestId): array
     {
         $decision = $this->decide($principal, 'site.read', $clientIp, $requestId);
@@ -241,7 +252,7 @@ final class RestApi
         }
         $code = (string) ($result['error']['code'] ?? 'operation_failed');
         $status = match ($code) {
-            'job_not_found' => 404,
+            'job_not_found', 'resource_not_found' => 404,
             'approval_required', 'approval_invalid', 'ip_denied', 'policy_denied', 'operation_not_allowed' => 403,
             default => 400,
         };

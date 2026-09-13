@@ -6,6 +6,7 @@ namespace AIBridge\Application;
 
 use AIBridge\Services\SiteIntelligenceService;
 use AIBridge\Services\ContentContractService;
+use AIBridge\Services\ResourceReadService;
 use AIBridge\Validators\ContentValidator;
 use AIBridge\Configuration\ConfigFactory;
 use AIBridge\Security\Authorization;
@@ -78,6 +79,9 @@ final class Application
 
     public function resourceCreate(array $input, array $principal, array $request = []): array
     { return (new ResourceExecutionService($this->modx))->create($input, $principal, $request); }
+
+    public function resourceRead(int $id): array
+    { return (new ResourceReadService($this->modx))->read($id); }
 
     public function resourceUpdate(array $input, array $principal, array $request = []): array
     { return (new ResourceExecutionService($this->modx))->update($input, $principal, $request); }

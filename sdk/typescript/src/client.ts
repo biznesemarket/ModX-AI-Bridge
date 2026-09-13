@@ -9,6 +9,7 @@ export class BridgeClient {
  siteFingerprint(){return this.request('GET','/api/ai/v2/site/fingerprint');} contentContract(templateId?:number){return this.request('GET','/api/ai/v2/content/contract'+(templateId===undefined?'':`?template_id=${templateId}`));}
  validateContent(content:Json,contract:Json){return this.request('POST','/api/ai/v2/content/validate',{content,contract});}
  createResource(resource:Json,idempotencyKey:string=crypto.randomUUID()){return this.request('POST','/api/ai/v2/resources',resource,{'Idempotency-Key':idempotencyKey});}
+ getResource(id:number){return this.request('GET',`/api/ai/v2/resources/${id}`);}
  updateResource(id:number,resource:Json,idempotencyKey:string=crypto.randomUUID()){return this.request('PATCH',`/api/ai/v2/resources/${id}`,{...resource,id}, {'Idempotency-Key':idempotencyKey});}
  deleteResource(id:number,idempotencyKey:string=crypto.randomUUID()){return this.request('DELETE',`/api/ai/v2/resources/${id}`,undefined,{'Idempotency-Key':idempotencyKey});}
  previewResource(resource:Json){return this.request('POST','/api/ai/v2/resources/preview',resource);}

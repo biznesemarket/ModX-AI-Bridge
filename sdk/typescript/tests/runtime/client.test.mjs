@@ -77,6 +77,15 @@ test('deleteResource sends no body', async () => {
   assert.equal(headersOf(calls[0])['Idempotency-Key'], 'idem-3');
 });
 
+test('getResource reads a resource by id', async () => {
+  const { client, calls } = makeClient([() => jsonResponse({ success: true, data: { resource: { id: 9 } } })]);
+  const response = await client.getResource(9);
+  assert.equal(calls[0].url, 'https://bridge.example/api/ai/v2/resources/9');
+  assert.equal(calls[0].init.method, 'GET');
+  assert.equal(calls[0].init.body, undefined);
+  assert.equal(response.data.resource.id, 9);
+});
+
 test('publishResource sends the approval_id', async () => {
   const { client, calls } = makeClient([() => jsonResponse({})]);
   await client.publishResource(3, 'appr-1', 'idem-4');

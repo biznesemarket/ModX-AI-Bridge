@@ -66,7 +66,7 @@ final class RestApiTest extends TestCase
 
         $tokens = new TokenManager(self::$modx, ConfigFactory::fromModx(self::$modx));
         self::$token = (string) $tokens->issue('rest-test-' . $suffix, [
-            'site:read', 'content:validate', 'resource:write', 'resource:preview', 'resource:delete', 'resource:publish',
+            'site:read', 'content:validate', 'resource:write', 'resource:preview', 'resource:read', 'resource:delete', 'resource:publish',
         ], self::$profileId)['token'];
         self::$readOnlyToken = (string) $tokens->issue('rest-readonly-' . $suffix, ['site:read'], self::$profileId)['token'];
     }
@@ -164,6 +164,42 @@ final class RestApiTest extends TestCase
         $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['alias' => $alias]);
         self::assertNotNull($resource);
         self::assertSame('REST API integration page', (string) $resource->get('pagetitle'));
+    }
+
+    public function testResourceReadBackAfterMutation(): void
+    {
+        $alias = 'rest-read-' . bin2hex(random_bytes(5));
+        $response = $this->call('POST', '/resources', [
+            'pagetitle' => 'REST read-back page',
+            'alias' => $alias,
+            'template' => self::$templateId,
+            'content' => '<h1>REST read-back page</h1>',
+        ], ['Idempotency-Key' => 'rest-read-' . bin2hex(random_bytes(6))]);
+        self::assertSame(202, $response['status']);
+        self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['alias' => $alias]);
+        self::assertNotNull($resource);
+        $id = (int) $resource->get('id');
+
+        $read = $this->call('GET', '/resources/' . $id);
+        self::assertSame(200, $read['status']);
+        self::assertTrue((bool) ($read['body']['success'] ?? false));
+        self::assertSame($id, $read['body']['data']['resource']['id'] ?? null);
+        self::assertSame('REST read-back page', $read['body']['data']['resource']['pagetitle'] ?? null);
+        self::assertSame($alias, $read['body']['data']['resource']['alias'] ?? null);
+        self::assertIsBool($read['body']['data']['resource']['published'] ?? null);
+    }
+
+    public function testResourceReadRequiresScopeAndReturnsNotFound(): void
+    {
+        $missing = $this->call('GET', '/resources/99999999');
+        self::assertSame(404, $missing['status']);
+        self::assertSame('resource_not_found', $missing['body']['error']['code'] ?? null);
+
+        $scoped = $this->call('GET', '/resources/1', token: self::$readOnlyToken);
+        self::assertSame(403, $scoped['status']);
+        self::assertSame('insufficient_scope', $scoped['body']['error']['code'] ?? null);
     }
 
     public function testIdempotentReplayDoesNotCreateDuplicateResource(): void

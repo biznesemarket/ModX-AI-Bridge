@@ -98,7 +98,7 @@ foreach ($modx->getCollection(\AIBridge\Model\Token::class, ['profile_id' => $pr
     $tokens->revoke((int) $old->get('id'));
 }
 $issued = $tokens->issue('ts-live-e2e', [
-    'site:read', 'content:validate', 'resource:write', 'resource:preview', 'resource:delete', 'resource:publish',
+    'site:read', 'content:validate', 'resource:write', 'resource:preview', 'resource:read', 'resource:delete', 'resource:publish',
 ], $profileId);
 
 $template = null;

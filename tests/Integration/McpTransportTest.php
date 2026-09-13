@@ -64,9 +64,16 @@ final class McpTransportTest extends TestCase
     {
         $response = $this->mcp(['jsonrpc' => '2.0', 'id' => 2, 'method' => 'tools/list']);
         $names = array_column($response['body']['result']['tools'] ?? [], 'name');
-        foreach (['site_schema', 'content_validate', 'resource_create', 'resource_update', 'resource_delete', 'resource_publish'] as $tool) {
+        foreach (['site_schema', 'content_validate', 'resource_read', 'resource_create', 'resource_update', 'resource_delete', 'resource_publish'] as $tool) {
             self::assertContains($tool, $names);
         }
+    }
+
+    public function testToolCallResourceReadRequiresScope(): void
+    {
+        $response = $this->mcp(['jsonrpc' => '2.0', 'id' => 7, 'method' => 'tools/call', 'params' => ['name' => 'resource_read', 'arguments' => ['id' => 1]]]);
+        self::assertSame(200, $response['status']);
+        self::assertSame(-32003, $response['body']['error']['code'] ?? null);
     }
 
     public function testToolCallSiteSchema(): void

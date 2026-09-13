@@ -10,6 +10,7 @@ final class Client {
  public function contentContract(?int $templateId=null): array { $q=$templateId===null?'':'?template_id='.$templateId; return $this->http->request('GET','/api/ai/v2/content/contract'.$q); }
  public function validateContent(array $content,array $contract): array { return $this->http->request('POST','/api/ai/v2/content/validate',[],['content'=>$content,'contract'=>$contract]); }
  public function createResource(array $resource,string $idempotencyKey): array { return $this->http->request('POST','/api/ai/v2/resources', ['Idempotency-Key'=>$idempotencyKey],$resource); }
+ public function getResource(int $id): array { return $this->http->request('GET','/api/ai/v2/resources/'.$id); }
  public function updateResource(int $id,array $resource,string $idempotencyKey): array { $resource['id']=$id; return $this->http->request('PATCH','/api/ai/v2/resources/'.$id,['Idempotency-Key'=>$idempotencyKey],$resource); }
  public function deleteResource(int $id,string $idempotencyKey): array { return $this->http->request('DELETE','/api/ai/v2/resources/'.$id,['Idempotency-Key'=>$idempotencyKey]); }
  public function previewResource(array $resource): array { return $this->http->request('POST','/api/ai/v2/resources/preview',[], $resource); }

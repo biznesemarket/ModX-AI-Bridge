@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Read-back API: `GET /api/ai/v2/resources/{id}` returns a whitelisted resource projection through the
+  SecurityDecisionPipeline (new scope `resource:read`, `resource_not_found` -> 404). Added `getResource()` to
+  the PHP and TypeScript SDKs and the `resource_read` MCP tool; the live HTTP E2E now verifies the state after
+  an update instead of parsing job results.
+- New `aibridge_version` system setting (area `operations`, 20 settings packaged). `/health` and `/ready`
+  report the version from the setting with a code fallback; `#34`-style packaging covered by the settings
+  gate.
+
 ## 0.1.3 — 2026-09-13
 
 - TypeScript SDK live HTTP E2E: `scripts/ts-live-check.sh` + `scripts/ts-live-runtime.php` run the compiled SDK

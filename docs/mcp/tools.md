@@ -37,3 +37,11 @@ Required scope: `site:read`.
 Validates proposed content against a Content Contract and returns errors/warnings.
 
 Required scope: `content:validate`.
+
+## resource_read
+
+Reads a persisted MODX resource by numeric `id` and returns a whitelisted projection (`pagetitle`, `alias`,
+`template`, `published`, `content`, timestamps, ...). Template variables are not included yet. A missing or
+soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
+
+Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources/{id}`.
