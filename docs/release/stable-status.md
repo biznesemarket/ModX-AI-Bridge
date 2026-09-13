@@ -1,8 +1,35 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.7.0` (previous: `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.7.1` (previous: `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.7.0 (current)
+## 0.7.1 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `0223e5e`, run `34766913833`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (63 tests, 201 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.7.1.transport.zip`, SHA-256
+  `f9ee3089407beaa9be629407c3ffc6121c01828e85e03f9adc4a151e584a1786` (145574 bytes); local build == CI
+  artifact. All version identities were committed before the gate.
+- Patch release over `0.7.0`: manager explorer `search()`/`tree()` and `RestApi::profiles()` xPDO query fixes.
+- Additive/fix only: no scope, schema/migration change or API contract break.
+- See `docs/release/0.7.1.md`.
+
+## 0.7.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `82e9917`, run `34764596898` (successful on rerun; the first attempt hit a

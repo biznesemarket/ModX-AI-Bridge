@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–57
+# Testing Status — Iterations 21–58
 
-**Status: STABLE — `0.7.0` (`v0.7.0`), superseding `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.7.1` (`v0.7.1`), superseding `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -117,6 +117,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `63df4013…`,
   `OK (139 tests, 736 assertions)`, `STABLE certification gates passed.`; tag `v0.7.0`. Evidence:
   `docs/testing/iteration-57-readback-polish.md`, `docs/release/0.7.0.md`
+- Iteration 58 — `0.7.1` patch release: fixed `ResourceExplorerService::search()` (flat `OR:` matched almost
+  everything; query options were the cache flag so `limit`/`sortby` ignored; TV filter now a join),
+  `ResourceExplorerService::tree()` and `RestApi::profiles()` (limits/ordering now applied). New
+  `ResourceExplorerServiceTest` (3 tests). All version identities committed before the gate. Gate green on
+  `0223e5e` (run `34766913833`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256
+  `f9ee3089…`, `OK (142 tests, 744 assertions)`, `STABLE certification gates passed.`); tag `v0.7.1`. Evidence:
+  `docs/testing/iteration-58-manager-xpdo-fixes.md`, `docs/release/0.7.1.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

@@ -67,7 +67,14 @@ test now uses a per-run unique TV value (CI runs on a fresh stack, so this was l
 - Read-only manager/REST read paths; no scope, schema, migration or setting change and no mutation path
   touched. The manager surface still runs through the existing authorization and profile isolation.
 
+## Certification
+
+`Release` dispatch on `main`, commit `0223e5e`, run `34766913833`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (142 tests, 744 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `f9ee3089…` (145574 bytes) matches
+the local build. Evidence artifact: `release-evidence-0223e5e27f4074fdaab72e139d74e4f4d4aaea5e`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.7.1` (patch: bug fixes only). Next, per the
-established flow: bump all identity files -> full CI gate -> evidence/tag -> tag-run -> GitHub Release.
+Stable `0.7.1`, certified by run `34766913833`; tag `v0.7.1` and the GitHub Release are recorded in
+`docs/release/0.7.1.md`.
