@@ -17,7 +17,8 @@ Unknown methods return JSON-RPC error `-32601`; unknown tools return `-32602`; d
 
 ## site_schema
 
-Returns the discovered MODX site schema. Optional arguments: `limit`, `root_id`.
+Returns the discovered MODX site schema. Optional arguments: `limit`, `root_id`, `context_key`, `template_id`
+(the resource list inside the schema is filtered and limited accordingly).
 
 Required scope: `site:read`.
 

@@ -107,6 +107,31 @@ final class RestApiTest extends TestCase
         self::assertNotEmpty($fingerprint['body']['data']['fingerprint'] ?? null);
     }
 
+    public function testSiteSchemaFiltersResources(): void
+    {
+        $prefix = 'rest-schema-' . bin2hex(random_bytes(4));
+        $response = $this->call('POST', '/resources', [
+            'pagetitle' => $prefix,
+            'alias' => $prefix,
+            'template' => self::$templateId,
+            'content' => '<h1>' . $prefix . '</h1>',
+        ], ['Idempotency-Key' => $prefix]);
+        self::assertSame(202, $response['status']);
+        self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+
+        $byTemplate = $this->call('GET', '/site/schema', query: ['template_id' => (string) self::$templateId, 'limit' => '1']);
+        self::assertSame(200, $byTemplate['status']);
+        self::assertCount(1, $byTemplate['body']['data']['contract']['resources'] ?? []);
+
+        $byContext = $this->call('GET', '/site/schema', query: ['context_key' => 'web', 'limit' => '1']);
+        self::assertSame(200, $byContext['status']);
+        self::assertCount(1, $byContext['body']['data']['contract']['resources'] ?? []);
+
+        $unknown = $this->call('GET', '/site/schema', query: ['context_key' => 'rest-no-context-' . bin2hex(random_bytes(3))]);
+        self::assertSame(200, $unknown['status']);
+        self::assertSame([], $unknown['body']['data']['contract']['resources'] ?? null);
+    }
+
     public function testReadOnlyTokenCannotValidateContent(): void
     {
         $response = $this->call('POST', '/content/validate', [
@@ -247,6 +272,7 @@ final class RestApiTest extends TestCase
         $items = $list['body']['data']['resources'] ?? [];
         self::assertCount(2, $items);
         self::assertArrayHasKey('pagetitle', $items[0]);
+        self::assertArrayHasKey('publishedon', $items[0]);
         self::assertArrayNotHasKey('content', $items[0], 'The list projection must not include content.');
 
         $page = $this->call('GET', '/resources', query: ['q' => $prefix, 'limit' => '1', 'offset' => '0', 'sort' => 'id', 'dir' => 'desc']);

@@ -28,7 +28,12 @@ final class SiteIntelligenceService
         $site = (new SiteInspector($this->modx))->inspect();
         $migx = (new MIGXInspector($this->modx))->inspect($tvs);
 
-        $resources = $this->resources((int) ($input['root_id'] ?? 0), (int) ($input['limit'] ?? 500));
+        $resources = $this->resources(
+            (int) ($input['root_id'] ?? 0),
+            (int) ($input['limit'] ?? 500),
+            trim((string) ($input['context_key'] ?? '')),
+            (int) ($input['template_id'] ?? 0)
+        );
         $contract = new DiscoveredSite('1.0', [
             'contract' => 'modx-ai-bridge/site',
             'version' => '1.0',
@@ -51,14 +56,26 @@ final class SiteIntelligenceService
         ];
     }
 
-    private function resources(int $rootId, int $limit): array
+    private function resources(int $rootId, int $limit, string $contextKey = '', int $templateId = 0): array
     {
         $limit = max(1, min($limit, 5000));
-        $where = $rootId > 0 ? ['parent' => $rootId] : [];
+        $query = $this->modx->newQuery(\MODX\Revolution\modResource::class);
+        $where = [];
+        if ($rootId > 0) {
+            $where['parent'] = $rootId;
+        }
+        if ($contextKey !== '' && strlen($contextKey) <= 64) {
+            $where['context_key'] = $contextKey;
+        }
+        if ($templateId > 0) {
+            $where['template'] = $templateId;
+        }
+        if ($where !== []) {
+            $query->where($where);
+        }
+        $query->limit($limit)->sortby('modResource.id', 'ASC');
         $rows = [];
-        foreach ($this->modx->getCollection(\MODX\Revolution\modResource::class, $where, [
-            'sortby' => 'id', 'sortdir' => 'ASC', 'limit' => $limit,
-        ]) as $resource) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modResource::class, $query) ?: [] as $resource) {
             $rows[] = [
                 'id' => (int) $resource->get('id'),
                 'parent' => (int) $resource->get('parent'),

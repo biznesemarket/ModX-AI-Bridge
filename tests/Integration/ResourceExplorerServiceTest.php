@@ -77,6 +77,110 @@ final class ResourceExplorerServiceTest extends TestCase
         self::assertSame([1, 2], array_column($tree, 'menuindex'));
     }
 
+    public function testGetReturnsDetailsAndTemplateVariables(): void
+    {
+        $service = new ResourceExplorerService(self::$modx);
+        $id = self::createResource(self::$prefix . ' get', 0, 4);
+        $tvName = 'explorer_tv_' . bin2hex(random_bytes(4));
+        self::templateVariable($tvName);
+
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['id' => $id]);
+        self::assertNotNull($resource);
+        self::assertTrue($resource->setTVValue($tvName, 'explorer-tv-value'));
+
+        $data = $service->get($id);
+        self::assertNotNull($data);
+        self::assertSame($id, $data['id']);
+        self::assertArrayHasKey('content', $data);
+        self::assertSame('explorer-tv-value', $data['tvs'][$tvName] ?? null);
+
+        self::assertNull($service->get(99999999));
+        $resource->set('deleted', 1);
+        $resource->save();
+        self::assertNull($service->get($id));
+    }
+
+    public function testContractAndQa(): void
+    {
+        $service = new ResourceExplorerService(self::$modx);
+        $id = self::createResource(self::$prefix . ' qa', 0, 5);
+
+        $contract = $service->contract($id);
+        self::assertIsArray($contract);
+        self::assertArrayHasKey('fields', $contract);
+
+        $qa = $service->qa($id, ['pagetitle' => 'QA title', 'content' => '<h1>QA</h1>']);
+        self::assertIsArray($qa);
+        self::assertArrayHasKey('valid', $qa);
+        self::assertArrayHasKey('metrics', $qa);
+
+        self::assertNull($service->contract(99999999));
+        self::assertNull($service->qa(99999999));
+    }
+
+    public function testFingerprintDiffReportsChanges(): void
+    {
+        $service = new ResourceExplorerService(self::$modx);
+        $fromId = self::fingerprint(['site' => ['name' => 'A'], 'count' => 1]);
+        $toId = self::fingerprint(['site' => ['name' => 'B'], 'count' => 1, 'extra' => true]);
+
+        $diff = $service->fingerprintDiff($fromId, $toId);
+        self::assertTrue($diff['valid'] ?? false);
+        $paths = array_column($diff['changes'], 'path');
+        self::assertContains('site.name', $paths);
+        self::assertContains('extra', $paths);
+
+        $missing = $service->fingerprintDiff($fromId, 99999999);
+        self::assertFalse($missing['valid'] ?? true);
+        self::assertSame('fingerprint_not_found', $missing['error'] ?? null);
+
+        $bad = $service->fingerprintDiff($fromId, self::fingerprintRaw('not-json'));
+        self::assertFalse($bad['valid'] ?? true);
+        self::assertSame('invalid_fingerprint_snapshot', $bad['error'] ?? null);
+    }
+
+    private static function templateVariable(string $name): int
+    {
+        $tv = self::$modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $name]);
+        if (!$tv) {
+            $tv = self::$modx->newObject(\MODX\Revolution\modTemplateVar::class);
+            $tv->fromArray(['name' => $name, 'caption' => 'Explorer TV', 'type' => 'text', 'default_text' => '']);
+            $tv->save();
+        }
+        $link = self::$modx->getObject(\MODX\Revolution\modTemplateVarTemplate::class, [
+            'tmplvarid' => (int) $tv->get('id'),
+            'templateid' => self::$templateId,
+        ]);
+        if (!$link) {
+            $link = self::$modx->newObject(\MODX\Revolution\modTemplateVarTemplate::class);
+            $link->set('tmplvarid', (int) $tv->get('id'));
+            $link->set('templateid', self::$templateId);
+            $link->set('rank', 0);
+            $link->save();
+        }
+        self::$modx->getCacheManager()->refresh();
+        return (int) $tv->get('id');
+    }
+
+    private static function fingerprint(array $snapshot): int
+    {
+        return self::fingerprintRaw((string) json_encode($snapshot));
+    }
+
+    private static function fingerprintRaw(string $json): int
+    {
+        $fingerprint = self::$modx->newObject(\AIBridge\Model\Fingerprint::class);
+        $fingerprint->fromArray([
+            'profile_id' => 1,
+            'algorithm' => 'sha256',
+            'fingerprint' => str_repeat('a', 64),
+            'snapshot_json' => $json,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        $fingerprint->save();
+        return (int) $fingerprint->get('id');
+    }
+
     private static function createResource(string $title, int $parent, int $menuindex): int
     {
         $alias = strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', $title)) . '-' . bin2hex(random_bytes(3));

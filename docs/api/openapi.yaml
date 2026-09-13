@@ -24,7 +24,14 @@ paths:
   /api/ai/v2/profiles:
     get: {summary: List profiles visible to the caller, responses: {'200': {description: OK}}}
   /api/ai/v2/site/schema:
-    get: {summary: Read Site Schema, responses: {'200': {description: OK}}}
+    get:
+      summary: Read Site Schema
+      parameters:
+        - {in: query, name: root_id, required: false, schema: {type: integer, minimum: 0}}
+        - {in: query, name: context_key, required: false, schema: {type: string}}
+        - {in: query, name: template_id, required: false, schema: {type: integer, minimum: 1}}
+        - {in: query, name: limit, required: false, schema: {type: integer, minimum: 1, maximum: 5000}}
+      responses: {'200': {description: OK}}
   /api/ai/v2/site/fingerprint:
     get: {summary: Read Site Fingerprint, responses: {'200': {description: OK}}}
   /api/ai/v2/content/contract:
