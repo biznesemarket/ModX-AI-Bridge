@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: STABLE — `0.9.1` (`v0.9.1`), superseding `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.9.2` (`v0.9.2`), superseding `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -154,6 +154,17 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `0.9.1`. Dependabot PR #1 (`php:8.2-apache` -> `php:8.5-apache`) reviewed and intentionally not merged
   (MODX 3.2.2-pl is certified on PHP 8.2 only). Evidence:
   `docs/testing/iteration-62-manager-processors.md`
+- Iteration 63 — `0.9.2` security patch release: closed the publish-approval bypass via
+  `resource.update`/`resource.create` (`published` removed from the writable whitelist), made site discovery
+  deterministic (inspectors now sort explicitly, stable fingerprint), fixed `WorkflowProcessor` list
+  limits/ordering, rejected malformed CIDR prefixes in `IpAllowlist`, permission-gated the manager-connector
+  MCP surface with a trusted principal/IP, and forwarded `approval_id`/`change_id` through the MCP publish
+  pipeline. New `SiteDiscoveryDeterminismTest`, `McpPublishApprovalTest`,
+  `ResourceMutationE2ETest::testUpdateCannotBypassPublishApproval` and
+  `IpAllowlistTest::testRejectsMalformedPrefixLengths`. All version identities committed before the gate.
+  Gate green on `a808254` (run `34779262020`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY:
+  PASS`, sha256 `721e9ce0…`, `OK (168 tests, 1023 assertions)`, `STABLE certification gates passed.`);
+  tag `v0.9.2`. Evidence: `docs/testing/iteration-63-security-hardening.md`, `docs/release/0.9.2.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
