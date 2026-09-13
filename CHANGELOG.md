@@ -1,7 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-09-13
 
+- Fixed the transport package dropping all system settings: `_build/elements/settings.php` chained
+  `fromArray()` off `new modSystemSetting()`, but `xPDOObject::fromArray()` returns void, so every entry was
+  `null` and `build.php` skipped it. The package now ships all 19 `aibridge_*` settings. Releases `0.1.0`
+  and earlier did not install them (the application fell back to code defaults).
 - CI hardening: the `Quality Gates` `deterministic` job now runs the PHP `sdk` suite and the TypeScript SDK
   gate (`./scripts/sdk-typescript-check.sh`) with a pinned Node.js 24 toolchain, so a broken SDK build fails
   fast; workflows moved to Node.js 24 action runtimes (`actions/checkout@v7`, `actions/setup-node@v7`,

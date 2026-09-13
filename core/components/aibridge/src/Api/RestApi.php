@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => '0.1.0',
+                'version' => '0.1.1',
                 'request_id' => $requestId,
             ]);
         }

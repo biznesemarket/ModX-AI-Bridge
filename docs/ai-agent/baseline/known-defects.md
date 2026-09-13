@@ -37,3 +37,4 @@ Register captured during planning review. Items are resolved in the referenced i
 | 31 | `IpAllowlist` | Пустой allowlist разрешал всем | исправлено: fail closed |
 | 32 | Apache mapping | `Alias` не отдаёт PATH_INFO; server-context rewrite не наследуется vhost | исправлено vhost rewrite |
 | 33 | Legacy class names | `modResource`/`modTemplateVar` и инспекторы | заменены на FQCN MODX 3 |
+| 34 | `_build/elements/settings.php` | `fromArray()` chained off `new` returns void → array of `null` → all 19 `aibridge_*` settings skipped by `build.php` and never packaged | исправлено (0.1.1) |
