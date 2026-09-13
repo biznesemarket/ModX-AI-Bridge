@@ -64,8 +64,14 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.6.0, sha256 19c1398bd4461b24df660ea87d
 - Only metadata is returned by the list; `content`/TVs stay out of the summary projection, and the filter is
   authorized by the same `resource:read` check.
 
+## Certification
+
+`Release` dispatch on `main`, commit `bb3f621`, run `34762964883`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (139 tests, 732 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `19c1398b…` (145059 bytes) matches
+the local build. Evidence artifact: `release-evidence-bb3f6212faf239bf9734445b709da8e9afdad4fa`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.6.0` (additive minor). Next, per the
-established flow: bump all identity files (including README and the SDK `User-Agent`) -> full CI gate ->
-evidence/tag -> tag-run -> GitHub Release.
+Stable `0.6.0`, certified by run `34762964883`; tag `v0.6.0` and the GitHub Release are recorded in
+`docs/release/0.6.0.md`.

@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–55
+# Testing Status — Iterations 21–56
 
-**Status: STABLE — `0.5.0` (`v0.5.0`), superseding `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.6.0` (`v0.6.0`), superseding `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -102,6 +102,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `1796c5d` (run `34761433276`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256
   `48c8b233…`, `OK (138 tests, 713 assertions)`, `STABLE certification gates passed.`); tag `v0.5.0`. Evidence:
   `docs/testing/iteration-55-mcp-resource-uri.md`, `docs/release/0.5.0.md`
+- Iteration 56 — `0.6.0` minor release: `tv_name`/`tv_value` filter for `GET /api/ai/v2/resources` and the
+  `resource_list` MCP tool (explicit TV overrides; `tv_value` requires `tv_name`; unknown TV → `invalid_filter`)
+  with the xPDO partial-select fix. All version identities (including README, `aibridge_version` and the SDK
+  `User-Agent` `0.5` -> `0.6`) committed before the gate. Gate green on `bb3f621` (run `34762964883`;
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `19c1398b…`,
+  `OK (139 tests, 732 assertions)`, `STABLE certification gates passed.`); tag `v0.6.0`. Evidence:
+  `docs/testing/iteration-56-list-tv-filter.md`, `docs/release/0.6.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

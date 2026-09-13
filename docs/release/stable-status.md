@@ -1,8 +1,35 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.5.0` (previous: `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.6.0` (previous: `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.5.0 (current)
+## 0.6.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `bb3f621`, run `34762964883`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (63 tests, 201 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.6.0.transport.zip`, SHA-256
+  `19c1398bd4461b24df660ea87db41df365dec07a7b133ce0c4bad18bce53808d` (145059 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.5.0`: `tv_name`/`tv_value` filter on `GET /resources` and the `resource_list` MCP tool.
+- Additive only: no new scope, schema/migration change or API contract break.
+- See `docs/release/0.6.0.md`.
+
+## 0.5.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `1796c5d`, run `34761433276`:
