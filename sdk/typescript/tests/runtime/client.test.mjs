@@ -43,7 +43,7 @@ test('request sends auth and JSON headers and trims the base URL', async () => {
   assert.equal(headers.Authorization, 'Bearer tok');
   assert.equal(headers.Accept, 'application/json');
   assert.equal(headers['Content-Type'], 'application/json');
-  assert.equal(headers['User-Agent'], 'modx-ai-bridge-sdk-ts/0.7');
+  assert.equal(headers['User-Agent'], 'modx-ai-bridge-sdk-ts/0.8');
   assert.equal(
     calls[0].init.body,
     JSON.stringify({ content: { title: 'x' }, contract: { type: 'object' } }),
@@ -184,7 +184,7 @@ test('McpClient wraps calls in JSON-RPC envelopes with incrementing ids', async 
   assert.equal(first.jsonrpc, '2.0');
   assert.equal(first.method, 'initialize');
   assert.equal(first.id, 1);
-  assert.equal(first.params.clientInfo.version, '0.7.1');
+  assert.equal(first.params.clientInfo.version, '0.8.0');
   const second = JSON.parse(String(calls[1].init.body));
   assert.equal(second.method, 'tools/call');
   assert.equal(second.id, 2);

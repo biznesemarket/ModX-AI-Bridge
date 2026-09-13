@@ -22,7 +22,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.7.1');
+  assert.equal(health.version, '0.8.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -56,6 +56,10 @@ test('site schema and fingerprint are discoverable', async () => {
   const schema = await client.siteSchema();
   assert.equal(schema.success, true);
   assert.ok(schema.data);
+  const filtered = await client.siteSchema({ limit: 1, context_key: 'web' });
+  assert.equal(filtered.success, true);
+  assert.equal(filtered.data.contract.resources.length, 1);
+  assert.equal(filtered.data.contract.resources[0].context_key, 'web');
   const fingerprint = await client.siteFingerprint();
   assert.equal(fingerprint.success, true);
   assert.ok(fingerprint.data.fingerprint);
@@ -175,7 +179,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.7.1');
+  assert.equal(init.result.serverInfo.version, '0.8.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
@@ -194,6 +198,10 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const listBack = await mcp.callTool('resource_list', { q: createdAlias, tv_name: context.tv_name, tv_value: tvExplicit, limit: 5 });
   const listPayload = JSON.parse(listBack.result.content[0].text);
   assert.ok(listPayload.data.resources.some((item) => item.id === resourceId));
+
+  const schemaBack = await mcp.callTool('site_schema', { context_key: 'web', limit: 1 });
+  const schemaPayload = JSON.parse(schemaBack.result.content[0].text);
+  assert.equal(schemaPayload.contract.resources.length, 1);
 
   const templates = await mcp.resourceTemplates();
   assert.ok(templates.result.resourceTemplates.some((template) => template.uriTemplate === 'modx://resource/{id}'));

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0 — 2026-09-13
+
+- Site-schema resource filters: `GET /api/ai/v2/site/schema` (and the `site_schema` MCP tool) accept
+  `context_key` and `template_id`, and the embedded resource list now honours `limit` (previously the options
+  were passed as `getCollection()`'s cache flag and ignored). The response shape is unchanged.
+- Manager-surface integration coverage: `AdminProcessor` permission guard (all three branches) and
+  `ResourceExplorerService::get/contract/qa/fingerprintDiff`.
+- `publishedon` in the resource-list summary is now locked by an assertion (already present since 0.4.0).
+- Additive: no new scope, schema, migration or setting change.
+
 ## 0.7.1 — 2026-09-13
 
 - Fixed `ResourceExplorerService::search()`: the flat `OR:` criteria keys OR-ed the whole clause (a search
