@@ -8,7 +8,7 @@
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `a504c3b2…` (синхронизирован с origin; релизные code-коммиты `dc98506`/`330b78a`), дерево чистое.
+- `main` = `7e3d5fd3…` (синхронизирован с origin; релизные code-коммиты `dc98506`/`330b78a`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
@@ -19,6 +19,7 @@
 Ключевые коммиты (новые сверху):
 
 ```text
+7e3d5fd Iteration 62: Cover manager processors and review dependency pins
 a504c3b Iteration 61: Record Stable 0.9.1 certification      (tag v0.9.1)
 330b78a Iteration 61: Cut 0.9.1 patch release
 dc98506 Iteration 61: Cover manager surface and fix console/rollback defects
@@ -84,7 +85,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 > `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`,
 > `v0.9.1` — на `a504c3b`. Исторические теги/релизы **не переписывать**.
 
-## 2. Что сделано (Iterations 30–61)
+## 2. Что сделано (Iterations 30–62)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -248,6 +249,13 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes), локальная сборка
   совпала. GitHub Release `v0.9.1` (3 ассета, latest). Evidence:
   `docs/testing/iteration-61-manager-coverage.md`, `docs/release/0.9.1.md`.
+- **62 — без релиза.** Тестовое покрытие manager-процессоров: `ManagerProcessorsTest` закрывает
+  `ResourcesProcessor` (tree/search/get/contract/qa/fingerprint_diff + fallback неизвестного mode),
+  `OverviewProcessor` (секции в пределах console-лимитов, readiness) и `ActionProcessor` (валидация и
+  переходы статусов profile/token/policy), у каждого — manager permission guard. Отревьюен Dependabot PR #1
+  (`php:8.2-apache` → `php:8.5-apache`): не мержится, MODX 3.2.2-pl сертифицирован только на PHP 8.2.
+  Изменений в `core/`/`assets/` нет → transport-пакет не менялся, версия/тег/релиз не выпускались, Stable
+  остаётся `0.9.1`. Evidence: `docs/testing/iteration-62-manager-processors.md`.
 
 ## 3. Доказательства
 
@@ -264,7 +272,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`, `iteration-54-resource-list.md`,
   `iteration-55-mcp-resource-uri.md`, `iteration-56-list-tv-filter.md`, `iteration-57-readback-polish.md`,
   `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`,
-  `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`.
+  `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`,
+  `iteration-62-manager-processors.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -349,7 +358,8 @@ sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (ис�
 
 Iteration 61 (локально, `0.9.1`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 84, live E2E 15,
 reproducibility `06e80843…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `330b78a`
-(`Quality Gates` 34773037218, `MODX Integration` 34773037239) — success. Ранее Iteration 60: integration 76,
+(`Quality Gates` 34773037218, `MODX Integration` 34773037239) — success. Iteration 62 (локально, `0.9.1`,
+без релиза): full phpunit 162 (integration 88), изменений в пакете нет. Ранее Iteration 60: integration 76,
 reproducibility `59d4f0ab…`.
 
 ## 4. Как работать в этой среде
@@ -449,7 +459,9 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 ## 5. Остаточные риски
 
 - Digest-пины образов и SHA-пины actions обновляются только через Dependabot-PR (`.github/dependabot.yml`,
-  раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE.
+  раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE. Открытый PR #1
+  (`php:8.2-apache` → `php:8.5-apache`) осознанно отложен: MODX 3.2.2-pl сертифицирован только на PHP 8.2
+  (Iteration 62); возвращаться после валидации совместимости с PHP 8.5.
 - `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
   невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
 - TS-тесты используют fake `fetch`; live-HTTP E2E (Iteration 49) закрывает этот пробел, но требует Node на
@@ -477,19 +489,18 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.9.1` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `a504c3b` — релизная документация,
-нерелизных коммитов нет. Обязательных гейтов нет.
+Stable `0.9.1` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `7e3d5fd` — покрытие manager-процессоров
+(Iteration 62, пакет не менялся, Stable остаётся `0.9.1`). Обязательных гейтов нет.
 
 Приоритетные кандидаты:
 
 1. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
-   `parent` и `parent` в `sort` закрыты в Iteration 60). Тем же flow (bump identity → гейт → evidence → tag →
-   tag-run → GitHub Release).
-2. **Менеджер/UI**: `ResourceRollbackProcessor`, `OperationsConsoleService` и `tree()` при `depth>1` закрыты
-   в Iteration 61; при желании — processor-уровневое покрытие остальных `AdminProcessor`-наследников
-   (`ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor`) и Manager E2E сценарии.
-3. Опционально: ревьюить Dependabot-PR по digest/SHA-пинам; закрыть известные дефекты из
-   `docs/ai-agent/baseline/known-defects.md` (если появятся новые).
+   `parent` и `parent` в `sort` закрыты в Iteration 60; без конкретного запроса не меняем). Тем же flow
+   (bump identity → гейт → evidence → tag → tag-run → GitHub Release).
+2. **Менеджер/UI**: processor-покрытие `ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor` закрыто в
+   Iteration 62; при желании — Manager E2E сценарии поверх консоли.
+3. Опционально: Dependabot PR #1 (PHP 8.5) отложен (см. §5), следить за остальными digest/SHA-PR; закрывать
+   известные дефекты из `docs/ai-agent/baseline/known-defects.md` (если появятся новые).
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
@@ -499,7 +510,8 @@ contexts в `/capabilities` + join TV-фильтр + релиз `0.7.0` (57),
 менеджерские xPDO-фиксы (`search`/`tree`/`profiles`) + релиз `0.7.1` (58),
 покрытие менеджерского слоя + `site/schema`-фильтры + релиз `0.8.0` (59),
 рекурсивный `parent`-фильтр (`depth`) + `parent` в `sort` + релиз `0.9.0` (60),
-менеджерское покрытие + фиксы console/rollback + релиз `0.9.1` (61).
+менеджерское покрытие + фиксы console/rollback + релиз `0.9.1` (61),
+processor-покрытие manager-процессоров + Dependabot-ревью (62, без релиза).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
