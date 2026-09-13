@@ -1,8 +1,38 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.9.2` (previous: `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.9.3` (previous: `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.9.2 (current)
+## 0.9.3 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `5d2682e`, run `34781843045`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (64 tests, 206 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.9.3.transport.zip`, SHA-256
+  `24f50ea9eb512cadee11e22c5112672a8b7b257d63cc85b41cb0fda5ba7f59e9` (148130 bytes); local build == CI
+  artifact. README and all version identities were committed before the gate (SDK `clientInfo` bumps to
+  `0.9.3`; the SDK `User-Agent` stays `0.9` for patch releases).
+- Patch release over `0.9.2`: publish approval bound to profile/operation/resource (cross-profile and replay
+  rejections), manager-connector MCP channel propagation, workflow `after_json`/`published` verification fix,
+  MCP `resource_publish` schema (`change_id` required), docs corrections and test-fixture cleanup.
+- Fix/coverage only: no scope, route, schema/migration change or API contract break.
+- See `docs/release/0.9.3.md`.
+
+## 0.9.2 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `a808254`, run `34779262020`:

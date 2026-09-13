@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: STABLE — `0.9.2` (`v0.9.2`), superseding `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.9.3` (`v0.9.3`), superseding `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -165,6 +165,16 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   Gate green on `a808254` (run `34779262020`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY:
   PASS`, sha256 `721e9ce0…`, `OK (168 tests, 1023 assertions)`, `STABLE certification gates passed.`);
   tag `v0.9.2`. Evidence: `docs/testing/iteration-63-security-hardening.md`, `docs/release/0.9.2.md`
+- Iteration 64 — `0.9.3` follow-up patch (local review of Iteration 63): the publish approval is now bound to
+  the caller (`SecurityDecisionPipeline::isApprovedForChange()` checks the change operation, the caller
+  profile and the target resource; `resource_id` is passed through all request paths), the manager-connector
+  MCP `channel` is propagated into the execution-layer pipeline, `ChangeRequestService::create()` drops
+  `published` for create/update so `after_json` verification matches execution, and `resource_publish`
+  requires `change_id`. New cross-profile and wrong-resource rejections in `McpPublishApprovalTest`; new
+  integration tests clean up fixtures. Gate green on `5d2682e` (run `34781843045`;
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `24f50ea9…`,
+  `OK (170 tests, 1033 assertions)`, `STABLE certification gates passed.`); tag `v0.9.3`. Evidence:
+  `docs/testing/iteration-64-mcp-approval-binding.md`, `docs/release/0.9.3.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
