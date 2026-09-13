@@ -11,8 +11,8 @@ Register captured during planning review. Items are resolved in the referenced i
 | 5 | `controllers/*.class.php` | Базовый класс определён в `index.class.php`; MODX 3 грузит action-контроллер изолированно → fatal | исправлено: контроллеры самодостаточны |
 | 6 | `Application::securityDecision` | pipeline без `$modx` → publish-approval всегда `approval_invalid` | исправлено |
 | 7 | `Authorization` | Отсутствовал `resource.rollback` | исправлено |
-| 8 | MCP publish | `approval_id` без `change_id` | Iteration 29 |
-| 9 | `processors/mcp.class.php` | Нет аутентификации | Iteration 29 |
+| 8 | MCP publish | `approval_id` без `change_id`; в `callTool()` pipeline не получал `approval_id`/`change_id`, поэтому tool всегда отклонялся | повторно закрыто в 0.9.2 (forwarding + `McpPublishApprovalTest`) |
+| 9 | `processors/mcp.class.php` | Не было guard'а; principal/scopes и `_client_ip` брались из request | повторно закрыто в 0.9.2 (`AdminProcessor` guard, trusted principal/IP) |
 | 10 | settings/ConfigFactory | Ключи underscore vs dot; список настроек неполный | исправлено |
 | 11 | `migrate.php` | Не подставлялся префикс; два стиля плейсхолдеров | исправлено |
 | 12 | `001_initial.sql` | Устарел относительно schema (нет profile_id/queue-полей) | исправлено: пересоздан из схемы, проверен diff-ом |
@@ -39,3 +39,11 @@ Register captured during planning review. Items are resolved in the referenced i
 | 33 | Legacy class names | `modResource`/`modTemplateVar` и инспекторы | заменены на FQCN MODX 3 |
 | 34 | `_build/elements/settings.php` | `fromArray()` chained off `new` returns void → array of `null` → all 19 `aibridge_*` settings skipped by `build.php` and never packaged | исправлено (0.1.1) |
 | 35 | `sdk/{php,typescript}` `waitForJob()` | Читал только `data.status`/`status`, а реальный ответ `GET /api/ai/v2/jobs/{id}` — `{success, job:{status}}` → поллинг никогда не видел терминального статуса и падал в таймаут. Найдено live HTTP E2E | исправлено (Iteration 49), закреплено runtime-тестами |
+| 36 | `RestApi::applicationResult()`, `Queue/Worker` | Сырые `$e->getMessage()` попадают в API-ответ и `error_json` job'а (внутренние/DB-сообщения) | backlog (P2, info disclosure) |
+| 37 | `Model/mysql/IdempotencyKey.php`, `RateLimitBucket.php` | Unique-индексы не включают `profile_id` (`key,principal,operation` / `bucket_key,window_start`) → кросс-профильные коллизии при shared principal | backlog (P3) |
+| 38 | `Api/RestApi::mutate()` / MCP `idempotency_key` | Длина ключа не ограничена, а колонки `varchar(190)` → insert падает 500 на длинном ключе | backlog (P3) |
+| 39 | `Validators/RequestValidator`, `Middleware/{Authentication,Authorization,RateLimit}Middleware`, `Services/{Asset,Schema}Service`, `src/Processors/*` стабы | Мёртвый/заглушечный код без вызовов (кроме self-reference) | backlog (P3, tech debt) |
+| 40 | `Queue/Worker::runOnce()` | Timeout проверяется после завершения handler'а, а не прерывает его; job может быть помечен failed/requeued уже после мутации | backlog (P3, design) |
+| 41 | `Services/CacheInvalidationService` | `invalidateResource()` сбрасывает весь `db`-кеш MODX вместо ресурса | backlog (P3, perf) |
+| 42 | `Manager/OperationsConsoleService::changes()/approvals()` | Возвращают сырой `toArray()` без проекции (в отличие от остальных list-методов) | backlog (P3) |
+| 43 | `Manager/OperationsConsoleService` | Конструктор `private modX $modx` без `readonly`; мелкие стилевые несогласованности | backlog (P3, style) |

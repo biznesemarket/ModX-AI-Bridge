@@ -20,4 +20,14 @@ final class IpAllowlistTest extends TestCase
         $this->assertFalse($service->allows('10.0.0.12',[]));
         $this->assertFalse($service->allows('',['10.0.0.12']));
     }
+
+    public function testRejectsMalformedPrefixLengths(): void
+    {
+        $service=new IpAllowlist();
+        $this->assertFalse($service->allows('10.0.0.12',['10.0.0.0/33']));
+        $this->assertFalse($service->allows('10.0.0.12',['10.0.0.0/-1']));
+        $this->assertFalse($service->allows('10.0.0.12',['10.0.0.0/abc']));
+        $this->assertFalse($service->allows('::1',['::/129']));
+        $this->assertTrue($service->allows('10.0.0.0',['10.0.0.0/32']));
+    }
 }

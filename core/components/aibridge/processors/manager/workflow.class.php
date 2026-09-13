@@ -17,7 +17,7 @@ final class WorkflowProcessor extends AdminProcessor {
  'reject'=>$this->success('', $changes->reject((int)$this->getProperty('change_id'),$principal,(string)$this->getProperty('reason',''))),
  'execute'=>$this->success('', (new ChangeExecutionService($this->modx))->dispatchApproved((int)$this->getProperty('change_id'),$principal)),
  default=>$this->failure('Unknown workflow mode.')}; }catch(\Throwable $e){return $this->failure($e->getMessage(),['code'=>'workflow_error']);}}
- private function listChanges():array{$out=[];$rows=$this->modx->getCollection('AIBridge\Model\ChangeRequest',[],['limit'=>200,'sortby'=>'created_at','sortdir'=>'DESC']);foreach($rows as $r)$out[]=$r->toArray();return $out;}
- private function listApprovals():array{$out=[];$rows=$this->modx->getCollection('AIBridge\Model\Approval',[],['limit'=>200,'sortby'=>'requested_at','sortdir'=>'DESC']);foreach($rows as $r)$out[]=$r->toArray();return $out;}
+ private function listChanges():array{$out=[];$q=$this->modx->newQuery('AIBridge\Model\ChangeRequest');$q->limit(200)->sortby('created_at','DESC');$rows=$this->modx->getCollection('AIBridge\Model\ChangeRequest',$q);foreach($rows ?: [] as $r)$out[]=$r->toArray();return $out;}
+ private function listApprovals():array{$out=[];$q=$this->modx->newQuery('AIBridge\Model\Approval');$q->limit(200)->sortby('requested_at','DESC');$rows=$this->modx->getCollection('AIBridge\Model\Approval',$q);foreach($rows ?: [] as $r)$out[]=$r->toArray();return $out;}
 }
 return WorkflowProcessor::class;

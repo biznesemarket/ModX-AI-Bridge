@@ -200,6 +200,26 @@ final class ResourceMutationE2ETest extends TestCase
         self::assertSame(ChangeState::COMPLETED, (string) $change->get('status'));
     }
 
+    public function testUpdateCannotBypassPublishApproval(): void
+    {
+        $resourceId = $this->createResource(['published' => 0]);
+
+        $result = (new ResourceExecutionService(self::$modx))->update(
+            [
+                'id' => $resourceId,
+                'pagetitle' => 'Attempted covert publish',
+                'content' => '<h1>Attempted covert publish</h1><p>body</p>',
+                'published' => 1,
+            ],
+            $this->manager(),
+            ['channel' => 'manager', 'ip' => 'manager', 'request_id' => bin2hex(random_bytes(16)), 'idempotency_key' => 'bypass-' . bin2hex(random_bytes(8))]
+        );
+
+        self::assertTrue((bool) ($result['success'] ?? false), json_encode($result));
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, $resourceId);
+        self::assertSame(0, (int) $resource->get('published'), 'resource.update must not change publish state.');
+    }
+
     public function testPostExecutionVerificationMismatchFailsJobWithoutRetry(): void
     {
         $resourceId = $this->createResource();

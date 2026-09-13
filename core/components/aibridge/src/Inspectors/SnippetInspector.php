@@ -14,8 +14,10 @@ final class SnippetInspector
 
     public function inspect(): array
     {
+        $query = $this->modx->newQuery(\MODX\Revolution\modSnippet::class);
+        $query->sortby('name', 'ASC');
         $rows = [];
-        foreach ($this->modx->getCollection(\MODX\Revolution\modSnippet::class, [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $snippet) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modSnippet::class, $query) as $snippet) {
             $rows[] = [
                 'id' => (int) $snippet->get('id'),
                 'name' => (string) $snippet->get('name'),

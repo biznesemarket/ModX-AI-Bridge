@@ -14,8 +14,10 @@ final class ChunkInspector
 
     public function inspect(): array
     {
+        $query = $this->modx->newQuery(\MODX\Revolution\modChunk::class);
+        $query->sortby('name', 'ASC');
         $rows = [];
-        foreach ($this->modx->getCollection(\MODX\Revolution\modChunk::class, [], ['sortby' => 'name', 'sortdir' => 'ASC']) as $chunk) {
+        foreach ($this->modx->getCollection(\MODX\Revolution\modChunk::class, $query) as $chunk) {
             $rows[] = [
                 'id' => (int) $chunk->get('id'),
                 'name' => (string) $chunk->get('name'),

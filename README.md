@@ -6,7 +6,7 @@ Iteration 17 added an operational console inside MODX Manager. It provides visib
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Stable `0.9.1`** (tag `v0.9.1`; certified `aibridge-0.9.1.transport.zip`)
+Status: **Stable `0.9.2`** (tag `v0.9.2`; certified `aibridge-0.9.2.transport.zip`)
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
@@ -26,10 +26,13 @@ template variables to the read-back projection (`tvs`); `0.4.0` added the filter
 filter; `0.7.0` added contexts to `/capabilities` and made the TV filter join-based; `0.7.1` fixed the manager
 explorer/profiles query handling; `0.8.0` added `context_key`/`template_id` filters (with a real limit) to the
 site-schema resource list plus manager-surface integration coverage; `0.9.0` added a recursive `parent` filter
-(`depth`, 1..10) and `parent` sorting to the resource list; `0.9.1` is the current Stable patch release and
-fixes the ignored console list limits/ordering, the rollback processor's uncaught snapshot errors and hardens
-the manager resource tree. Evidence:
-`docs/release/0.9.1.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
+(`depth`, 1..10) and `parent` sorting to the resource list; `0.9.1` fixed the ignored console list
+limits/ordering, the rollback processor's uncaught snapshot errors and hardened the manager resource tree;
+`0.9.2` is the current Stable patch release and closes a publish-approval bypass through
+`resource.update`/`resource.create`, makes site discovery ordering deterministic (stable fingerprint),
+rejects malformed CIDR prefixes, and hardens the manager-connector MCP surface (permission guard, trusted
+principal/IP) plus MCP publish approval forwarding. Evidence:
+`docs/release/0.9.2.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
 
 ## AI Agent Development
 

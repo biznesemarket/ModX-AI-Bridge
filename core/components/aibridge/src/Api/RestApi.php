@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.1'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.2'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,7 +58,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.1'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.2'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -122,7 +122,6 @@ final class RestApi
             return $this->json(200, ['jsonrpc' => '2.0', 'id' => $body['id'] ?? null, 'error' => ['code' => -32600, 'message' => 'Invalid Request']]);
         }
         $params = is_array($body['params'] ?? null) ? $body['params'] : [];
-        $params['_client_ip'] = $clientIp;
         $body['params'] = $params;
         $response = McpServer::fromModx($this->modx)->handle($body, $principal + ['client_ip' => $clientIp]);
         return $this->json(200, $response);

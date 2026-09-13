@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.9.2 — 2026-09-13
+
+- Security: publishing can no longer be performed through `resource.update`/`resource.create`. `published`
+  was accepted by the writable-field whitelist, so any principal with `resource:write` could set
+  `published = 1` and bypass the `resource.publish` approval gate. Publication now happens only through the
+  approval-gated `resource.publish` operation.
+- Fixed non-deterministic site discovery: `TemplateInspector`, `TVInspector`, `ChunkInspector` and
+  `SnippetInspector` passed their `sortby` options as `getCollection()`'s cache flag, so collections were
+  returned in storage order and the site fingerprint could change without any content change. They now build
+  an `xPDOQuery` with an explicit `sortby('name'|'templatename', 'ASC')`.
+- Fixed `WorkflowProcessor::listChanges()/listApprovals()`: `limit`/`sortby` were passed as the cache flag and
+  ignored; both lists now use an explicit query (200 rows, `created_at`/`requested_at` DESC).
+- Hardened `IpAllowlist`: malformed CIDR prefix lengths (`/33` on IPv4, `/129` on IPv6, negative or
+  non-numeric) previously matched every address; they are now rejected (fail closed).
+- Hardened the manager-connector MCP surface (`processors/mcp.class.php`): it now requires manager
+  authentication and the `aibridge_manage` permission, derives the principal from the authenticated MODX user
+  and the real transport peer, and never trusts request-supplied `scopes` or `_client_ip`.
+- MCP `resource_publish` now forwards `approval_id`/`change_id` into the security pipeline, so a valid
+  approved change request can publish through MCP (previously always denied when approvals are required).
+- New coverage: `SiteDiscoveryDeterminismTest`, `McpPublishApprovalTest`,
+  `ResourceMutationE2ETest::testUpdateCannotBypassPublishApproval` and
+  `IpAllowlistTest::testRejectsMalformedPrefixLengths`.
+- Patch release: security and correctness fixes; no new scope, route, schema, migration or setting.
+
 ## 0.9.1 — 2026-09-13
 
 - Fixed `OperationsConsoleService` list methods: `limit`/`sortby` were passed as `getCollection()`'s cache flag

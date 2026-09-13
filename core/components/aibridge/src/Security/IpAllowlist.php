@@ -22,8 +22,14 @@ final class IpAllowlist
     {
         [$subnet,$bits] = array_pad(explode('/', $cidr, 2), 2, null);
         $ipBin = @inet_pton($ip); $subBin = @inet_pton($subnet);
-        if ($ipBin === false || $subBin === false || $bits === null || strlen($ipBin) !== strlen($subBin)) return false;
-        $bits=(int)$bits; $bytes=intdiv($bits,8); $remainder=$bits%8;
+        if ($ipBin === false || $subBin === false || $bits === null || !is_numeric($bits)) return false;
+        if (strlen($ipBin) !== strlen($subBin)) return false;
+        $bits=(int)$bits;
+        // Reject malformed prefixes (negative, or longer than the address
+        // width): previously /33 on IPv4 or /129 on IPv6 silently matched every
+        // address because the byte comparison was skipped.
+        if ($bits < 0 || $bits > strlen($subBin) * 8) return false;
+        $bytes=intdiv($bits,8); $remainder=$bits%8;
         if ($bytes && substr($ipBin,0,$bytes)!==substr($subBin,0,$bytes)) return false;
         if (!$remainder) return true;
         $mask = chr((0xFF << (8-$remainder)) & 0xFF);

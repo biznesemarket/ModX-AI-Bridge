@@ -46,7 +46,7 @@ docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
 
 echo "== 6. Install local Transport Package =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \
-  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.1.transport.zip'
+  bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.2.transport.zip'
 
 echo "== 7. Verify runtime =="
 docker compose -f "${ROOT}/docker-compose.yml" exec -T modx \

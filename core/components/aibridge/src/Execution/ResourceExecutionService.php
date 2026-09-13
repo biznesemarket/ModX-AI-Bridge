@@ -146,7 +146,11 @@ final class ResourceExecutionService
 
     private function sanitizePayload(array $input): array
     {
-        $allowed = ['pagetitle','longtitle','description','introtext','content','alias','parent','template','menuindex','published','hidemenu','class_key','context_key'];
+        // `published` is intentionally not writable here: publishing is a
+        // separate, approval-gated operation (`resource.publish`). Allowing it
+        // through create/update would bypass that gate for any principal with
+        // resource:write. Publish state is set explicitly by the publish branch.
+        $allowed = ['pagetitle','longtitle','description','introtext','content','alias','parent','template','menuindex','hidemenu','class_key','context_key'];
         $payload = [];
         foreach ($allowed as $key) if (array_key_exists($key, $input)) $payload[$key] = $input[$key];
         return $payload;
