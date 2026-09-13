@@ -62,8 +62,14 @@ PACKAGE REPRODUCIBILITY: PASS (aibridge-0.5.0, sha256 48c8b23344fd1d6dcae2c67a52
 - The template resolves to the same `resource.read` operation, so IP allowlist, scope checks and policy are
   unchanged; a missing resource is a JSON-RPC `-32002` error rather than a content payload.
 
+## Certification
+
+`Release` dispatch on `main`, commit `1796c5d`, run `34761433276`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (138 tests, 713 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256 `48c8b233…` (144677 bytes) matches
+the local build. Evidence artifact: `release-evidence-1796c5d7b01e0aba6b7e66b008757346506ccead`.
+
 ## Status
 
-Implementation complete and locally verified; release target `0.5.0` (additive minor). Next, per the
-established flow: bump all identity files (including README and the SDK `User-Agent`) -> full CI gate ->
-evidence/tag -> tag-run -> GitHub Release.
+Stable `0.5.0`, certified by run `34761433276`; tag `v0.5.0` and the GitHub Release are recorded in
+`docs/release/0.5.0.md`.

@@ -1,8 +1,36 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.4.0` (previous: `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **STABLE** — current release `0.5.0` (previous: `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.4.0 (current)
+## 0.5.0 (current)
+
+`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
+`ubuntu-latest`, commit `1796c5d`, run `34761433276`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (63 tests, 201 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS
+bash scripts/verify-supply-chain-pins.sh             SUPPLY CHAIN PINS: PASS
+composer test-modx                                   == MODX INTEGRATION: PASS ==
+  step 10b TypeScript SDK live HTTP E2E              TYPESCRIPT SDK LIVE HTTP: PASS
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS
+./scripts/quality-gate.sh                            PASS
+STABLE certification gates passed.
+```
+
+- Release artifact: `aibridge-0.5.0.transport.zip`, SHA-256
+  `48c8b23344fd1d6dcae2c67a529c13d44cb7d1b6b7a837c3e459621e4ff2506d` (144677 bytes); local build == CI
+  artifact. README, SDK `User-Agent` and all version identities were committed before the gate.
+- Minor release over `0.4.0`: MCP resource template `modx://resource/{id}`, `resources/templates/list` and
+  `resourceTemplates()` in both SDK MCP clients.
+- Additive only: no REST route, scope, schema/migration change or API contract break.
+- See `docs/release/0.5.0.md`.
+
+## 0.4.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `07f3c72`, run `34758755913`:

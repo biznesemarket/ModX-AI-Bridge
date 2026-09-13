@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–54
+# Testing Status — Iterations 21–55
 
-**Status: STABLE — `0.4.0` (`v0.4.0`), superseding `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: STABLE — `0.5.0` (`v0.5.0`), superseding `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -95,6 +95,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `34758755913`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `778d061a…`,
   `OK (135 tests, 700 assertions)`, `STABLE certification gates passed.`); tag `v0.4.0`. Evidence:
   `docs/testing/iteration-54-resource-list.md`, `docs/release/0.4.0.md`
+- Iteration 55 — `0.5.0` minor release: MCP resource template `modx://resource/{id}` (`resources/read`
+  resolves URI templates under `resource.read`; `-32002` for missing resources), `resources/templates/list`,
+  `resourceTemplates()` in both MCP clients and `McpServer::capabilities()`. All version identities (including
+  README, `aibridge_version` and the SDK `User-Agent` `0.4` -> `0.5`) committed before the gate. Gate green on
+  `1796c5d` (run `34761433276`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256
+  `48c8b233…`, `OK (138 tests, 713 assertions)`, `STABLE certification gates passed.`); tag `v0.5.0`. Evidence:
+  `docs/testing/iteration-55-mcp-resource-uri.md`, `docs/release/0.5.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
