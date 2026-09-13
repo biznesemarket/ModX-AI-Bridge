@@ -1,24 +1,26 @@
-# Handoff — ModX AI Bridge (Stable `0.9.1`)
+# Handoff — ModX AI Bridge (Stable `0.9.2`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.9.1`** (tag `v0.9.1`, GitHub Release опубликован с 3 ассетами). `main` = `a504c3b`
-(релизная документация `0.9.1`), дерево чистое.
+Состояние: **STABLE `0.9.2`** (tag `v0.9.2`, GitHub Release опубликован с 3 ассетами). `main` = `e5514de`
+(релизная документация `0.9.2`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `7e3d5fd3…` (синхронизирован с origin; релизные code-коммиты `dc98506`/`330b78a`), дерево чистое.
+- `main` = `e5514dec…` (синхронизирован с origin; релизные code-коммиты `a808254`/`e5514de`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
-  `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`). GitHub
-  Releases: `v0.9.1` (latest), `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
+  `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`), `v0.9.2` (`e5514de…`). GitHub
+  Releases: `v0.9.2` (latest), `v0.9.1`, `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
   `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+e5514de Iteration 63: Record Stable 0.9.2 certification    (tag v0.9.2)
+a808254 Iteration 63: Harden publish gate, discovery order and MCP; cut 0.9.2
 7e3d5fd Iteration 62: Cover manager processors and review dependency pins
 a504c3b Iteration 61: Record Stable 0.9.1 certification      (tag v0.9.1)
 330b78a Iteration 61: Cut 0.9.1 patch release
@@ -83,7 +85,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
 > `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`, `v0.6.0` — на `cb90ba0`,
 > `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`,
-> `v0.9.1` — на `a504c3b`. Исторические теги/релизы **не переписывать**.
+> `v0.9.1` — на `a504c3b`, `v0.9.2` — на `e5514de`. Исторические теги/релизы **не переписывать**.
 
 ## 2. Что сделано (Iterations 30–62)
 
@@ -256,10 +258,28 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   (`php:8.2-apache` → `php:8.5-apache`): не мержится, MODX 3.2.2-pl сертифицирован только на PHP 8.2.
   Изменений в `core/`/`assets/` нет → transport-пакет не менялся, версия/тег/релиз не выпускались, Stable
   остаётся `0.9.1`. Evidence: `docs/testing/iteration-62-manager-processors.md`.
+- **63 — `0.9.2`.** Patch-релиз 63 (аудит + security hardening): закрыт publish-approval bypass через
+  `resource.update`/`resource.create` (`published` убран из writable-whitelist, `ResourceExecutionService`);
+  детерминированный site discovery (инспекторы `Template`/`TV`/`Chunk`/`Snippet` строят `xPDOQuery` с
+  `sortby(...)` вместо options-as-cacheFlag → стабильный fingerprint); `WorkflowProcessor::listChanges/
+  listApprovals` получили `limit(200)`/`DESC`; `IpAllowlist` отклоняет битые CIDR-префиксы (`/33`, `/129`,
+  отрицательные/нечисловые) fail-closed; manager-connector MCP (`processors/mcp.class.php`) закрыт
+  `AdminProcessor`-guard'ом (`aibridge_manage`), principal/IP берутся из сессии и реального peer, а не из
+  request; `McpServer::callTool()` форвардит `approval_id`/`change_id` в pipeline (MCP publish с approved
+  change работает, без approval — `-32003`). Новые `SiteDiscoveryDeterminismTest`, `McpPublishApprovalTest`,
+  `ResourceMutationE2ETest::testUpdateCannotBypassPublishApproval`,
+  `IpAllowlistTest::testRejectsMalformedPrefixLengths`. Все identity (включая README, `aibridge_version` и
+  SDK `User-Agent`/clientInfo) подняты до `0.9.2` в bump-коммите. Гейты: dispatch `34779262020`
+  (`a808254`) и tag-run `34779625520` (`e5514de`) — успех; оба sha256
+  `721e9ce0b794e0fdeaf4441b1f2b146c48a93b508665466b31d2a2d70a95d34a` (147647 bytes), локальная сборка
+  совпала. Push-CI на `a808254`: `Quality Gates` `34779253660`, `MODX Integration` `34779253650` — success.
+  GitHub Release `v0.9.2` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-63-security-hardening.md`, `docs/release/0.9.2.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.9.1.md`, `docs/release/0.9.0.md`, `docs/release/0.8.0.md`,
+- Release/status: `docs/release/0.9.2.md`, `docs/release/0.9.1.md`, `docs/release/0.9.0.md`,
+  `docs/release/0.8.0.md`,
   `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`, `docs/release/0.5.0.md`,
   `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`,
   `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
@@ -273,8 +293,9 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-55-mcp-resource-uri.md`, `iteration-56-list-tv-filter.md`, `iteration-57-readback-polish.md`,
   `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`,
   `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`,
-  `iteration-62-manager-processors.md`.
-- Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
+  `iteration-62-manager-processors.md`, `iteration-63-security-hardening.md`.
+- Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49;
+  #8/#9 повторно закрыты в 0.9.2; открытый backlog 36–43).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
 Сертификационные прогоны (`STABLE certification gates passed.`):
@@ -311,13 +332,18 @@ d49c044 run 34769066811   (0.8.0 dispatch)
 144fcf4 run 34771702777   (tag v0.9.0)
 330b78a run 34773039854   (0.9.1 dispatch)
 a504c3b run 34773395586   (tag v0.9.1)
+a808254 run 34779262020   (0.9.2 dispatch)
+e5514de run 34779625520   (tag v0.9.2)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `330b78a` run `34773039854` (0.9.1 dispatch: live HTTP E2E PASS,
+Полные гейты `Release` 2026-09-13: `a808254` run `34779262020` (0.9.2 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `721e9ce0…`, `OK (168 tests, 1023 assertions)`, `STABLE certification
+gates passed.`); tag `v0.9.2` (`e5514de`) run `34779625520` — тот же sha256. Push-CI на `a808254`
+(`Quality Gates` 34779253660, `MODX Integration` 34779253650) — success. Ранее: `330b78a` run `34773039854` (0.9.1 dispatch: live HTTP E2E PASS,
 `PACKAGE REPRODUCIBILITY: PASS`, sha256 `06e80843…`, `OK (158 tests, 923 assertions)`); tag `v0.9.1`
 (`a504c3b`) run `34773395586` — тот же sha256. Ранее: `5d83170` run `34771312099` (0.9.0 dispatch: live HTTP
 E2E PASS, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `59d4f0ab…`, `OK (150 tests, 860 assertions)`);
@@ -338,12 +364,14 @@ assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `347511
 sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
 `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b}…` (90 дней). Репозиторий:
-`sha_pinning_required=true`.
+`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b,a808254,e5514de}…` (90 дней).
+Репозиторий: `sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.9.1.transport.zip` sha256
-`06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes; GitHub Release `v0.9.1`,
-digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.0.transport.zip` sha256
+Артефакты: `aibridge-0.9.2.transport.zip` sha256
+`721e9ce0b794e0fdeaf4441b1f2b146c48a93b508665466b31d2a2d70a95d34a` (147647 bytes; GitHub Release `v0.9.2`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.1.transport.zip` sha256
+`06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes; Release `v0.9.1`);
+`aibridge-0.9.0.transport.zip` sha256
 `59d4f0ab7d0cce445c7442b51c629538e6b21a9686e8582db2ba01472a6e54fd` (146359 bytes; Release `v0.9.0`);
 `aibridge-0.8.0.transport.zip` sha256
 `c0b96adb89c991a9c30b2164fd4ca9b18d4fb7169020b6f7cd7534e573ae2599` (145761 bytes; Release `v0.8.0`);
@@ -356,8 +384,10 @@ digest ассета совпадает; локальная сборка == CI ==
 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
 sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
 
-Iteration 61 (локально, `0.9.1`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 84, live E2E 15,
-reproducibility `06e80843…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `330b78a`
+Iteration 63 (локально, `0.9.2`): `unit,contract,security` 64, `sdk` 11, integration 93, static contract PASS,
+reproducibility `721e9ce0…`; полный CI-гейт `OK (168 tests, 1023 assertions)`, TS live HTTP PASS,
+`SUPPLY CHAIN PINS: PASS`. Iteration 61 (локально, `0.9.1`): `unit,contract,security` 63, `sdk` 11, TS 14,
+integration 84, live E2E 15, reproducibility `06e80843…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `330b78a`
 (`Quality Gates` 34773037218, `MODX Integration` 34773037239) — success. Iteration 62 (локально, `0.9.1`,
 без релиза): full phpunit 162 (integration 88), изменений в пакете нет. Ранее Iteration 60: integration 76,
 reproducibility `59d4f0ab…`.
@@ -369,7 +399,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.1.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.2.transport.zip'
 ```
 
 Полезные команды:
@@ -401,7 +431,8 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - xPDO: `fromArray()` возвращает **void** — нельзя чейнить `(new X)->fromArray(...)`; собирать в два шага.
 - xPDO: у `getCollection($class, $criteria, $cacheFlag)` третий аргумент — это cacheFlag, **не** options:
   `['limit'=>..,'sortby'=>..]` молча игнорируется. Для limit/offset/sort строить `newQuery()` и звать
-  `limit()`/`sortby()` (Iteration 54; повторный случай — `OperationsConsoleService`, закрыт в Iteration 61).
+  `limit()`/`sortby()` (Iteration 54; повторные случаи — `OperationsConsoleService` в Iteration 61 и
+  инспекторы + `WorkflowProcessor::list*` в Iteration 63 — сортировка инспекторов влияет на fingerprint).
 - xPDO: плоские ключи `OR:field:op` в criteria OR-ят **всю** предыдущую клаузу (включая `deleted = 0`) →
   совпадёт почти всё. Для поиска — вложенная группа `where([[...],[...]], xPDOQuery::SQL_OR)` (Iteration 54).
 - xPDO: не делать частичный `select('col')` на коллекции: у гидратированных объектов нет PK, и первое
@@ -430,6 +461,13 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   на одном стеке: оба перезаписывают `aibridge_ip_allowlist`, live-прогон ловит `403 ip_not_allowed`.
   В `test-modx.sh` они идут последовательно. Установка пакета ре-импортирует дефолты настроек — harness
   переустанавливает тестовые значения сам.
+- Publish: `published` **не** входит в writable-whitelist `ResourceExecutionService` — publish-состояние
+  меняет только операция `resource.publish` (approval-gated). Не добавлять `published` в `sanitizePayload`
+  (Iteration 63; регресс-тест `testUpdateCannotBypassPublishApproval`).
+- MCP-транспорт: client IP берётся из trusted principal (`$principal['client_ip']`), который кладёт
+  транспорт, а **не** из `params._client_ip`. Manager-connector MCP (`processors/mcp.class.php`) — только
+  для аутентифицированного менеджера с `aibridge_manage`; token-путь — REST `POST /api/ai/v2/mcp`.
+  `McpServer::callTool()` форвардит `approval_id`/`change_id` в pipeline (Iteration 63).
 - Read-back: `GET /resources/{id}` требует scope `resource:read`; проекция включает карту `tvs` (TV, привязанные
   к шаблону ресурса; scalar → `string|null`, структурированные → JSON-строка). Те же данные отдаёт MCP
   `resource_read`. `GET /resources` (операция `resource.list`, тот же scope) — список с фильтрами
@@ -486,21 +524,28 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   failed jobs, а не изменения в коде.
 - Исторические записи не менять: `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*`,
   `docs/testing/iteration-39-stable-certification.md`.
+- Audit-backlog (Iteration 63) открыт в `known-defects.md` (36–43): сырые `$e->getMessage()` в API/job,
+  unique-индексы идемпотентности/rate-limit без `profile_id`, неограниченная длина `Idempotency-Key`,
+  мёртвый/заглушечный код, timeout worker после выполнения handler'а, полный `db`-cache refresh, сырые
+  `toArray()` в console `changes`/`approvals`, стилевой `readonly`. Не блокируют Stable; закрывать по
+  приоритету. Пункты #8/#9 известных дефектов повторно закрыты в 0.9.2.
 
 ## 6. Что делать дальше
 
-Stable `0.9.1` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `7e3d5fd` — покрытие manager-процессоров
-(Iteration 62, пакет не менялся, Stable остаётся `0.9.1`). Обязательных гейтов нет.
+Stable `0.9.2` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `e5514de` — security hardening и
+детерминизм discovery (Iteration 63). Обязательных гейтов нет.
 
 Приоритетные кандидаты:
 
-1. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
-   `parent` и `parent` в `sort` закрыты в Iteration 60; без конкретного запроса не меняем). Тем же flow
-   (bump identity → гейт → evidence → tag → tag-run → GitHub Release).
-2. **Менеджер/UI**: processor-покрытие `ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor` закрыто в
+1. **Backlog `known-defects.md` (36–43)**: info disclosure в API/job-ошибках, `profile_id` в unique-индексах
+   идемпотентности/rate-limit, длина `Idempotency-Key`, мёртвый код, семантика worker-timeout, scope
+   cache invalidation, проекции console. Тем же flow (bump identity → гейт → evidence → tag → tag-run →
+   GitHub Release) для выбранного набора.
+2. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
+   `parent` и `parent` в `sort` закрыты в Iteration 60; без конкретного запроса не меняем).
+3. **Менеджер/UI**: processor-покрытие `ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor` закрыто в
    Iteration 62; при желании — Manager E2E сценарии поверх консоли.
-3. Опционально: Dependabot PR #1 (PHP 8.5) отложен (см. §5), следить за остальными digest/SHA-PR; закрывать
-   известные дефекты из `docs/ai-agent/baseline/known-defects.md` (если появятся новые).
+4. Опционально: Dependabot PR #1 (PHP 8.5) отложен (см. §5), следить за остальными digest/SHA-PR.
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
@@ -511,7 +556,9 @@ contexts в `/capabilities` + join TV-фильтр + релиз `0.7.0` (57),
 покрытие менеджерского слоя + `site/schema`-фильтры + релиз `0.8.0` (59),
 рекурсивный `parent`-фильтр (`depth`) + `parent` в `sort` + релиз `0.9.0` (60),
 менеджерское покрытие + фиксы console/rollback + релиз `0.9.1` (61),
-processor-покрытие manager-процессоров + Dependabot-ревью (62, без релиза).
+processor-покрытие manager-процессоров + Dependabot-ревью (62, без релиза),
+security hardening (publish-bypass, discovery determinism, MCP guard/publish) + аудит-backlog + релиз
+`0.9.2` (63).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
