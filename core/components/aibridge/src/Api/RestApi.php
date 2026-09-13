@@ -48,7 +48,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.7.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.7.1'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,7 +58,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.7.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.7.1'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -147,12 +147,13 @@ final class RestApi
         if (!$decision->allowed()) {
             return $this->denied($decision->toArray(), $requestId);
         }
-        $criteria = [];
         $profileId = (int) ($principal['profile_id'] ?? 0);
+        $query = $this->modx->newQuery(Profile::class);
         if ($profileId > 0) {
-            $criteria['id'] = $profileId;
+            $query->where(['id' => $profileId]);
         }
-        $profiles = $this->modx->getCollection(Profile::class, $criteria, ['limit' => 100, 'sortby' => 'id', 'sortdir' => 'ASC']);
+        $query->limit(100)->sortby('id', 'ASC');
+        $profiles = $this->modx->getCollection(Profile::class, $query);
         $items = [];
         foreach ($profiles ?: [] as $profile) {
             $items[] = [

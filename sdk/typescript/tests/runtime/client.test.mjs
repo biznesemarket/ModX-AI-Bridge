@@ -184,7 +184,7 @@ test('McpClient wraps calls in JSON-RPC envelopes with incrementing ids', async 
   assert.equal(first.jsonrpc, '2.0');
   assert.equal(first.method, 'initialize');
   assert.equal(first.id, 1);
-  assert.equal(first.params.clientInfo.version, '0.7.0');
+  assert.equal(first.params.clientInfo.version, '0.7.1');
   const second = JSON.parse(String(calls[1].init.body));
   assert.equal(second.method, 'tools/call');
   assert.equal(second.id, 2);

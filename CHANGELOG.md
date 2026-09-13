@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.1 — 2026-09-13
+
+- Fixed `ResourceExplorerService::search()`: the flat `OR:` criteria keys OR-ed the whole clause (a search
+  matched almost every resource) and the query options were passed as `getCollection()`'s cache flag, so
+  `limit`/`sortby` were ignored. It now uses a grouped OR search and an explicit `newQuery()` with
+  `limit()`/`sortby()`; the TV filter is a join (no `contentid` materialization).
+- Fixed `ResourceExplorerService::tree()` and `RestApi::profiles()`: `limit`/`sortby` were silently ignored
+  (passed as the cache flag); both now build a `newQuery()` and honour their documented limits/order.
+- Patch release: bug fixes only, no scope/route/schema/setting change and no response-shape change.
+- New integration coverage: `tests/Integration/ResourceExplorerServiceTest.php`.
+
 ## 0.7.0 — 2026-09-13
 
 - `/capabilities` now advertises the available MODX contexts (`key`, `name`, `description`), so clients know the

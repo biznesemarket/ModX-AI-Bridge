@@ -10,7 +10,7 @@ if (!rawContext) {
 const context = JSON.parse(rawContext);
 
 const client = new BridgeClient({ baseUrl: context.base_url, token: context.token, timeoutMs: 15000 });
-const tvExplicit = 'live-tv-explicit';
+const tvExplicit = 'live-tv-explicit-' + Date.now().toString(36);
 let resourceId = 0;
 let createdAlias = '';
 
@@ -22,7 +22,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.7.0');
+  assert.equal(health.version, '0.7.1');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -175,7 +175,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.7.0');
+  assert.equal(init.result.serverInfo.version, '0.7.1');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
