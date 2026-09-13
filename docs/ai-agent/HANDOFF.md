@@ -1,24 +1,28 @@
-# Handoff — ModX AI Bridge (Stable `0.9.0`)
+# Handoff — ModX AI Bridge (Stable `0.9.1`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.9.0`** (tag `v0.9.0`, GitHub Release опубликован с 3 ассетами). `main` = `144fcf4`
-(релизная документация `0.9.0`), дерево чистое.
+Состояние: **STABLE `0.9.1`** (tag `v0.9.1`, GitHub Release опубликован с 3 ассетами). `main` = `a504c3b`
+(релизная документация `0.9.1`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `144fcf4a…` (синхронизирован с origin; релизные code-коммиты `a0790bc`/`5d83170`), дерево чистое.
+- `main` = `a504c3b2…` (синхронизирован с origin; релизные code-коммиты `dc98506`/`330b78a`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
-  `v0.9.0` (`19b8b8e9…`). GitHub
-  Releases: `v0.9.0` (latest), `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`, `v0.3.0`, `v0.2.0`,
-  `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
+  `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`). GitHub
+  Releases: `v0.9.1` (latest), `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
+  `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+a504c3b Iteration 61: Record Stable 0.9.1 certification      (tag v0.9.1)
+330b78a Iteration 61: Cut 0.9.1 patch release
+dc98506 Iteration 61: Cover manager surface and fix console/rollback defects
+626c2e3 Iteration 60: Update handoff for Stable 0.9.0
 144fcf4 Iteration 60: Record Stable 0.9.0 certification      (tag v0.9.0)
 5d83170 Iteration 60: Cut 0.9.0 minor release
 a0790bc Iteration 60: Add recursive parent filter and parent sort
@@ -77,10 +81,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
 > `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`, `v0.6.0` — на `cb90ba0`,
-> `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`.
-> Исторические теги/релизы **не переписывать**.
+> `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`,
+> `v0.9.1` — на `a504c3b`. Исторические теги/релизы **не переписывать**.
 
-## 2. Что сделано (Iterations 30–60)
+## 2. Что сделано (Iterations 30–61)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -228,14 +232,30 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `59d4f0ab7d0cce445c7442b51c629538e6b21a9686e8582db2ba01472a6e54fd` (146359 bytes), локальная сборка
   совпала. GitHub Release `v0.9.0` (3 ассета, latest). Evidence:
   `docs/testing/iteration-60-parent-depth-filter.md`, `docs/release/0.9.0.md`.
+- **61 — `0.9.1`.** Patch-релиз 61: менеджерский слой — покрытие и фиксы. `OperationsConsoleService`: все
+  восемь list-методов передавали options третьим аргументом `getCollection` (cacheFlag) → `limit` и
+  сортировка молча игнорировались, overview отдавал неограниченные выборки; теперь приватный `query()`
+  строит `xPDOQuery` с `limit()` 1..500, `jobs`/`audit`/`fingerprints`/`changes` — `created_at DESC`,
+  `approvals` — `requested_at DESC`. `ResourceRollbackProcessor`: исключения `RollbackService` (нет
+  snapshot, битые данные, нет целевого ресурса) уходили из `Processor::run()` (он не ловит `process()`) →
+  теперь `failure('Rollback failed.', ['code'=>'rollback_failed'])`; `snapshot_id<1` → `invalid_snapshot`.
+  `ResourceExplorerService::tree()` — null-safe перебор + зафиксированная тестами семантика `depth`
+  (0 = плоский список, каждый уровень добавляет один вложенный `children`; глубже первого уровня cap 100;
+  soft-deleted узел скрывает поддерево). Новые `OperationsConsoleServiceTest` и
+  `ResourceRollbackProcessorTest`, расширен `ResourceExplorerServiceTest`. README и identity подняты до
+  `0.9.1` (SDK `User-Agent` остаётся `0.9` — patch) в bump-коммите. Гейты: dispatch `34773039854`
+  (`330b78a`) и tag-run `34773395586` (`a504c3b`) — успех; оба sha256
+  `06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes), локальная сборка
+  совпала. GitHub Release `v0.9.1` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-61-manager-coverage.md`, `docs/release/0.9.1.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.9.0.md`, `docs/release/0.8.0.md`, `docs/release/0.7.1.md`,
-  `docs/release/0.7.0.md`, `docs/release/0.6.0.md`, `docs/release/0.5.0.md`, `docs/release/0.4.0.md`,
-  `docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`, `docs/release/0.1.2.md`,
-  `docs/release/0.1.1.md`, `docs/release/0.1.0.md`, `docs/release/stable-status.md`,
-  `docs/release/FINAL-INTEGRATION-STATUS.md`.
+- Release/status: `docs/release/0.9.1.md`, `docs/release/0.9.0.md`, `docs/release/0.8.0.md`,
+  `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`, `docs/release/0.5.0.md`,
+  `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`,
+  `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
+  `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
@@ -244,7 +264,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`, `iteration-54-resource-list.md`,
   `iteration-55-mcp-resource-uri.md`, `iteration-56-list-tv-filter.md`, `iteration-57-readback-polish.md`,
   `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`,
-  `iteration-60-parent-depth-filter.md`.
+  `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -280,15 +300,19 @@ d49c044 run 34769066811   (0.8.0 dispatch)
 9ef0e22 run 34769414203   (tag v0.8.0)
 5d83170 run 34771312099   (0.9.0 dispatch)
 144fcf4 run 34771702777   (tag v0.9.0)
+330b78a run 34773039854   (0.9.1 dispatch)
+a504c3b run 34773395586   (tag v0.9.1)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `5d83170` run `34771312099` (0.9.0 dispatch: live HTTP E2E PASS,
-`PACKAGE REPRODUCIBILITY: PASS`, sha256 `59d4f0ab…`, `OK (150 tests, 860 assertions)`); tag `v0.9.0`
-(`144fcf4`) run `34771702777` — тот же sha256. Ранее: `d49c044` run `34769066811` (0.8.0 dispatch:
+Полные гейты `Release` 2026-09-13: `330b78a` run `34773039854` (0.9.1 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `06e80843…`, `OK (158 tests, 923 assertions)`); tag `v0.9.1`
+(`a504c3b`) run `34773395586` — тот же sha256. Ранее: `5d83170` run `34771312099` (0.9.0 dispatch: live HTTP
+E2E PASS, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `59d4f0ab…`, `OK (150 tests, 860 assertions)`);
+tag `v0.9.0` (`144fcf4`) run `34771702777`; `d49c044` run `34769066811` (0.8.0 dispatch:
 live HTTP E2E PASS, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `c0b96adb…`, `OK (149 tests, 783 assertions)`);
 tag `v0.8.0` (`9ef0e22`) run `34769414203`; `0223e5e` run `34766913833` (0.7.1 dispatch,
 sha256 `f9ee3089…`, `OK (142 tests, 744 assertions)`); tag `v0.7.1` (`81f1328`) run `34767379440`;
@@ -305,11 +329,14 @@ assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `347511
 sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
 `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
+`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b}…` (90 дней). Репозиторий:
+`sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.9.0.transport.zip` sha256
-`59d4f0ab7d0cce445c7442b51c629538e6b21a9686e8582db2ba01472a6e54fd` (146359 bytes; GitHub Release `v0.9.0`,
-digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.8.0.transport.zip` sha256
+Артефакты: `aibridge-0.9.1.transport.zip` sha256
+`06e808433bad894dc89423fc50788a7ec1eb589a790fcc8365af5eab94377fac` (146755 bytes; GitHub Release `v0.9.1`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.0.transport.zip` sha256
+`59d4f0ab7d0cce445c7442b51c629538e6b21a9686e8582db2ba01472a6e54fd` (146359 bytes; Release `v0.9.0`);
+`aibridge-0.8.0.transport.zip` sha256
 `c0b96adb89c991a9c30b2164fd4ca9b18d4fb7169020b6f7cd7534e573ae2599` (145761 bytes; Release `v0.8.0`);
 `aibridge-0.7.1.transport.zip` sha256
 `f9ee3089…` (145574 bytes; Release `v0.7.1`); `aibridge-0.7.0.transport.zip` sha256 `63df4013…`
@@ -320,10 +347,10 @@ digest ассета совпадает; локальная сборка == CI ==
 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
 sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
 
-Iteration 60 (локально, `0.9.0`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 76, live E2E 15,
-reproducibility `59d4f0ab…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `5d83170`
-(`Quality Gates` 34771302958, `MODX Integration` 34771302850) — success. Ранее Iteration 59: integration 75,
-reproducibility `c0b96adb…`.
+Iteration 61 (локально, `0.9.1`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 84, live E2E 15,
+reproducibility `06e80843…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `330b78a`
+(`Quality Gates` 34773037218, `MODX Integration` 34773037239) — success. Ранее Iteration 60: integration 76,
+reproducibility `59d4f0ab…`.
 
 ## 4. Как работать в этой среде
 
@@ -332,7 +359,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.0.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.1.transport.zip'
 ```
 
 Полезные команды:
@@ -364,7 +391,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - xPDO: `fromArray()` возвращает **void** — нельзя чейнить `(new X)->fromArray(...)`; собирать в два шага.
 - xPDO: у `getCollection($class, $criteria, $cacheFlag)` третий аргумент — это cacheFlag, **не** options:
   `['limit'=>..,'sortby'=>..]` молча игнорируется. Для limit/offset/sort строить `newQuery()` и звать
-  `limit()`/`sortby()` (Iteration 54).
+  `limit()`/`sortby()` (Iteration 54; повторный случай — `OperationsConsoleService`, закрыт в Iteration 61).
 - xPDO: плоские ключи `OR:field:op` в criteria OR-ят **всю** предыдущую клаузу (включая `deleted = 0`) →
   совпадёт почти всё. Для поиска — вложенная группа `where([[...],[...]], xPDOQuery::SQL_OR)` (Iteration 54).
 - xPDO: не делать частичный `select('col')` на коллекции: у гидратированных объектов нет PK, и первое
@@ -404,6 +431,10 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   MCP: `resource_read`/`resource_list` (tools) и resource template `modx://resource/{id}` +
   `resources/templates/list` (та же операция `resource.read`; отсутствующий ресурс → JSON-RPC `-32002`).
   Read-путь site-level — profile isolation, как в Iteration 51, на него не распространяется.
+- MODX processor-тесты: `Processor::run()` не ловит исключения из `process()`, а `$modx->error` в CLI
+  равен `null` (его создаёт `modRequest`). В тестах processor'ов задавать
+  `$modx->error = new \MODX\Revolution\Error\modError($modx)`, а свои исключения сервисов самим
+  конвертировать в `failure(...)` (Iteration 61).
 - `composer lint` — unix-only (`find|xargs`), только в контейнере. Entrypoint `/var/www/html/.modx-ready` —
   маркер готовности MODX; `test-modx.sh` ждёт именно его.
 - Supply chain: любой `uses:` — только полный 40-символьный commit SHA; образы — только `@sha256:` digest.
@@ -446,7 +477,7 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.9.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `144fcf4` — релизная документация,
+Stable `0.9.1` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `a504c3b` — релизная документация,
 нерелизных коммитов нет. Обязательных гейтов нет.
 
 Приоритетные кандидаты:
@@ -454,8 +485,9 @@ Stable `0.9.0` выпущен и опубликован (GitHub Release, 3 ас�
 1. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
    `parent` и `parent` в `sort` закрыты в Iteration 60). Тем же flow (bump identity → гейт → evidence → tag →
    tag-run → GitHub Release).
-2. **Менеджер/UI**: покрыть `ResourceRollbackProcessor` (конкретный `AdminProcessor`-наследник) и
-   `OperationsConsoleService` поверностно; проверить `tree()` при `depth>1`.
+2. **Менеджер/UI**: `ResourceRollbackProcessor`, `OperationsConsoleService` и `tree()` при `depth>1` закрыты
+   в Iteration 61; при желании — processor-уровневое покрытие остальных `AdminProcessor`-наследников
+   (`ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor`) и Manager E2E сценарии.
 3. Опционально: ревьюить Dependabot-PR по digest/SHA-пинам; закрыть известные дефекты из
    `docs/ai-agent/baseline/known-defects.md` (если появятся новые).
 
@@ -466,7 +498,8 @@ MCP resource template + релиз `0.5.0` (55), TV-фильтр списка + 
 contexts в `/capabilities` + join TV-фильтр + релиз `0.7.0` (57),
 менеджерские xPDO-фиксы (`search`/`tree`/`profiles`) + релиз `0.7.1` (58),
 покрытие менеджерского слоя + `site/schema`-фильтры + релиз `0.8.0` (59),
-рекурсивный `parent`-фильтр (`depth`) + `parent` в `sort` + релиз `0.9.0` (60).
+рекурсивный `parent`-фильтр (`depth`) + `parent` в `sort` + релиз `0.9.0` (60),
+менеджерское покрытие + фиксы console/rollback + релиз `0.9.1` (61).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
