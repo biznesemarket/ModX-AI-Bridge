@@ -115,6 +115,28 @@ if (!$template) {
     }
 }
 
+$tvName = 'ts_live_tv';
+$tvDefault = 'live-tv-default';
+$tv = $modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvName]);
+if (!$tv) {
+    $tv = $modx->newObject(\MODX\Revolution\modTemplateVar::class);
+    $tv->fromArray(['name' => $tvName, 'caption' => 'TS live TV', 'type' => 'text', 'default_text' => $tvDefault]);
+}
+$tv->set('default_text', $tvDefault);
+if (!$tv->save()) {
+    fwrite(STDERR, "Failed to provision the live template variable.\n");
+    exit(7);
+}
+$link = $modx->getObject(\MODX\Revolution\modTemplateVarTemplate::class, ['tmplvarid' => (int) $tv->get('id'), 'templateid' => (int) $template->get('id')]);
+if (!$link) {
+    $link = $modx->newObject(\MODX\Revolution\modTemplateVarTemplate::class);
+    $link->set('tmplvarid', (int) $tv->get('id'));
+    $link->set('templateid', (int) $template->get('id'));
+    $link->set('rank', 0);
+    $link->save();
+}
+$modx->getCacheManager()->refresh();
+
 echo json_encode([
     'base_url' => (string) (getenv('AIBRIDGE_LIVE_BASE_URL') ?: 'http://localhost:8080'),
     'token' => (string) $issued['token'],
@@ -122,4 +144,6 @@ echo json_encode([
     'profile_id' => $profileId,
     'template_id' => (int) $template->get('id'),
     'site_key' => $siteKey,
+    'tv_name' => $tvName,
+    'tv_value' => (string) $tv->get('default_text'),
 ], JSON_UNESCAPED_SLASHES) . PHP_EOL;

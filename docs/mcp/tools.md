@@ -41,7 +41,8 @@ Required scope: `content:validate`.
 ## resource_read
 
 Reads a persisted MODX resource by numeric `id` and returns a whitelisted projection (`pagetitle`, `alias`,
-`template`, `published`, `content`, timestamps, ...). Template variables are not included yet. A missing or
-soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
+`template`, `published`, `content`, timestamps, ...). Template variables bound to the resource template are
+included read-only under the `tvs` map (TV name → string value; structured values are JSON-encoded). A missing
+or soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
 
 Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources/{id}`.

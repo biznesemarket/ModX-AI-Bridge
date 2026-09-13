@@ -41,7 +41,7 @@ paths:
     post: {summary: Preview proposed resource content synchronously, responses: {'200': {description: OK}}}
   /api/ai/v2/resources/{id}:
     get:
-      summary: Read a persisted resource (read-back, scope resource:read)
+      summary: Read a persisted resource (read-back, scope resource:read; includes template variables under `tvs`)
       parameters:
         - {in: path, name: id, required: true, schema: {type: integer}}
       responses:

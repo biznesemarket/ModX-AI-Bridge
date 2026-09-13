@@ -189,6 +189,38 @@ final class RestApiTest extends TestCase
         self::assertSame('REST read-back page', $read['body']['data']['resource']['pagetitle'] ?? null);
         self::assertSame($alias, $read['body']['data']['resource']['alias'] ?? null);
         self::assertIsBool($read['body']['data']['resource']['published'] ?? null);
+        self::assertIsArray($read['body']['data']['resource']['tvs'] ?? null);
+    }
+
+    public function testResourceReadBackIncludesTemplateVariables(): void
+    {
+        $tvName = 'rest_read_tv';
+        self::templateVariable($tvName);
+
+        $alias = 'rest-read-tv-' . bin2hex(random_bytes(5));
+        $response = $this->call('POST', '/resources', [
+            'pagetitle' => 'REST read-back TV page',
+            'alias' => $alias,
+            'template' => self::$templateId,
+            'content' => '<h1>REST read-back TV page</h1>',
+        ], ['Idempotency-Key' => 'rest-read-tv-' . bin2hex(random_bytes(6))]);
+        self::assertSame(202, $response['status']);
+        self::assertSame('completed', $this->processJob((int) $response['body']['job_id'])['status'] ?? null);
+
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, ['alias' => $alias]);
+        self::assertNotNull($resource);
+        $id = (int) $resource->get('id');
+
+        $tv = self::$modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvName]);
+        self::assertNotNull($tv);
+        self::assertTrue($resource->setTVValue($tvName, 'rest-tv-value'));
+        self::$modx->getCacheManager()->refresh();
+
+        $read = $this->call('GET', '/resources/' . $id);
+        self::assertSame(200, $read['status']);
+        $tvs = $read['body']['data']['resource']['tvs'] ?? null;
+        self::assertIsArray($tvs);
+        self::assertSame('rest-tv-value', $tvs[$tvName] ?? null);
     }
 
     public function testResourceReadRequiresScopeAndReturnsNotFound(): void
@@ -318,5 +350,28 @@ final class RestApiTest extends TestCase
             $template->save();
         }
         return (int) $template->get('id');
+    }
+
+    private static function templateVariable(string $name): int
+    {
+        $tv = self::$modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $name]);
+        if (!$tv) {
+            $tv = self::$modx->newObject(\MODX\Revolution\modTemplateVar::class);
+            $tv->fromArray(['name' => $name, 'caption' => 'REST read TV', 'type' => 'text', 'default_text' => '']);
+            $tv->save();
+        }
+        $link = self::$modx->getObject(\MODX\Revolution\modTemplateVarTemplate::class, [
+            'tmplvarid' => (int) $tv->get('id'),
+            'templateid' => self::$templateId,
+        ]);
+        if (!$link) {
+            $link = self::$modx->newObject(\MODX\Revolution\modTemplateVarTemplate::class);
+            $link->set('tmplvarid', (int) $tv->get('id'));
+            $link->set('templateid', self::$templateId);
+            $link->set('rank', 0);
+            $link->save();
+        }
+        self::$modx->getCacheManager()->refresh();
+        return (int) $tv->get('id');
     }
 }
