@@ -59,10 +59,13 @@ Transport Package installation: PASS (Signature: aibridge-0.8.0)
 
 ## Certification
 
-Pending — release target `0.9.0` (additive minor).
+`Release` dispatch on `main`, commit `5d83170`, run `34771312099`: `verify` PASS (incl. `SUPPLY CHAIN PINS: PASS`),
+`certify` PASS (`OK (150 tests, 860 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`,
+`STABLE certification gates passed.`), `package` PASS. The CI artifact sha256
+`59d4f0ab7d0cce445c7442b51c629538e6b21a9686e8582db2ba01472a6e54fd` (146359 bytes) matches the local build.
+Evidence artifact: `release-evidence-5d831706f38b82e58dc42f573e4110d12ec43848`.
 
 ## Status
 
-Implementation complete and locally verified; release target `0.9.0`. Next, per the established flow: bump
-all identity files (including README and the SDK `User-Agent`) -> full CI gate -> evidence/tag -> tag-run ->
-GitHub Release.
+Stable `0.9.0`, certified by run `34771312099`; tag `v0.9.0` and the GitHub Release are recorded in
+`docs/release/0.9.0.md`.
