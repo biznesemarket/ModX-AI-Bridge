@@ -1,22 +1,27 @@
-# Handoff — ModX AI Bridge (Stable `0.4.0`)
+# Handoff — ModX AI Bridge (Stable `0.5.0`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.4.0`** (tag `v0.4.0`, GitHub Release опубликован с 3 ассетами). `main` = `2c55b4c`
-(релизная документация `0.4.0`), дерево чистое.
+Состояние: **STABLE `0.5.0`** (tag `v0.5.0`, GitHub Release опубликован с 3 ассетами). `main` = `b91a3ac`
+(релизная документация `0.5.0`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `2c55b4c454de425107ddf0c005c5716af87872e2` (синхронизирован с origin; релизные code-коммиты
-  `c4548e7`/`07f3c72`), дерево чистое.
+- `main` = `b91a3ace937c178a21974113cfd73bbedc3a713b` (синхронизирован с origin; релизные code-коммиты
+  `5d22df5`/`1796c5d`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
-  `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`). GitHub Releases: `v0.4.0` (latest),
-  `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
+  `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`). GitHub
+  Releases: `v0.5.0` (latest), `v0.4.0`, `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не
+  prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+b91a3ac Iteration 55: Record Stable 0.5.0 certification      (tag v0.5.0)
+1796c5d Iteration 55: Cut 0.5.0 minor release
+5d22df5 Iteration 55: Add MCP resource template for resource read-back
+503dd1a Iteration 54: Update handoff for Stable 0.4.0
 2c55b4c Iteration 54: Record Stable 0.4.0 certification      (tag v0.4.0)
 07f3c72 Iteration 54: Cut 0.4.0 minor release
 c4548e7 Iteration 54: Add filtered resource list API and MCP tool
@@ -50,9 +55,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 ```
 
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
-> `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`. Исторические теги/релизы **не переписывать**.
+> `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`. Исторические теги/релизы **не
+> переписывать**.
 
-## 2. Что сделано (Iterations 30–54)
+## 2. Что сделано (Iterations 30–55)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -135,18 +141,29 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `778d061a4c013f19c06e04814f5edd42fbab76f993864dd59634bffc417c864e` (143830 bytes), локальная сборка
   совпала. GitHub Release `v0.4.0` (3 ассета, latest). Evidence:
   `docs/testing/iteration-54-resource-list.md`, `docs/release/0.4.0.md`.
+- **55 — `0.5.0`.** Minor-релиз 55: MCP resource template `modx://resource/{id}`. `McpRegistry` получил
+  `resourceTemplate()`/`resolveResource()` (извлечение `id`), `resources/read` резолвит шаблоны и отдаёт
+  read-back-проекцию под той же операцией `resource.read`/scope `resource:read`; отсутствующий ресурс →
+  JSON-RPC `-32002` (`reason: resource_not_found`). Добавлен метод `resources/templates/list` и
+  `resourceTemplates()` в PHP/TS MCP-клиентах; `McpServer::capabilities()` отдаёт шаблоны. README,
+  `aibridge_version` и SDK `User-Agent` (`0.4` → `0.5`) подняты в bump-коммите. Гейты зелёные дважды —
+  dispatch `34761433276` (`1796c5d`) и tag-run `34761844858` (`b91a3ac`), оба sha256
+  `48c8b23344fd1d6dcae2c67a529c13d44cb7d1b6b7a837c3e459621e4ff2506d` (144677 bytes), локальная сборка
+  совпала. GitHub Release `v0.5.0` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-55-mcp-resource-uri.md`, `docs/release/0.5.0.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
-  `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
-  `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
+- Release/status: `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`,
+  `docs/release/0.2.0.md`, `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`,
+  `docs/release/0.1.0.md`, `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
   `iteration-47-supply-chain-pinning.md`, `iteration-48-release-0.1.2.md`,
   `iteration-49-live-http-e2e.md`, `iteration-50-release-0.1.3.md`, `iteration-51-readback-api.md`,
-  `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`, `iteration-54-resource-list.md`.
+  `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`, `iteration-54-resource-list.md`,
+  `iteration-55-mcp-resource-uri.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -170,36 +187,40 @@ dc3bd8a run 34756679369   (0.3.0 dispatch)
 c6bc5ad run 34757060107   (tag v0.3.0)
 07f3c72 run 34758755913   (0.4.0 dispatch)
 2c55b4c run 34759141180   (tag v0.4.0)
+1796c5d run 34761433276   (0.5.0 dispatch)
+b91a3ac run 34761844858   (tag v0.5.0)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `07f3c72` run `34758755913` (0.4.0 dispatch: live HTTP E2E PASS,
-`PACKAGE REPRODUCIBILITY: PASS`, sha256 `778d061a…`, `OK (135 tests, 700 assertions)`); tag `v0.4.0`
-(`2c55b4c`) run `34759141180` — тот же sha256. Ранее: `dc3bd8a` run `34756679369` (0.3.0 dispatch,
-sha256 `9c3e547d…`, `OK (130 tests, 663 assertions)`); tag `v0.3.0` (`c6bc5ad`) run `34757060107`;
-`350fc28` run `34753117255` (0.2.0 dispatch, sha256 `b8525cda…`, `OK (129 tests, 650 assertions)`);
-tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `34751162661` (0.1.3 dispatch, sha256 `0d66d833…`);
-tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47 hardening,
-`SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release `b1b985bf…`);
-tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,07f3c72,2c55b4c}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
+Полные гейты `Release` 2026-09-13: `1796c5d` run `34761433276` (0.5.0 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `48c8b233…`, `OK (138 tests, 713 assertions)`); tag `v0.5.0`
+(`b91a3ac`) run `34761844858` — тот же sha256. Ранее: `07f3c72` run `34758755913` (0.4.0 dispatch,
+sha256 `778d061a…`, `OK (135 tests, 700 assertions)`); tag `v0.4.0` (`2c55b4c`) run `34759141180`;
+`dc3bd8a` run `34756679369` (0.3.0 dispatch, sha256 `9c3e547d…`, `OK (130 tests, 663 assertions)`);
+tag `v0.3.0` (`c6bc5ad`) run `34757060107`; `350fc28` run `34753117255` (0.2.0 dispatch, sha256 `b8525cda…`,
+`OK (129 tests, 650 assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `34751162661`
+(0.1.3 dispatch, sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780`
+(Iteration 47 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
+`b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
+`release-evidence-{…,1796c5d,b91a3ac}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.4.0.transport.zip` sha256
-`778d061a4c013f19c06e04814f5edd42fbab76f993864dd59634bffc417c864e` (143830 bytes; GitHub Release `v0.4.0`,
-digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.3.0.transport.zip` sha256
-`9c3e547daace05e226480e3d31fe13e4d11a27ecd154e4eb8ac5b9125d132106` (142077 bytes; Release `v0.3.0`);
-`aibridge-0.2.0.transport.zip` sha256 `b8525cda8326f08102025f9e2f2f7c0bbf5ea9baaad52079175f4c1f7f11cc8e`
-(141585 bytes; Release `v0.2.0`); `aibridge-0.1.3.transport.zip` sha256 `0d66d833…` (139631 bytes);
-`aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip` sha256 `26ccdee1…`;
-`aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
+Артефакты: `aibridge-0.5.0.transport.zip` sha256
+`48c8b23344fd1d6dcae2c67a529c13d44cb7d1b6b7a837c3e459621e4ff2506d` (144677 bytes; GitHub Release `v0.5.0`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.4.0.transport.zip` sha256
+`778d061a4c013f19c06e04814f5edd42fbab76f993864dd59634bffc417c864e` (143830 bytes; Release `v0.4.0`);
+`aibridge-0.3.0.transport.zip` sha256 `9c3e547daace05e226480e3d31fe13e4d11a27ecd154e4eb8ac5b9125d132106`
+(142077 bytes; Release `v0.3.0`); `aibridge-0.2.0.transport.zip` sha256 `b8525cda…` (141585 bytes);
+`aibridge-0.1.3.transport.zip` sha256 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256
+`eedd5f64…`; `aibridge-0.1.1.transport.zip` sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256
+`859c6599…` (историч.).
 
-Iteration 54 (локально, `0.4.0`): `unit,contract,security` 62, `sdk` 11, TS 14, integration 62, live E2E 14
-(включая list через REST+MCP), reproducibility `778d061a…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `07f3c72`
-(`Quality Gates` 34758751050, `MODX Integration` 34758751056) — success. Ранее Iteration 53: integration 59,
-reproducibility `9c3e547d…`.
+Iteration 55 (локально, `0.5.0`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 64, live E2E 14
+(включая MCP resource template), reproducibility `48c8b233…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `1796c5d`
+(`Quality Gates` 34761423441, `MODX Integration` 34761423430) — success. Ранее Iteration 54: integration 62,
+reproducibility `778d061a…`.
 
 ## 4. Как работать в этой среде
 
@@ -208,7 +229,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.4.0.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.5.0.transport.zip'
 ```
 
 Полезные команды:
@@ -261,6 +282,8 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   `resource_read`. `GET /resources` (операция `resource.list`, тот же scope) — список с фильтрами
   (`parent`, `template`, `context_key`, `published`, `q`, `limit` 1..100 default 25, `offset`, `sort`, `dir`),
   summary-проекция без `content`/TV + `count/total/limit/offset`; невалидный фильтр → `400 invalid_filter`.
+  MCP: `resource_read`/`resource_list` (tools) и resource template `modx://resource/{id}` +
+  `resources/templates/list` (та же операция `resource.read`; отсутствующий ресурс → JSON-RPC `-32002`).
   Read-путь site-level — profile isolation, как в Iteration 51, на него не распространяется.
 - `composer lint` — unix-only (`find|xargs`), только в контейнере. Entrypoint `/var/www/html/.modx-ready` —
   маркер готовности MODX; `test-modx.sh` ждёт именно его.
@@ -298,20 +321,22 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.4.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `2c55b4c` — релизная документация,
+Stable `0.5.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `b91a3ac` — релизная документация,
 нерелизных коммитов нет. Обязательных гейтов нет.
 
 Приоритетные кандидаты:
 
-1. **MCP resource URI `modx://resource/{id}`** для read-back — следующий additive-шаг тем же flow
-   (bump всех identity включая README → гейт → evidence → tag → tag-run → GitHub Release).
-2. **Дополнительные фильтры/поля read-back** (например, TV-фильтр в списке, `context_key` в `/capabilities`
-   или сортировка по `publishedon`) — по мере запросов.
+1. **Выполнено в 0.5.0: MCP resource URI `modx://resource/{id}`.** Следующий additive-шаг: TV-фильтр в
+   `GET /resources` (например, `tv_name`/`tv_value`) тем же flow (bump всех identity включая README → гейт →
+   evidence → tag → tag-run → GitHub Release).
+2. **Дополнительные read-back улучшения** (сортировка по `publishedon`, `context_key` в `/capabilities`,
+   `total`-оптимизация) — по мере запросов.
 3. Опционально: починить латентные xPDO-баги менеджерского поиска/профилей (см. §5), ревьюить Dependabot-PR.
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
-TV-поля в read-back + релиз `0.3.0` (53), фильтрованный список + релиз `0.4.0` (54).
+TV-поля в read-back + релиз `0.3.0` (53), фильтрованный список + релиз `0.4.0` (54),
+MCP resource template + релиз `0.5.0` (55).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
