@@ -52,6 +52,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `docs/testing/iteration-45-provisioning-readiness.md`
 - Iteration 46 — TypeScript SDK runtime tests (11 tests, `node --test`, no new dependencies). Evidence:
   `docs/testing/iteration-46-typescript-runtime-tests.md`
+- Iteration 47 — supply-chain pinning: container images by digest (`php:8.2-apache`, `composer:2`,
+  `mysql:8.0`), GitHub Actions by commit SHA, `.github/dependabot.yml` for weekly pin updates; compose config
+  and image build verified on the pinned toolchain. Evidence:
+  `docs/testing/iteration-47-supply-chain-pinning.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

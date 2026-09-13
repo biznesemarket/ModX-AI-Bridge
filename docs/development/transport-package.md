@@ -30,6 +30,10 @@ The builder produces a byte-reproducible archive:
 - the archive is rewritten with sorted file entries, a fixed modification time, and no directory entries,
   so the artifact depends only on files (git cannot track empty directories).
 
+The build/runtime toolchain is pinned as well: `php:8.2-apache`, `composer:2` and `mysql:8.0` are referenced
+by digest and CI actions by commit SHA (see `docs/testing/ci-gates.md`), so the demonstrated byte-identity is
+tied to a specific, reproducible environment rather than a moving tag.
+
 Set `SOURCE_DATE_EPOCH` to choose the timestamp; the default is `315532800` (1980-01-01 UTC, the minimum DOS
 timestamp). Verify reproducibility with:
 

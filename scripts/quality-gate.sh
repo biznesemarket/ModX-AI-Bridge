@@ -11,6 +11,7 @@ composer verify-static-contract
 composer test -- --testsuite unit,contract,security
 composer test -- --testsuite sdk
 ./scripts/sdk-typescript-check.sh
+bash scripts/verify-supply-chain-pins.sh
 
 if [[ "${AIBRIDGE_RUNTIME:-0}" == "1" ]]; then
   composer test-modx

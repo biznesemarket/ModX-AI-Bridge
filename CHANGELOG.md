@@ -10,6 +10,10 @@
   against a fake `fetch` (auth/JSON headers, idempotency keys, `updateResource` id merge, error mapping,
   `waitForJob` polling/timeout, MCP JSON-RPC envelopes). `npm test` runs them with `node --test`; no new
   dependencies, and `scripts/sdk-typescript-check.sh` now covers build + runtime tests + types.
+- Supply-chain pinning: container images are referenced by digest (`php:8.2-apache`, `composer:2` in
+  `docker/modx/Dockerfile`; `mysql:8.0` in the compose files) and every GitHub Actions `uses:` is pinned to a
+  commit SHA with a trailing tag comment. `.github/dependabot.yml` raises weekly `github-actions` and `docker`
+  update PRs so the pins do not rot.
 
 ## 0.1.1 — 2026-09-13
 

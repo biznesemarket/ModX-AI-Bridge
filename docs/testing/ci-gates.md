@@ -10,6 +10,8 @@ The CI pipeline is intentionally split into deterministic and runtime jobs.
 - PHPUnit `unit`, `contract` and `security` suites (contract coverage includes the API and MCP contracts)
 - PHP SDK suite (`composer test -- --testsuite sdk`)
 - TypeScript SDK build and contract type-check (`./scripts/sdk-typescript-check.sh`)
+- supply-chain pin check (`bash scripts/verify-supply-chain-pins.sh`) — fails if any workflow `uses:` is not a
+  40-character commit SHA, or if a Dockerfile/compose image is not referenced by `@sha256:` digest
 - security suite that does not require external services
 
 The deterministic job pins Node.js 24 via `actions/setup-node` with npm caching keyed on
@@ -28,6 +30,21 @@ A runtime job must fail when a required runtime dependency is unavailable. It mu
 The `Release` certification job uploads `dist/**` — the transport archive, its `.sha256` and
 `<package>.release.json` — as the `release-evidence-<sha>` workflow artifact, so each certification run keeps
 its checksum and release metadata even though `dist/` is not committed.
+
+## Supply-chain pinning
+
+Container base images and GitHub Actions are pinned to immutable references:
+
+- `docker/modx/Dockerfile` — `FROM php:8.2-apache@sha256:…` and
+  `COPY --from=composer:2@sha256:…`.
+- `docker-compose.yml` and `deploy/docker/docker-compose.production.yml` — `mysql:8.0@sha256:…`.
+- Every `uses:` in `.github/workflows/*.yml` references a full 40-character commit SHA, with the human-readable
+  release tag in a trailing comment.
+
+`.github/dependabot.yml` opens weekly pull requests that bump these pins (`github-actions` and `docker`
+ecosystems), so the pins do not rot. Do not re-pin manually to a moving tag; resolve the digest/commit SHA,
+update the pin, and re-run the full gate. The repository-level `sha_pinning_required` setting is not yet
+enabled (tracked in the handoff as a follow-up).
 
 ## Release rule
 
