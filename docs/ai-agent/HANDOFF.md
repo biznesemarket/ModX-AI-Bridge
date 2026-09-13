@@ -1,24 +1,28 @@
-# Handoff — ModX AI Bridge (Stable `0.7.1`)
+# Handoff — ModX AI Bridge (Stable `0.8.0`)
 
 Дата: 2026-09-13
-Состояние: **STABLE `0.7.1`** (tag `v0.7.1`, GitHub Release опубликован с 3 ассетами). `main` = `81f1328`
-(релизная документация `0.7.1`), дерево чистое.
+Состояние: **STABLE `0.8.0`** (tag `v0.8.0`, GitHub Release опубликован с 3 ассетами). `main` = `9ef0e22`
+(релизная документация `0.8.0`), дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `81f132824fd196b7c7ae32338f7555a6165c3285` (синхронизирован с origin; релизные code-коммиты
-  `696800a`/`0223e5e`), дерево чистое.
+- `main` = `9ef0e220c868e26a75fa75b51547c5038145554b` (синхронизирован с origin; релизные code-коммиты
+  `da1f18e`/`d49c044`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
-  `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`). GitHub Releases: `v0.7.1` (latest),
-  `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`, `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не
-  prerelease.
+  `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`). GitHub
+  Releases: `v0.8.0` (latest), `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`, `v0.3.0`, `v0.2.0`,
+  `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+9ef0e22 Iteration 59: Record Stable 0.8.0 certification      (tag v0.8.0)
+d49c044 Iteration 59: Cut 0.8.0 minor release
+da1f18e Iteration 59: Cover manager surface and add site-schema resource filters
+e3e36b3 Iteration 58: Update handoff for Stable 0.7.1
 81f1328 Iteration 58: Record Stable 0.7.1 certification      (tag v0.7.1)
 0223e5e Iteration 58: Cut 0.7.1 patch release
 696800a Iteration 58: Fix manager explorer search/tree xPDO query handling
@@ -69,9 +73,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
 > `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`, `v0.6.0` — на `cb90ba0`,
-> `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`. Исторические теги/релизы **не переписывать**.
+> `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`. Исторические теги/релизы **не
+> переписывать**.
 
-## 2. Что сделано (Iterations 30–58)
+## 2. Что сделано (Iterations 30–59)
 
 - **30–39** — runtime-сертификация: mutation/rollback E2E, approval workflow, multi-site изоляция,
   security regression, observability, PHP SDK, recovery drill, performance, RC `0.1.0-rc1`.
@@ -194,13 +199,24 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `f9ee3089407beaa9be629407c3ffc6121c01828e85e03f9adc4a151e584a1786` (145574 bytes), локальная сборка
   совпала. GitHub Release `v0.7.1` (3 ассета, latest). Evidence:
   `docs/testing/iteration-58-manager-xpdo-fixes.md`, `docs/release/0.7.1.md`.
+- **59 — `0.8.0`.** Minor-релиз 59: покрытие менеджерского слоя и site-schema-фильтры.
+  `AdminProcessorGuardTest` (интеграционный, анонимные double'ы) закрывает 3 ветки guard'а
+  (`manager_auth_required` / `manager_permission_required` / allow); `ResourceExplorerServiceTest` расширен
+  `get`/`contract`/`qa`/`fingerprintDiff` (включая missing/soft-deleted/битый snapshot). В
+  `SiteIntelligenceService::resources()` починен limit (options-as-cacheFlag) и добавлены фильтры
+  `context_key`/`template_id`; MCP `site_schema` и OpenAPI обновлены. `publishedon` в summary закреплён
+  ассертом. README, `aibridge_version` и SDK `User-Agent` (`0.7` → `0.8`) подняты в bump-коммите. Гейты:
+  dispatch `34769066811` (`d49c044`) и tag-run `34769414203` (`9ef0e22`) — успех; оба sha256
+  `c0b96adb89c991a9c30b2164fd4ca9b18d4fb7169020b6f7cd7534e573ae2599` (145761 bytes), локальная сборка
+  совпала. GitHub Release `v0.8.0` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-59-manager-coverage-site-filters.md`, `docs/release/0.8.0.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`,
-  `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
-  `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
-  `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
+- Release/status: `docs/release/0.8.0.md`, `docs/release/0.7.1.md`, `docs/release/0.7.0.md`,
+  `docs/release/0.6.0.md`, `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`,
+  `docs/release/0.2.0.md`, `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`,
+  `docs/release/0.1.0.md`, `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
   `iteration-45-provisioning-readiness.md`, `iteration-46-typescript-runtime-tests.md`,
@@ -208,7 +224,7 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-49-live-http-e2e.md`, `iteration-50-release-0.1.3.md`, `iteration-51-readback-api.md`,
   `iteration-52-release-0.2.0.md`, `iteration-53-readback-tvs.md`, `iteration-54-resource-list.md`,
   `iteration-55-mcp-resource-uri.md`, `iteration-56-list-tv-filter.md`, `iteration-57-readback-polish.md`,
-  `iteration-58-manager-xpdo-fixes.md`.
+  `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
@@ -240,19 +256,22 @@ cb90ba0 run 34763292926   (tag v0.6.0)
 99bf150 run 34765344659   (tag v0.7.0)
 0223e5e run 34766913833   (0.7.1 dispatch)
 81f1328 run 34767379440   (tag v0.7.1)
+d49c044 run 34769066811   (0.8.0 dispatch)
+9ef0e22 run 34769414203   (tag v0.8.0)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `0223e5e` run `34766913833` (0.7.1 dispatch: live HTTP E2E PASS,
-`PACKAGE REPRODUCIBILITY: PASS`, sha256 `f9ee3089…`, `OK (142 tests, 744 assertions)`); tag `v0.7.1`
-(`81f1328`) run `34767379440` — тот же sha256. Ранее: `82e9917` run `34764596898` (0.7.0 dispatch: первая
-попытка — инфрафлейк готовности MODX на шаге 3, успех после `gh run rerun --failed`; sha256 `63df4013…`,
-`OK (139 tests, 736 assertions)`); tag `v0.7.0` (`99bf150`) run `34765344659`; `bb3f621` run `34762964883`
-(0.6.0 dispatch, sha256 `19c1398b…`, `OK (139 tests, 732 assertions)`); tag `v0.6.0` (`cb90ba0`) run
-`34763292926`;
+Полные гейты `Release` 2026-09-13: `d49c044` run `34769066811` (0.8.0 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `c0b96adb…`, `OK (149 tests, 783 assertions)`); tag `v0.8.0`
+(`9ef0e22`) run `34769414203` — тот же sha256. Ранее: `0223e5e` run `34766913833` (0.7.1 dispatch,
+sha256 `f9ee3089…`, `OK (142 tests, 744 assertions)`); tag `v0.7.1` (`81f1328`) run `34767379440`;
+`82e9917` run `34764596898` (0.7.0 dispatch: первая попытка — инфрафлейк готовности MODX на шаге 3, успех
+после `gh run rerun --failed`; sha256 `63df4013…`, `OK (139 tests, 736 assertions)`); tag `v0.7.0` (`99bf150`)
+run `34765344659`; `bb3f621` run `34762964883` (0.6.0 dispatch, sha256 `19c1398b…`, `OK (139 tests, 732
+assertions)`); tag `v0.6.0` (`cb90ba0`) run `34763292926`;
 `1796c5d` run `34761433276` (0.5.0 dispatch, sha256 `48c8b233…`, `OK (138 tests, 713 assertions)`);
 tag `v0.5.0` (`b91a3ac`) run `34761844858`; `07f3c72` run `34758755913` (0.4.0 dispatch, sha256 `778d061a…`,
 `OK (135 tests, 700 assertions)`); tag `v0.4.0` (`2c55b4c`) run `34759141180`; `dc3bd8a` run `34756679369`
@@ -262,23 +281,23 @@ assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `347511
 sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
 `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,0223e5e,81f1328}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
+`release-evidence-{…,d49c044,9ef0e22}…` (90 дней). Репозиторий: `sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.7.1.transport.zip` sha256
-`f9ee3089407beaa9be629407c3ffc6121c01828e85e03f9adc4a151e584a1786` (145574 bytes; GitHub Release `v0.7.1`,
-digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.7.0.transport.zip` sha256
-`63df4013…` (145536 bytes; Release `v0.7.0`); `aibridge-0.6.0.transport.zip` sha256
-`19c1398b…` (145059 bytes; Release `v0.6.0`); `aibridge-0.5.0.transport.zip` sha256 `48c8b233…` (144677 bytes);
-`aibridge-0.4.0.transport.zip` sha256 `778d061a…` (143830 bytes); `aibridge-0.3.0.transport.zip` sha256
-`9c3e547d…` (142077 bytes); `aibridge-0.2.0.transport.zip` sha256 `b8525cda…` (141585 bytes);
-`aibridge-0.1.3.transport.zip` sha256 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256
-`eedd5f64…`; `aibridge-0.1.1.transport.zip` sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256
-`859c6599…` (историч.).
+Артефакты: `aibridge-0.8.0.transport.zip` sha256
+`c0b96adb89c991a9c30b2164fd4ca9b18d4fb7169020b6f7cd7534e573ae2599` (145761 bytes; GitHub Release `v0.8.0`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.7.1.transport.zip` sha256
+`f9ee3089…` (145574 bytes; Release `v0.7.1`); `aibridge-0.7.0.transport.zip` sha256 `63df4013…`
+(145536 bytes); `aibridge-0.6.0.transport.zip` sha256 `19c1398b…` (145059 bytes);
+`aibridge-0.5.0.transport.zip` sha256 `48c8b233…` (144677 bytes); `aibridge-0.4.0.transport.zip` sha256
+`778d061a…` (143830 bytes); `aibridge-0.3.0.transport.zip` sha256 `9c3e547d…` (142077 bytes);
+`aibridge-0.2.0.transport.zip` sha256 `b8525cda…` (141585 bytes); `aibridge-0.1.3.transport.zip` sha256
+`0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
+sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
 
-Iteration 58 (локально, `0.7.1`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 68, live E2E 15,
-reproducibility `f9ee3089…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `0223e5e`
-(`Quality Gates` 34766902453, `MODX Integration` 34766902506) — success. Ранее Iteration 57: integration 65,
-reproducibility `63df4013…`.
+Iteration 59 (локально, `0.8.0`): `unit,contract,security` 63, `sdk` 11, TS 14, integration 75, live E2E 15,
+reproducibility `c0b96adb…`, `SUPPLY CHAIN PINS: PASS`; push-CI на `d49c044`
+(`Quality Gates` 34769051714, `MODX Integration` 34769051779) — success. Ранее Iteration 58: integration 68,
+reproducibility `f9ee3089…`.
 
 ## 4. Как работать в этой среде
 
@@ -287,7 +306,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.7.1.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.8.0.transport.zip'
 ```
 
 Полезные команды:
@@ -393,17 +412,16 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.7.1` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `81f1328` — релизная документация,
+Stable `0.8.0` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `9ef0e22` — релизная документация,
 нерелизных коммитов нет. Обязательных гейтов нет.
 
 Приоритетные кандидаты:
 
-1. **Дальше менеджер/UI**: покрыть `ResourceExplorerService::get/contract/qa/fingerprintDiff` и
-   `AdminProcessor` integration-тестами (сейчас покрыты `search`/`tree`); проверить, что `tree()` при
-   `depth>1` не дублирует limit-семантику. Тем же flow (bump identity → гейт → evidence → tag → tag-run →
-   GitHub Release).
-2. **Дальше read-back**: `publishedon` в summary-проекции, `site/schema` фильтры, фильтр списка по `parent`
-   с рекурсией; по мере запросов.
+1. **Дальше read-back**: фильтр списка по `parent` с рекурсией, `publishedon`/`parent` в `sort`,
+   `site/schema`-фильтры для `modx://resource/{id}`-проекции; по мере запросов. Тем же flow (bump identity →
+   гейт → evidence → tag → tag-run → GitHub Release).
+2. **Менеджер/UI**: покрыть `AdminProcessor`-наследников (`ResourceRollbackProcessor`) и `OperationsConsoleService`
+   поверностно; проверить `tree()` при `depth>1`.
 3. Опционально: ревьюить Dependabot-PR по digest/SHA-пинам; закрыть известные дефекты из
    `docs/ai-agent/baseline/known-defects.md` (если появятся новые).
 
@@ -412,7 +430,8 @@ Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51
 TV-поля в read-back + релиз `0.3.0` (53), фильтрованный список + релиз `0.4.0` (54),
 MCP resource template + релиз `0.5.0` (55), TV-фильтр списка + релиз `0.6.0` (56),
 contexts в `/capabilities` + join TV-фильтр + релиз `0.7.0` (57),
-менеджерские xPDO-фиксы (`search`/`tree`/`profiles`) + релиз `0.7.1` (58).
+менеджерские xPDO-фиксы (`search`/`tree`/`profiles`) + релиз `0.7.1` (58),
+покрытие менеджерского слоя + `site/schema`-фильтры + релиз `0.8.0` (59).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
