@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 — 2026-09-13
+
+- MCP resource template `modx://resource/{id}`: `resources/read` now resolves URI templates (extracting `id`)
+  and returns the read-back projection for one persisted resource, under the existing `resource.read` /
+  `resource:read` operation. A missing or soft-deleted resource returns JSON-RPC `-32002 Resource not found`
+  (`reason: resource_not_found`).
+- New MCP method `resources/templates/list` (advertises `uriTemplate` entries) and `resourceTemplates()` in
+  the PHP/TypeScript MCP clients; `McpServer::capabilities()` exposes the templates.
+- Additive: no REST route, scope, schema, migration or setting change; concrete resources such as
+  `modx://site/schema` behave exactly as before.
+
 ## 0.4.0 — 2026-09-13
 
 - Filtered, paginated resource list: `GET /api/ai/v2/resources` (operation `resource.list`, scope

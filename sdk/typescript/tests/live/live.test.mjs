@@ -21,7 +21,7 @@ function parseJobResult(job) {
 test('health is public and reports the running version', async () => {
   const health = await client.request('GET', '/api/ai/v2/health');
   assert.equal(health.status, 'ok');
-  assert.equal(health.version, '0.4.0');
+  assert.equal(health.version, '0.5.0');
 });
 
 test('capabilities rejects an unknown token over HTTP', async () => {
@@ -162,7 +162,7 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const mcp = new McpClient(client);
   const init = await mcp.initialize();
   assert.equal(init.result.serverInfo.name, 'modx-ai-bridge');
-  assert.equal(init.result.serverInfo.version, '0.4.0');
+  assert.equal(init.result.serverInfo.version, '0.5.0');
 
   const tools = await mcp.tools();
   assert.ok(tools.result.tools.some((tool) => tool.name === 'resource_create'));
@@ -181,6 +181,17 @@ test('MCP initialize, tools, tool call and resource read work over HTTP', async 
   const listBack = await mcp.callTool('resource_list', { q: createdAlias, limit: 5 });
   const listPayload = JSON.parse(listBack.result.content[0].text);
   assert.ok(listPayload.data.resources.some((item) => item.id === resourceId));
+
+  const templates = await mcp.resourceTemplates();
+  assert.ok(templates.result.resourceTemplates.some((template) => template.uriTemplate === 'modx://resource/{id}'));
+
+  const templateRead = await mcp.readResource('modx://resource/' + resourceId);
+  const templatePayload = JSON.parse(templateRead.result.contents[0].text);
+  assert.equal(templatePayload.data.resource.pagetitle, 'TS live E2E page updated');
+  assert.equal(templatePayload.data.resource.tvs[context.tv_name], context.tv_value);
+
+  const missingRead = await mcp.readResource('modx://resource/99999999');
+  assert.equal(missingRead.error.code, -32002);
 
   const fingerprint = await mcp.readResource('modx://site/fingerprint');
   assert.ok(fingerprint.result.contents[0].text.length > 0);
