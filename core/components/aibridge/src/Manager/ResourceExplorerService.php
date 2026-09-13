@@ -16,12 +16,10 @@ final class ResourceExplorerService
     public function tree(int $parent = 0, int $limit = 100, int $depth = 2): array
     {
         $limit = max(1, min(500, $limit));
-        $criteria = ['parent' => max(0, $parent), 'deleted' => 0];
-        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $criteria, [
-            'limit' => $limit,
-            'sortby' => 'menuindex',
-            'sortdir' => 'ASC',
-        ]);
+        $query = $this->modx->newQuery(\MODX\Revolution\modResource::class);
+        $query->where(['parent' => max(0, $parent), 'deleted' => 0]);
+        $query->limit($limit)->sortby('modResource.menuindex', 'ASC');
+        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $query);
         $items = [];
         foreach ($resources as $resource) {
             $id = (int) $resource->get('id');
@@ -37,32 +35,36 @@ final class ResourceExplorerService
     public function search(string $query = '', ?int $templateId = null, string $tvName = '', string $tvValue = '', int $limit = 100): array
     {
         $limit = max(1, min(500, $limit));
-        $criteria = ['deleted' => 0];
+        $resourceQuery = $this->modx->newQuery(\MODX\Revolution\modResource::class);
+        $resourceQuery->where(['deleted' => 0]);
+
         $query = trim($query);
         if ($query !== '') {
-            $needle = '%' . $this->modx->getOption('aibridge_search_escape', null, '') . $query . '%';
-            $needle = str_replace(['%', '_'], ['\\%', '\\_'], $query);
-            $criteria['OR:pagetitle:LIKE'] = '%' . $needle . '%';
-            $criteria['OR:alias:LIKE'] = '%' . $needle . '%';
-            $criteria['OR:description:LIKE'] = '%' . $needle . '%';
+            $needle = '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $query) . '%';
+            $resourceQuery->where([
+                ['pagetitle:LIKE' => $needle],
+                ['alias:LIKE' => $needle],
+                ['description:LIKE' => $needle],
+            ], \xPDO\Om\xPDOQuery::SQL_OR);
         }
-        if ($templateId !== null && $templateId > 0) $criteria['template'] = $templateId;
+        if ($templateId !== null && $templateId > 0) {
+            $resourceQuery->where(['template' => $templateId]);
+        }
 
         if ($tvName !== '') {
             $tv = $this->modx->getObject(\MODX\Revolution\modTemplateVar::class, ['name' => $tvName]);
             if (!$tv) return [];
-            $tvCriteria = ['tmplvarid' => (int) $tv->get('id')];
-            if ($tvValue !== '') $tvCriteria['value:LIKE'] = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $tvValue) . '%';
-            $relations = $this->modx->getCollection(\MODX\Revolution\modTemplateVarResource::class, $tvCriteria, ['limit' => 5000]);
-            $ids = [];
-            foreach ($relations as $relation) $ids[] = (int) $relation->get('contentid');
-            if ($ids === []) return [];
-            $criteria['id:IN'] = $ids;
+            $resourceQuery->innerJoin(\MODX\Revolution\modTemplateVarResource::class, 'aibridge_tv', 'modResource.id = aibridge_tv.contentid');
+            $resourceQuery->where(['aibridge_tv.tmplvarid' => (int) $tv->get('id')]);
+            if ($tvValue !== '') {
+                $resourceQuery->where(['aibridge_tv.value:LIKE' => '%' . str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $tvValue) . '%']);
+            }
         }
 
-        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $criteria, ['limit' => $limit, 'sortby' => 'editedon', 'sortdir' => 'DESC']);
+        $resourceQuery->limit($limit)->sortby('modResource.editedon', 'DESC');
+        $resources = $this->modx->getCollection(\MODX\Revolution\modResource::class, $resourceQuery);
         $items = [];
-        foreach ($resources as $resource) $items[] = $this->summary($resource, false);
+        foreach ($resources ?: [] as $resource) $items[] = $this->summary($resource, false);
         return $items;
     }
 
