@@ -1,8 +1,8 @@
 # Final Integration & Stabilization — Status
 
-Status: **STABLE** — `0.1.0` certified; tag `v0.1.0` created. Evidence:
-`docs/release/stable-status.md`, `docs/release/0.1.0.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
-`docs/testing/iteration-41-stable-release.md`.
+Status: **STABLE** — current release `0.1.1` (tag `v0.1.1`), superseding `0.1.0`. Evidence:
+`docs/release/stable-status.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
+`docs/testing/iteration-44-settings-packaging-0.1.1.md`.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
 `docker-compose.yml`, plus a GitHub Actions `ubuntu-latest` runner (Docker + PHP + Composer + Node) for the
@@ -51,9 +51,12 @@ single-command gate. Evidence: `docs/testing/iteration-21-26-runtime-certificati
 
 1. TypeScript SDK certification — **PASS**: added the missing `package-lock.json`, fixed NodeNext import
    resolution and idempotency-key typing, and set the executable bit; CI prints `TYPESCRIPT SDK: PASS`.
-2. Stable certification tag — `v0.1.0` created after
+2. Stable certification tag — `v0.1.0` (commit `160a659`, run `34716441523`) and the current `v0.1.1`
+   (commit `db949b5`, run `34743692154`), each created after
    `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` printed `STABLE certification gates passed.`
-   on commit `160a659` (run `34716441523`).
+3. System settings packaging — Defect #34 fixed in `0.1.1`: `0.1.0` and earlier did not install the
+   19 `aibridge_*` settings.
+4. Reproducible transport packages — Iteration 43; `PACKAGE REPRODUCIBILITY: PASS` is part of the runtime gate.
 
 Note: the Windows host has no PHP/Composer, so the single-command gate is executed on GitHub Actions
 `ubuntu-latest` (Docker + PHP + Composer + Node); the same gate's individual steps were also executed against

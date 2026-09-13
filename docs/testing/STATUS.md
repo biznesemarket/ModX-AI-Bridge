@@ -1,6 +1,6 @@
-# Testing Status — Iterations 21–41
+# Testing Status — Iterations 21–44
 
-**Status: STABLE — `0.1.0` (`v0.1.0`); all gates PASS on the CI runner**
+**Status: STABLE — `0.1.1` (`v0.1.1`), superseding `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -39,7 +39,15 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
 - Iteration 41 — Stable `0.1.0` package finalized and re-certified on commit `160a659`
   (run `34716441523`); `STABLE certification gates passed.`; tag `v0.1.0`. Evidence:
   `docs/testing/iteration-41-stable-release.md`, `docs/release/0.1.0.md`
+- Iteration 42 — CI hardening (`deterministic` job runs the `sdk` suite + TypeScript gate; Node 24 action
+  runtimes; release-evidence artifact upload).
+- Iteration 43 — reproducible transport packages (`PACKAGE REPRODUCIBILITY: PASS`, step 15 of test-modx);
+  local and CI builds hash identically (`docs/development/transport-package.md`).
+- Iteration 44 — Defect #34 fixed: the package now ships all 19 `aibridge_*` system settings; `0.1.1`
+  certified on commit `db949b5` (run `34743692154`, `PACKAGE REPRODUCIBILITY: PASS`,
+  `STABLE certification gates passed.`); tag `v0.1.1`. Evidence:
+  `docs/testing/iteration-44-settings-packaging-0.1.1.md`, `docs/release/0.1.1.md`
 
-No remaining gates: TypeScript SDK PASS and the single-command
-`AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` passes on a host/CI runner with Docker.
-A missing runtime remains a failure of certification, not a pass.
+No remaining gates: TypeScript SDK PASS, package reproducibility PASS, settings packaging fixed, and the
+single-command `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` passes on a host/CI runner with
+Docker. A missing runtime remains a failure of certification, not a pass.
