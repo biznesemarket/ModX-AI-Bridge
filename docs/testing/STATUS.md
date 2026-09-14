@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: PENDING CERTIFICATION — target `0.10.0` (`v0.10.0`), superseding `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; local pre-certification gates PASS, CI dispatch pending**
+**Status: STABLE — `0.10.0` (`v0.10.0`), superseding `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -182,8 +182,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   a per-attempt `JobDeadline` before the mutation transaction, cache invalidation is scoped to the resource
   and its context, the console projects `changes`/`approvals`, and the dead stub classes were removed
   (guarded by `static-contract`). New `ProfileScopedStorageTest`, `ErrorDisclosureTest`, REST over-long-key
-  case, console projection assertions and `JobDeadline` unit cases. Local: `unit,contract,security` 71 tests,
-  `sdk` 11, integration 99, `TYPESCRIPT SDK: PASS` 14/14, reproducibility PASS. Evidence:
+  case, console projection assertions and `JobDeadline` unit cases. Gate green on `0423714` (run
+  `34809046034`; `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `4ca7d0a8…`,
+  `OK (186 tests, 1094 assertions)`, `STABLE certification gates passed.`); push-CI `Quality Gates`
+  `34809039290` and `MODX Integration` `34809039317` — success. Evidence:
   `docs/testing/iteration-65-hardening-backlog.md`, `docs/release/0.10.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
