@@ -158,6 +158,30 @@ final class RestApiTest extends TestCase
         self::assertSame('idempotency_key_required', $response['body']['error']['code'] ?? null);
     }
 
+    public function testMutationRejectsOverlongIdempotencyKey(): void
+    {
+        $response = $this->call('POST', '/resources', ['pagetitle' => 'x', 'template' => self::$templateId], ['Idempotency-Key' => str_repeat('k', 191)]);
+        self::assertSame(400, $response['status']);
+        self::assertSame('idempotency_key_invalid', $response['body']['error']['code'] ?? null);
+    }
+
+    public function testMutationRejectsIdempotencyKeyOverCharacterLimit(): void
+    {
+        $response = $this->call('POST', '/resources', ['pagetitle' => 'x', 'template' => self::$templateId], ['Idempotency-Key' => str_repeat('к', 191)]);
+        self::assertSame(400, $response['status']);
+        self::assertSame('idempotency_key_invalid', $response['body']['error']['code'] ?? null);
+    }
+
+    public function testIdempotencyKeyLimitCountsCharactersNotBytes(): void
+    {
+        // 190 multibyte characters is 380 bytes. The column and the MCP schema
+        // are character-bounded, so the key must pass the bound and be rejected
+        // later by policy (DELETE is disabled), not by the key guard.
+        $response = $this->call('DELETE', '/resources/1', [], ['Idempotency-Key' => str_repeat('к', 190)]);
+        self::assertSame(403, $response['status']);
+        self::assertSame('operation_disabled', $response['body']['error']['code'] ?? null);
+    }
+
     public function testDeleteIsDeniedByDefaultPolicy(): void
     {
         $response = $this->call('DELETE', '/resources/1', [], ['Idempotency-Key' => 'rest-del-' . bin2hex(random_bytes(6))]);

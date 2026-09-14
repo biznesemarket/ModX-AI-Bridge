@@ -1,5 +1,44 @@
 # Changelog
 
+## 0.10.0 — 2026-09-13
+
+- Security (info disclosure): client-facing errors no longer carry raw exception text. `RestApi`,
+  `ResourceExecutionService` (`resource.preview`, `resource.execute`) and the queue worker return stable
+  messages (`preview_failed`, `execution_failed`, `job_failed`, `job_timeout`) while the full diagnostic is
+  redacted with `SecretRedactor` and written only to the audit trail / MODX log. Manager workflow failures
+  return a generic `workflow_error` instead of `$e->getMessage()`.
+- Security (input bounds): `Idempotency-Key` is capped at 190 characters (the column width) at the REST
+  boundary and in the execution service, returning `400 idempotency_key_invalid` instead of a database 500;
+  the MCP resource tool schemas document the same `maxLength`.
+- Schema: the `aibridge_idempotency` and `aibridge_rate_limits` unique indexes now start with `profile_id`
+  (`profile_id,idempotency_key,principal_id,operation` and `profile_id,bucket_key,window_start`), so two
+  profiles sharing a principal can no longer collide (request corruption/500) and the rate-limit lookup reads
+  the caller's own bucket. Migration `003_profile_scoped_unique_indexes.sql` upgrades existing installations;
+  fresh installs get the indexes from the xPDO resolver. `php scripts/migrations/migrate.php migrate` applies it.
+- Queue: job timeouts are terminal. `JobTimeoutException` extends `NonRetryableJobException`, so a job that
+  overran its budget is never requeued (previously a timer that fired after a committed mutation could replay
+  it). A per-attempt `JobDeadline` is checked cooperatively by the handler and by the execution service right
+  before the mutation transaction (`execution_timeout`); that abort releases the idempotency key (nothing was
+  applied) so the request stays retryable, and the queue handler records it as a non-retryable `job_timeout`
+  instead of a completed job.
+- Performance: `CacheInvalidationService::invalidateResource()` deletes only the affected resource's page
+  cache and the owning context's cached map entry (lazy regeneration on the next request) instead of
+  refreshing the whole MODX `db` partition; invalidation runs after the write transaction commits.
+- Operations console: `OperationsConsoleService::changes()` / `approvals()` return explicit projections
+  (JSON fields decoded, `profile_id`/ids typed) instead of raw `toArray()` rows; the manager
+  `WorkflowProcessor` list modes delegate to the same projections (one shape); the service constructor uses
+  `readonly`.
+- Tech debt: removed the unreferenced stub classes (`Validators/RequestValidator`, `Middleware/*`,
+  `Services/AssetService`, `Services/SchemaService`, the `src/Processors/*` resource/site stubs). The
+  `static-contract` gate now fails if they are reintroduced.
+- Minor release: adds a schema migration and an additive error code; existing routes, settings and
+  operations are unchanged. SDK `User-Agent` moves to `0.10`; `clientInfo`/package versions to `0.10.0`.
+- Tests: `ProfileScopedStorageTest` (profile-scoped rate limits, idempotency keys incl. abandon/retry,
+  scoped cache invalidation), `ErrorDisclosureTest` (raw-message regression guard),
+  `ResourceMutationE2ETest` deadline-abort-retry and handler fail-fast cases, REST over-long and
+  multibyte-boundary idempotency-key cases, console projection assertions, and `JobDeadline`/terminal-timeout
+  unit cases.
+
 ## 0.9.3 — 2026-09-13
 
 - Security: the publish approval is now bound to the caller. `SecurityDecisionPipeline::isApprovedForChange()`

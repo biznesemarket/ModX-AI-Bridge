@@ -98,6 +98,20 @@ final class OperationsConsoleServiceTest extends TestCase
         $approvals = $console->approvals(2);
         self::assertCount(2, $approvals);
         self::assertSame($newerApproval, (int) $approvals[0]['id']);
+
+        // Changes and approvals expose explicit projections, not raw rows.
+        self::assertArrayHasKey('input', $changes[0]);
+        self::assertArrayHasKey('after', $changes[0]);
+        self::assertArrayHasKey('qa', $changes[0]);
+        self::assertIsArray($changes[0]['input']);
+        self::assertIsArray($changes[0]['qa']);
+        self::assertArrayNotHasKey('input_json', $changes[0]);
+        self::assertArrayNotHasKey('after_json', $changes[0]);
+        self::assertArrayNotHasKey('diff_json', $changes[0]);
+        self::assertArrayHasKey('change_id', $approvals[0]);
+        self::assertArrayHasKey('requested_at', $approvals[0]);
+        self::assertSame('pending', $approvals[0]['status'] ?? null);
+        self::assertArrayNotHasKey('created_at', $approvals[0]);
     }
 
     public function testReadinessReportsExpectedChecks(): void

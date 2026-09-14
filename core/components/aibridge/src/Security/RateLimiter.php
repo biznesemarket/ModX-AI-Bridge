@@ -33,8 +33,9 @@ final class RateLimiter
         if (!$this->modx->query($sql)) throw new \RuntimeException('Rate limiter persistence failed.');
 
         $stmt = $this->modx->query(sprintf(
-            'SELECT requests FROM %s WHERE bucket_key=%s AND window_start=%d LIMIT 1',
+            'SELECT requests FROM %s WHERE profile_id=%d AND bucket_key=%s AND window_start=%d LIMIT 1',
             $table,
+            $profileId,
             $this->quote($bucketKey),
             $windowStart
         ));

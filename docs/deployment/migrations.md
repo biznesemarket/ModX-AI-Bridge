@@ -21,6 +21,22 @@ MODX `table_prefix` setting before execution.
 `001_initial.sql` mirrors the current xPDO schema exactly; this is verified by applying the migrations into a
 scratch database and diffing `mysqldump --no-data` output against a resolver-created installation.
 
+## Current migrations
+
+| file | purpose |
+| --- | --- |
+| `001_initial.sql` | Baseline schema; mirrors the xPDO schema (including the `profile_id`-scoped idempotency/rate-limit unique indexes as of `0.10.0`). |
+| `002_approval_workflow.sql` | `aibridge_change_requests` and `aibridge_approvals`. |
+| `003_profile_scoped_unique_indexes.sql` | `0.10.0`: rebuild the idempotency and rate-limit unique indexes with `profile_id` first. |
+
+`003` is an index-only change (drop + re-add the same index names), so it is safe on resolver-created fresh
+installs too. The new keys are strict supersets of the old ones (`profile_id` is prepended), so the constraint
+is more permissive and the `ADD UNIQUE KEY` cannot fail on pre-existing rows — no duplicate pre-check is
+required. The statements rebuild both indexes (a scan over all existing idempotency/rate-limit rows) and take
+a metadata lock; on a long-lived, busy installation apply them in a maintenance window. MySQL DDL
+auto-commits, so if the second statement fails the runner exits non-zero and the migration is left unrecorded;
+a rerun drops and re-adds both indexes and completes idempotently.
+
 ## Migration rules
 
 - each migration has a unique numeric prefix;

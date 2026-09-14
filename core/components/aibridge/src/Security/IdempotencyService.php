@@ -28,4 +28,15 @@ final class IdempotencyService
         if (!$row) return;
         $row->set('status','completed'); $row->set('response_json',json_encode($response,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)); $row->save();
     }
+
+    /**
+     * Release an in-progress key after an attempt that produced no side effect
+     * (for example a deadline abort before the mutation transaction). The key
+     * becomes usable again; a completed key is never removed.
+     */
+    public function abandon(string $key,string $principal,string $operation,int $profileId=0): void
+    {
+        $row=$this->modx->getObject(\AIBridge\Model\IdempotencyKey::class,['profile_id'=>$profileId,'idempotency_key'=>$key,'principal_id'=>$principal,'operation'=>$operation]);
+        if ($row && (string)$row->get('status')==='in_progress') $row->remove();
+    }
 }

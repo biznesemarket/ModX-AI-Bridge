@@ -22,6 +22,11 @@ final class ResourceExecutionJobHandler implements JobHandler
         $principal = is_array($payload['principal'] ?? null) ? $payload['principal'] : [];
         $request = is_array($payload['request'] ?? null) ? $payload['request'] : [];
         $request['request_id'] ??= $job->raw()['request_id'] ?? null;
+        $deadline = $context->deadline();
+        if ($deadline !== null) {
+            $request['_deadline_at'] = $deadline->at();
+        }
+        $context->ensureWithinDeadline();
         $context->progress(10, ['phase' => 'execution_started']);
         $service = new ResourceExecutionService($this->modx);
         $result = match ($operation) {
@@ -51,6 +56,11 @@ final class ResourceExecutionJobHandler implements JobHandler
                 $change->set('updated_at',gmdate('Y-m-d H:i:s')); $change->save();
                 if(!$verified && ($result['success']??false)) throw new NonRetryableJobException('Post-execution verification failed.');
             }
+        }
+        if(($result['error']['code']??'')==='execution_timeout'){
+            // A deadline abort that slipped past the pre-dispatch check is a
+            // terminal timeout, not a completed job.
+            throw new JobTimeoutException((string)($result['error']['message']??'Job deadline exceeded.'));
         }
         $context->progress(100, ['phase' => 'execution_completed']);
         return $result;

@@ -11,7 +11,11 @@ use AIBridge\Model\AuditEvent;
 use AIBridge\Model\ChangeRequest;
 use AIBridge\Model\Snapshot;
 use AIBridge\MultiSite\ProfileService;
+use AIBridge\Queue\JobContext;
+use AIBridge\Queue\JobDeadline;
+use AIBridge\Queue\JobRecord;
 use AIBridge\Queue\JobRegistry;
+use AIBridge\Queue\JobTimeoutException;
 use AIBridge\Queue\QueueManager;
 use AIBridge\Queue\ResourceExecutionJobHandler;
 use AIBridge\Queue\Worker;
@@ -249,6 +253,56 @@ final class ResourceMutationE2ETest extends TestCase
 
         $row = self::$modx->getObject(ChangeRequest::class, $changeId);
         self::assertSame(ChangeState::FAILED, (string) $row->get('status'));
+    }
+
+    public function testDeadlineAbortReleasesIdempotencyKeyForRetry(): void
+    {
+        $resourceId = $this->createResource();
+        $service = new ResourceExecutionService(self::$modx);
+        $key = 'deadline-' . bin2hex(random_bytes(8));
+        $payload = [
+            'id' => $resourceId,
+            'pagetitle' => 'Deadline retry target',
+            'content' => '<h1>Deadline retry target</h1><p>body</p>',
+        ];
+        $request = [
+            'channel' => 'manager',
+            'ip' => 'manager',
+            'request_id' => bin2hex(random_bytes(8)),
+            'idempotency_key' => $key,
+            '_deadline_at' => microtime(true) - 5,
+        ];
+
+        $aborted = $service->update($payload, $this->manager(), $request);
+        self::assertSame('execution_timeout', $aborted['error']['code'] ?? null);
+
+        $request['_deadline_at'] = microtime(true) + 60;
+        $retried = $service->update($payload, $this->manager(), $request);
+        self::assertTrue((bool) ($retried['success'] ?? false), json_encode($retried));
+    }
+
+    public function testHandlerFailsFastWhenDeadlineBudgetIsSpent(): void
+    {
+        $job = new JobRecord([
+            'id' => 0,
+            'type' => 'resource_execution',
+            'status' => 'running',
+            'attempts' => 1,
+            'max_attempts' => 3,
+            'timeout_seconds' => 1,
+            'payload_json' => json_encode([
+                'operation' => 'resource.update',
+                'input' => ['id' => 1],
+                'principal' => $this->manager(),
+                'request' => [],
+            ], JSON_UNESCAPED_UNICODE),
+            'request_id' => bin2hex(random_bytes(8)),
+            'profile_id' => self::$profileId,
+        ]);
+        $context = new JobContext(new QueueManager(self::$modx), $job, new JobDeadline(microtime(true) - 1));
+
+        $this->expectException(JobTimeoutException::class);
+        (new ResourceExecutionJobHandler(self::$modx))->handle($job, $context);
     }
 
     public function testRollbackRestoresFieldsAndTemplateVariables(): void

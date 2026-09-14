@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 namespace AIBridge\Processors\Manager;
-use AIBridge\Manager\AdminProcessor;
+ use AIBridge\Manager\AdminProcessor;
+ use AIBridge\Manager\OperationsConsoleService;
 use AIBridge\Workflow\ApprovalService;
 use AIBridge\Workflow\ChangeExecutionService;
 use AIBridge\Workflow\ChangeRequestService;
@@ -16,8 +17,8 @@ final class WorkflowProcessor extends AdminProcessor {
  'approve'=>$this->success('', $changes->approve((int)$this->getProperty('change_id'),(int)$this->getProperty('approval_id'),$principal)),
  'reject'=>$this->success('', $changes->reject((int)$this->getProperty('change_id'),$principal,(string)$this->getProperty('reason',''))),
  'execute'=>$this->success('', (new ChangeExecutionService($this->modx))->dispatchApproved((int)$this->getProperty('change_id'),$principal)),
- default=>$this->failure('Unknown workflow mode.')}; }catch(\Throwable $e){return $this->failure($e->getMessage(),['code'=>'workflow_error']);}}
- private function listChanges():array{$out=[];$q=$this->modx->newQuery('AIBridge\Model\ChangeRequest');$q->limit(200)->sortby('created_at','DESC');$rows=$this->modx->getCollection('AIBridge\Model\ChangeRequest',$q);foreach($rows ?: [] as $r)$out[]=$r->toArray();return $out;}
- private function listApprovals():array{$out=[];$q=$this->modx->newQuery('AIBridge\Model\Approval');$q->limit(200)->sortby('requested_at','DESC');$rows=$this->modx->getCollection('AIBridge\Model\Approval',$q);foreach($rows ?: [] as $r)$out[]=$r->toArray();return $out;}
+ default=>$this->failure('Unknown workflow mode.')}; }catch(\Throwable $e){$this->modx->log(\MODX\Revolution\modX::LOG_LEVEL_ERROR,'AIBridge workflow error: '.(new \AIBridge\Security\SecretRedactor())->redactText($e->getMessage()));return $this->failure('Workflow operation failed.',['code'=>'workflow_error']);}}
+ private function listChanges():array{return (new OperationsConsoleService($this->modx))->changes(200);}
+ private function listApprovals():array{return (new OperationsConsoleService($this->modx))->approvals(200);}
 }
 return WorkflowProcessor::class;

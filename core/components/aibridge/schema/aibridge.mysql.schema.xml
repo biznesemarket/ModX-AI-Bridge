@@ -124,6 +124,7 @@
         <field key="response_json" dbtype="longtext" phptype="string" null="true" />
         <field key="created_at" dbtype="datetime" phptype="datetime" null="false" />
         <index alias="idempotency_unique" name="idempotency_unique" primary="false" unique="true" type="BTREE">
+            <column key="profile_id" />
             <column key="idempotency_key" />
             <column key="principal_id" />
             <column key="operation" />
@@ -137,6 +138,7 @@
         <field key="requests" dbtype="int" phptype="integer" null="false" default="0" />
         <field key="expires_at" dbtype="datetime" phptype="datetime" null="false" />
         <index alias="bucket_unique" name="bucket_unique" primary="false" unique="true" type="BTREE">
+            <column key="profile_id" />
             <column key="bucket_key" />
             <column key="window_start" />
         </index>

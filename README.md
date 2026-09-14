@@ -6,7 +6,7 @@ Iteration 17 added an operational console inside MODX Manager. It provides visib
 
 The console is not a replacement for the external REST/MCP security pipeline. Manager access is separately protected by MODX Manager authentication and the `aibridge_manage` permission.
 
-Status: **Stable `0.9.3`** (tag `v0.9.3`; certified `aibridge-0.9.3.transport.zip`)
+Status: **Stable `0.10.0`** (tag `v0.10.0`; certified `aibridge-0.10.0.transport.zip`)
 
 ## Iteration 19 — Approval Workflow
 Durable change requests, approvals and controlled execution are provided by `AIBridge\Workflow`.
@@ -34,8 +34,14 @@ manager-connector MCP surface (permission guard, trusted principal/IP) plus MCP 
 `0.9.3` is the current Stable patch release and binds the publish approval to the caller profile, the
 publish operation and the target resource (blocking cross-profile/replayed approvals), propagates the
 manager MCP channel into the execution pipeline, keeps the workflow `after_json` free of the non-writable
-`published` field, and aligns the MCP publish tool schema and docs. Evidence:
-`docs/release/0.9.3.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
+`published` field, and aligns the MCP publish tool schema and docs; `0.10.0` is the current Stable minor
+release and closes the audit backlog (known defects 36–43): idempotency keys and rate-limit buckets are keyed
+by `profile_id` (schema + migration `003_profile_scoped_unique_indexes.sql`), `Idempotency-Key` length is
+bounded at the REST and execution boundaries, client-facing errors no longer embed raw exception text (full
+diagnostics are redacted and kept internally), job timeouts are terminal and checked cooperatively before
+mutation, cache invalidation is scoped to the resource context, the operations console projects
+`changes`/`approvals` instead of returning raw rows, and dead stub classes were removed. Evidence:
+`docs/release/0.10.0.md`, `docs/release/stable-status.md`, `docs/testing/STATUS.md`.
 
 ## AI Agent Development
 

@@ -68,6 +68,9 @@ class RateLimitBucket extends \AIBridge\Model\RateLimitBucket
                 'type' => 'BTREE',
                 'columns' => 
                 array (
+                    'profile_id' => 
+                    array (
+                    ),
                     'bucket_key' => 
                     array (
                     ),

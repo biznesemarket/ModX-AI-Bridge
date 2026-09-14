@@ -1,8 +1,33 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.9.3` (previous: `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **PENDING CERTIFICATION** — target release `0.10.0` (previous Stable: `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.9.3 (current)
+## 0.10.0 (target)
+
+Audit-backlog closure from `known-defects.md` 36–43. Certification gate not yet dispatched; the local
+pre-certification run is recorded in `docs/testing/iteration-65-hardening-backlog.md`:
+
+```text
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (71 tests, 226 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+./scripts/sdk-typescript-check.sh                    TYPESCRIPT SDK: PASS (14/14)
+composer test -- --testsuite integration          OK (104 tests, 8584 assertions)
+package reproducibility                              PASS (sha256 4ca7d0a8…; pre-certification)
+migration 003 applied on the existing database       PASS (profile_id is index column 1)
+```
+
+- Release artifact: `aibridge-0.10.0.transport.zip` (sha256
+  `4ca7d0a8f2b7e97066833d6eedafb174c6e5c2772bef9bb8c97543acee4227bf`, 144514 bytes, local pre-certification;
+  the CI gate must reproduce it). SDK `User-Agent`
+  moves to `0.10` and SDK/package `clientInfo` to `0.10.0` (minor release); all version identities, including
+  README, are committed before the gate.
+- Minor release over `0.9.3`: profile-scoped idempotency/rate-limit indexes (migration `003`), bounded
+  `Idempotency-Key`, sanitized client-facing errors, terminal/cooperative job timeouts, context-scoped cache
+  invalidation, console projections, dead-stub removal.
+- See `docs/release/0.10.0.md`.
+
+## 0.9.3 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `5d2682e`, run `34781843045`:

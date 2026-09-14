@@ -6,6 +6,7 @@ namespace AIBridge\Api;
 
 use AIBridge\Application\Application;
 use AIBridge\Configuration\ConfigFactory;
+use AIBridge\Execution\ResourceExecutionService;
 use AIBridge\MCP\McpServer;
 use AIBridge\Model\Profile;
 use AIBridge\Queue\Job;
@@ -48,7 +49,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.3'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.10.0'),
                 'request_id' => $requestId,
             ]);
         }
@@ -58,7 +59,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.3'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.10.0'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);
@@ -181,6 +182,9 @@ final class RestApi
         $idempotencyKey = trim((string) ($headers['idempotency-key'] ?? ''));
         if ($idempotencyKey === '') {
             return $this->error(400, 'idempotency_key_required', 'Idempotency-Key header is required for mutating operations.', ['operation' => $operation], $requestId);
+        }
+        if (mb_strlen($idempotencyKey, 'UTF-8') > ResourceExecutionService::MAX_IDEMPOTENCY_KEY_LENGTH) {
+            return $this->error(400, 'idempotency_key_invalid', 'Idempotency-Key must be at most ' . ResourceExecutionService::MAX_IDEMPOTENCY_KEY_LENGTH . ' characters.', ['operation' => $operation], $requestId);
         }
 
         $decision = $this->decide($principal, $operation, $clientIp, $requestId);

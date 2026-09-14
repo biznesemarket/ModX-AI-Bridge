@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: STABLE — `0.9.3` (`v0.9.3`), superseding `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: PENDING CERTIFICATION — target `0.10.0` (`v0.10.0`), superseding `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; local pre-certification gates PASS, CI dispatch pending**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -175,6 +175,16 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `24f50ea9…`,
   `OK (170 tests, 1033 assertions)`, `STABLE certification gates passed.`); tag `v0.9.3`. Evidence:
   `docs/testing/iteration-64-mcp-approval-binding.md`, `docs/release/0.9.3.md`
+- Iteration 65 — `0.10.0` audit-backlog closure (known defects 36–43): client-facing errors no longer embed
+  raw exception text (redacted diagnostics stay in audit/log), `Idempotency-Key` is bounded at 190 chars at
+  the REST and execution boundaries, `profile_id` leads the idempotency and rate-limit unique indexes (new
+  migration `003_profile_scoped_unique_indexes.sql`), job timeouts are terminal and checked cooperatively via
+  a per-attempt `JobDeadline` before the mutation transaction, cache invalidation is scoped to the resource
+  and its context, the console projects `changes`/`approvals`, and the dead stub classes were removed
+  (guarded by `static-contract`). New `ProfileScopedStorageTest`, `ErrorDisclosureTest`, REST over-long-key
+  case, console projection assertions and `JobDeadline` unit cases. Local: `unit,contract,security` 71 tests,
+  `sdk` 11, integration 99, `TYPESCRIPT SDK: PASS` 14/14, reproducibility PASS. Evidence:
+  `docs/testing/iteration-65-hardening-backlog.md`, `docs/release/0.10.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the

@@ -8,6 +8,7 @@ use AIBridge\Configuration\ConfigFactory;
 use AIBridge\Security\Authorization;
 use AIBridge\Security\IdempotencyService;
 use AIBridge\Security\IpAllowlist;
+use AIBridge\Security\SecretRedactor;
 use AIBridge\Security\SecurityDecisionPipeline;
 use AIBridge\Services\CacheInvalidationService;
 use AIBridge\Services\ContentContractService;
@@ -21,6 +22,9 @@ use MODX\Revolution\modX;
 
 final class ResourceExecutionService
 {
+    /** Matches the `idempotency_key` column width used by every backing table. */
+    public const MAX_IDEMPOTENCY_KEY_LENGTH = 190;
+
     private SecurityDecisionPipeline $security;
     private IdempotencyService $idempotency;
     private ContentContractService $contracts;
@@ -29,6 +33,7 @@ final class ResourceExecutionService
     private CacheInvalidationService $cache;
     private PreviewService $preview;
     private AuditService $audit;
+    private SecretRedactor $redactor;
 
     public function __construct(private readonly modX $modx)
     {
@@ -41,6 +46,7 @@ final class ResourceExecutionService
         $this->cache = new CacheInvalidationService($modx);
         $this->preview = new PreviewService($modx);
         $this->audit = new AuditService($modx);
+        $this->redactor = new SecretRedactor();
     }
 
     public function create(array $input, array $principal, array $request = []): array { return $this->mutate('resource.create', $input, $principal, $request); }
@@ -53,7 +59,12 @@ final class ResourceExecutionService
         $decision = $this->security->decide($request + ['ip' => $request['ip'] ?? ''], $principal, 'resource.preview');
         if (!$decision->allowed()) return (new ExecutionResult(false, 'resource.preview', [], [], $decision->code(), 'Security policy denied.'))->toArray();
         try { return (new ExecutionResult(true, 'resource.preview', $this->preview->preview($input)))->toArray(); }
-        catch (\Throwable $e) { return (new ExecutionResult(false, 'resource.preview', [], [], 'preview_failed', $e->getMessage()))->toArray(); }
+        catch (\Throwable $e) {
+            // Raw exception text can carry SQL, paths or payload fragments; keep
+            // the client-facing message stable and log the redacted diagnostic.
+            $this->modx->log(\MODX\Revolution\modX::LOG_LEVEL_ERROR, 'AIBridge resource.preview failed: ' . $this->redactor->redactText($e->getMessage()));
+            return (new ExecutionResult(false, 'resource.preview', [], [], 'preview_failed', 'Resource preview failed.'))->toArray();
+        }
     }
 
     private function mutate(string $operation, array $input, array $principal, array $request): array
@@ -64,6 +75,9 @@ final class ResourceExecutionService
 
         $key = trim((string) ($request['idempotency_key'] ?? $input['idempotency_key'] ?? ''));
         if ($key === '') return (new ExecutionResult(false, $operation, [], [], 'idempotency_key_required', 'Idempotency-Key is required for mutating operations.'))->toArray();
+        if (mb_strlen($key, 'UTF-8') > self::MAX_IDEMPOTENCY_KEY_LENGTH) {
+            return (new ExecutionResult(false, $operation, [], [], 'idempotency_key_invalid', 'Idempotency-Key must be at most ' . self::MAX_IDEMPOTENCY_KEY_LENGTH . ' characters.'))->toArray();
+        }
         $principalId = (string) ($principal['id'] ?? 'anonymous');
         $profileId = (int) ($principal['profile_id'] ?? 0);
         $hash = hash('sha256', json_encode($input, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
@@ -103,6 +117,17 @@ final class ResourceExecutionService
                 $warnings = $qa['warnings'];
             }
 
+            $deadlineAt = (float) ($request['_deadline_at'] ?? 0.0);
+            if ($deadlineAt > 0.0 && microtime(true) >= $deadlineAt) {
+                // No side effect has run yet, so release the key instead of
+                // completing it: a transient timeout must remain retryable
+                // rather than replay the failure forever (manager changes use a
+                // deterministic key). The queue handler turns this result into a
+                // terminal JobTimeoutException.
+                $this->idempotency->abandon($key, $principalId, $operation, $profileId);
+                return (new ExecutionResult(false, $operation, [], [], 'execution_timeout', 'Job deadline exceeded before execution.'))->toArray();
+            }
+
             if ($operation === 'resource.delete') {
                 $snapshot = $this->snapshots->createForResource($resource, $operation, $profileId);
             } elseif ($operation !== 'resource.create') {
@@ -123,8 +148,10 @@ final class ResourceExecutionService
                 if (!$resource->remove()) throw new \RuntimeException('Resource delete failed.');
             }
             $resourceId = (int) $resource->get('id');
-            $cache = $this->cache->invalidateResource($resourceId);
             if (!$pdo->commit()) throw new \RuntimeException('Transaction commit failed.');
+            // Invalidate after the commit so the (context-scoped) cache work does
+            // not extend the write transaction's lock hold time.
+            $cache = $this->cache->invalidateResource($resourceId, $resource);
 
             $data = ['resource_id' => $resourceId, 'snapshot' => $snapshot, 'cache' => $cache, 'qa' => ['valid' => true, 'warnings' => $warnings], 'request_id' => $requestId];
             $result = new ExecutionResult(true, $operation, $data, $warnings);
@@ -132,8 +159,9 @@ final class ResourceExecutionService
             return $this->finish($operation, $result, $key, $principalId, $profileId);
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
-            $this->audit->record('resource_execution_failed', ['profile_id' => $profileId, 'actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'request_id' => $requestId, 'error' => $e->getMessage()]);
-            return $this->finish($operation, new ExecutionResult(false, $operation, ['snapshot' => $snapshot], $warnings, 'execution_failed', $e->getMessage()), $key, $principalId, $profileId);
+            $diagnostic = $this->redactor->redactText($e->getMessage());
+            $this->audit->record('resource_execution_failed', ['profile_id' => $profileId, 'actor_type' => $principal['type'] ?? 'token', 'actor_id' => $principalId, 'operation' => $operation, 'request_id' => $requestId, 'error' => $diagnostic]);
+            return $this->finish($operation, new ExecutionResult(false, $operation, ['snapshot' => $snapshot], $warnings, 'execution_failed', 'Resource execution failed.'), $key, $principalId, $profileId);
         }
     }
 

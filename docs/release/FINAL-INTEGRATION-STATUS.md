@@ -1,13 +1,15 @@
 # Final Integration & Stabilization — Status
 
-Status: **STABLE** — current release `0.9.3` (tag `v0.9.3`), superseding `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`,
-`0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`. Evidence:
-`docs/release/stable-status.md`, `docs/release/0.9.3.md`, `docs/release/0.9.2.md`, `docs/release/0.9.1.md`,
-`docs/release/0.9.0.md`,
+Status: **PENDING CERTIFICATION** — target release `0.10.0` (tag `v0.10.0`), superseding Stable `0.9.3`,
+`0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`,
+`0.1.2`, `0.1.1` and `0.1.0`. Evidence:
+`docs/release/stable-status.md`, `docs/release/0.10.0.md`, `docs/release/0.9.3.md`, `docs/release/0.9.2.md`,
+`docs/release/0.9.1.md`, `docs/release/0.9.0.md`,
 `docs/release/0.8.0.md`, `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`,
 `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
 `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
-`docs/testing/iteration-63-security-hardening.md`, `docs/testing/iteration-64-mcp-approval-binding.md`.
+`docs/testing/iteration-65-hardening-backlog.md`, `docs/testing/iteration-63-security-hardening.md`,
+`docs/testing/iteration-64-mcp-approval-binding.md`.
 
 Runtime environment used: Docker (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0), local stack from
 `docker-compose.yml`, plus a GitHub Actions `ubuntu-latest` runner (Docker + PHP + Composer + Node) for the

@@ -93,6 +93,9 @@ class IdempotencyKey extends \AIBridge\Model\IdempotencyKey
                 'type' => 'BTREE',
                 'columns' => 
                 array (
+                    'profile_id' => 
+                    array (
+                    ),
                     'idempotency_key' => 
                     array (
                     ),

@@ -8,13 +8,13 @@ use MODX\Revolution\modX;
 
 final class OperationsConsoleService
 {
-    public function __construct(private modX $modx) {}
+    public function __construct(private readonly modX $modx) {}
 
     public function overview(): array
     {
         return [
             'component' => 'modx-ai-bridge',
-            'version' => (string) $this->modx->getOption('aibridge_version', null, '0.9.3'),
+            'version' => (string) $this->modx->getOption('aibridge_version', null, '0.10.0'),
             'php' => PHP_VERSION,
             'modx' => defined('MODX_VERSION') ? MODX_VERSION : 'unknown',
             'environment' => (string) $this->modx->getOption('aibridge_environment', null, 'production'),
@@ -160,13 +160,48 @@ final class OperationsConsoleService
     public function changes(int $limit = 100): array
     {
         $objects = $this->modx->getCollection('AIBridge\\Model\\ChangeRequest', $this->query('AIBridge\\Model\\ChangeRequest', $limit, 'created_at', 'DESC'));
-        $items=[]; foreach($objects ?: [] as $row){ $items[]=$row->toArray(); } return $items;
+        $items = [];
+        foreach ($objects ?: [] as $change) {
+            $items[] = [
+                'id' => (int) $change->get('id'),
+                'profile_id' => (int) $change->get('profile_id'),
+                'operation' => (string) $change->get('operation'),
+                'resource_id' => $change->get('resource_id') === null ? null : (int) $change->get('resource_id'),
+                'status' => (string) $change->get('status'),
+                'input' => $this->decodeJson((string) $change->get('input_json')),
+                'before' => $this->decodeJson((string) $change->get('before_json')),
+                'after' => $this->decodeJson((string) $change->get('after_json')),
+                'diff' => $this->decodeJson((string) $change->get('diff_json')),
+                'qa' => $this->decodeJson((string) $change->get('qa_json')),
+                'approval_id' => $change->get('approval_id') === null ? null : (int) $change->get('approval_id'),
+                'job_id' => $change->get('job_id') === null ? null : (int) $change->get('job_id'),
+                'requested_by' => (string) $change->get('requested_by'),
+                'request_id' => (string) $change->get('request_id'),
+                'rejection_reason' => (string) $change->get('rejection_reason'),
+                'created_at' => (string) $change->get('created_at'),
+                'updated_at' => (string) $change->get('updated_at'),
+            ];
+        }
+        return $items;
     }
 
     public function approvals(int $limit = 100): array
     {
         $objects = $this->modx->getCollection('AIBridge\\Model\\Approval', $this->query('AIBridge\\Model\\Approval', $limit, 'requested_at', 'DESC'));
-        $items=[]; foreach($objects ?: [] as $row){ $items[]=$row->toArray(); } return $items;
+        $items = [];
+        foreach ($objects ?: [] as $approval) {
+            $items[] = [
+                'id' => (int) $approval->get('id'),
+                'change_id' => (int) $approval->get('change_id'),
+                'status' => (string) $approval->get('status'),
+                'requested_by' => (string) $approval->get('requested_by'),
+                'requested_at' => (string) $approval->get('requested_at'),
+                'decided_by' => (string) $approval->get('decided_by'),
+                'decided_at' => (string) $approval->get('decided_at'),
+                'comment' => (string) $approval->get('comment'),
+            ];
+        }
+        return $items;
     }
 
     public function setProfileStatus(int $id, string $status): bool
@@ -205,6 +240,13 @@ final class OperationsConsoleService
             $query->sortby($sortBy, $sortDir);
         }
         return $query;
+    }
+
+    private function decodeJson(string $json): array
+    {
+        if ($json === '') return [];
+        $decoded = json_decode($json, true);
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function databaseReady(): bool

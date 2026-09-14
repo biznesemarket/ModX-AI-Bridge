@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}aibridge_idempotency` (
   `response_json` longtext,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idempotency_unique` (`idempotency_key`,`principal_id`,`operation`)
+  UNIQUE KEY `idempotency_unique` (`profile_id`,`idempotency_key`,`principal_id`,`operation`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}aibridge_rate_limits` (
@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}aibridge_rate_limits` (
   `requests` int NOT NULL DEFAULT 0,
   `expires_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `bucket_unique` (`bucket_key`,`window_start`)
+  UNIQUE KEY `bucket_unique` (`profile_id`,`bucket_key`,`window_start`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}aibridge_change_requests` (

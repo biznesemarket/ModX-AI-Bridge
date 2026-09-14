@@ -17,10 +17,10 @@ The architecture is now represented by actual source boundaries rather than only
 | Services | `src/Services/` | Present |
 | Inspectors | `src/Inspectors/` | Present |
 | Contracts | `src/Contracts/` | Present |
-| Validators | `src/Validators/` | Present |
-| Processors | `src/Processors/` | Present |
+| Validators | `src/Validators/` | Present (`ContentValidator`; `RequestValidator` stub removed in Iteration 65) |
+| Processors | `src/Processors/` | Present (rollback / job-status / change-verification; resource stubs removed in Iteration 65) |
 | Security | `src/Security/` | Present |
-| Middleware | `src/Middleware/` | Present |
+| Middleware | — | Removed in Iteration 65 (dead stubs; auth, authorization and rate limiting live in `src/Security/` and the REST boundary) |
 | Queue | `src/Queue/` | Stub |
 | Audit | `src/Audit/` | Stub |
 | Models | `src/Model/` | Present |
