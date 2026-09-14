@@ -1,24 +1,28 @@
-# Handoff — ModX AI Bridge (Stable `0.9.3`)
+# Handoff — ModX AI Bridge (Stable `0.10.0`)
 
-Дата: 2026-09-13
-Состояние: **STABLE `0.9.3`** (tag `v0.9.3`, GitHub Release опубликован с 3 ассетами). `main` = `8455d52`
-(релизная документация `0.9.3`), дерево чистое.
+Дата: 2026-09-14
+Состояние: **STABLE `0.10.0`** (tag `v0.10.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
+`327591d` (релизная документация `0.10.0`) + этот handoff-коммит, дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `8455d529…` (синхронизирован с origin; релизные code-коммиты `5d2682e`/`8455d52`), дерево чистое.
+- `main` = `327591d` (синхронизирован с origin; релизные code-коммиты `0423714`/`327591d`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
-  `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`), `v0.9.2` (`e5514de…`), `v0.9.3` (`8455d52…`). GitHub
-  Releases: `v0.9.3` (latest), `v0.9.2`, `v0.9.1`, `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
+  `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`), `v0.9.2` (`e5514de…`), `v0.9.3` (`8455d52…`),
+  `v0.10.0` (`327591d…`). GitHub
+  Releases: `v0.10.0` (latest), `v0.9.3`, `v0.9.2`, `v0.9.1`, `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
   `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+327591d Iteration 65: Record Stable 0.10.0 certification   (tag v0.10.0)
+0423714 Iteration 65: Close audit backlog and harden storage boundaries; cut 0.10.0
+ccb4dd0 Iteration 64: Update handoff for Stable 0.9.3
 8455d52 Iteration 64: Record Stable 0.9.3 certification    (tag v0.9.3)
 5d2682e Iteration 64: Bind publish approval and fix MCP channel; cut 0.9.3
 e5514de Iteration 63: Record Stable 0.9.2 certification    (tag v0.9.2)
@@ -87,8 +91,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
 > `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`, `v0.6.0` — на `cb90ba0`,
 > `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`,
-> `v0.9.1` — на `a504c3b`, `v0.9.2` — на `e5514de`, `v0.9.3` — на `8455d52`. Исторические теги/релизы
-> **не переписывать**.
+> `v0.9.1` — на `a504c3b`, `v0.9.2` — на `e5514de`, `v0.9.3` — на `8455d52`, `v0.10.0` — на `327591d`.
+> Исторические теги/релизы **не переписывать**.
 
 ## 2. Что сделано (Iterations 30–62)
 
@@ -290,14 +294,36 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   sha256 `24f50ea9eb512cadee11e22c5112672a8b7b257d63cc85b41cb0fda5ba7f59e9` (148130 bytes), локальная
   сборка совпала. GitHub Release `v0.9.3` (3 ассета, latest). Evidence:
   `docs/testing/iteration-64-mcp-approval-binding.md`, `docs/release/0.9.3.md`.
+- **65 — `0.10.0`.** Minor-релиз 65: закрыт весь открытый audit-backlog (known-defects **36–43**).
+  Info disclosure (#36): клиентские ошибки REST/MCP и `jobs.error_json` больше не содержат сырой
+  `$e->getMessage()` — стабильные коды/сообщения, диагностика redacted уходит только в audit/MODX log.
+  Profile-scoped storage (#37): `profile_id` первым столбцом в уникальных индексах
+  `idempotency_unique`/`bucket_unique`, lookup `RateLimiter` по профилю, схема + модель + `001_initial.sql`
+  обновлены, новая миграция `003_profile_scoped_unique_indexes.sql`. Ограничение длины `Idempotency-Key`
+  (#38, 190 символов, `mb_strlen`, `400 idempotency_key_invalid`; MCP `maxLength` из константы).
+  Терминальные таймауты (#40): `JobTimeoutException extends NonRetryableJobException`, новый
+  `Queue/JobDeadline`, кооперативная проверка в handler и перед транзакцией мутации (`execution_timeout`);
+  abort освобождает idempotency-ключ (`IdempotencyService::abandon`) и конвертируется handler'ом в
+  non-retryable `job_timeout`, а не `completed`. Scoped cache (#41): `CacheInvalidationService` удаляет кеш
+  страницы ресурса и кеш-map контекста (lazy-регенерация), вызов после commit, whole-`db` refresh убран.
+  Console/manager (#42/#43): `changes()/approvals()` отдают проекции, `WorkflowProcessor` list-режимы
+  делегируют туда же, конструктор `readonly`. Dead code (#39): удалены 14 stub-классов
+  (`Validators/RequestValidator`, `Middleware/*`, `Services/{Asset,Schema}Service`, resource/site-processors),
+  `static-contract` падает при их возврате. Identity: `0.10.0` везде, SDK `User-Agent` `0.9` → `0.10`,
+  `clientInfo` → `0.10.0`. Гейты: dispatch `34809046034` (`0423714`) и tag-run `34809475083` (`327591d`) —
+  success, оба sha256 `4ca7d0a8f2b7e97066833d6eedafb174c6e5c2772bef9bb8c97543acee4227bf` (144514 b),
+  `OK (186 tests, 1094 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`;
+  push-CI на `0423714` (`Quality Gates` `34809039290`, `MODX Integration` `34809039317`) и на `327591d`
+  (`34809463758`/`34809475053`, `34809463757`/`34809475055`) — success. GitHub Release `v0.10.0` (3 ассета,
+  latest). Evidence: `docs/testing/iteration-65-hardening-backlog.md`, `docs/release/0.10.0.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.9.3.md`, `docs/release/0.9.2.md`, `docs/release/0.9.1.md`,
-  `docs/release/0.9.0.md`, `docs/release/0.8.0.md`,
-  `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`, `docs/release/0.5.0.md`,
-  `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`, `docs/release/0.1.3.md`,
-  `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
+- Release/status: `docs/release/0.10.0.md`, `docs/release/0.9.3.md`, `docs/release/0.9.2.md`, `docs/release/0.9.1.md`,
+  `docs/release/0.9.0.md`,
+  `docs/release/0.8.0.md`, `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`,
+  `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
+  `docs/release/0.1.3.md`, `docs/release/0.1.2.md`, `docs/release/0.1.1.md`, `docs/release/0.1.0.md`,
   `docs/release/stable-status.md`, `docs/release/FINAL-INTEGRATION-STATUS.md`.
 - Testing: `docs/testing/STATUS.md`, `docs/testing/iteration-40-typescript-sdk-unblock.md`,
   `iteration-41-stable-release.md`, `iteration-44-settings-packaging-0.1.1.md`,
@@ -309,9 +335,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`,
   `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`,
   `iteration-62-manager-processors.md`, `iteration-63-security-hardening.md`,
-  `iteration-64-mcp-approval-binding.md`.
+  `iteration-64-mcp-approval-binding.md`, `iteration-65-hardening-backlog.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49;
-  #8/#9 повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3; открытый backlog 36–43).
+  #8/#9 повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3; весь аудит-backlog 36–43 закрыт в 0.10.0 —
+  открытых пунктов нет).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
 Сертификационные прогоны (`STABLE certification gates passed.`):
@@ -352,13 +379,19 @@ a808254 run 34779262020   (0.9.2 dispatch)
 e5514de run 34779625520   (tag v0.9.2)
 5d2682e run 34781843045   (0.9.3 dispatch)
 8455d52 run 34782185628   (tag v0.9.3)
+0423714 run 34809046034   (0.10.0 dispatch)
+327591d run 34809475083   (tag v0.10.0)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-13: `5d2682e` run `34781843045` (0.9.3 dispatch: live HTTP E2E PASS,
+Полные гейты `Release` 2026-09-14: `0423714` run `34809046034` (0.10.0 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `4ca7d0a8…`, `OK (186 tests, 1094 assertions)`, `STABLE certification
+gates passed.`); tag `v0.10.0` (`327591d`) run `34809475083` — тот же sha256; push-CI на `0423714`
+(`Quality Gates` 34809039290, `MODX Integration` 34809039317) и на `327591d` (`34809463758`/`34809475053`,
+`34809463757`/`34809475055`) — success. Ранее 2026-09-13: `5d2682e` run `34781843045` (0.9.3 dispatch: live HTTP E2E PASS,
 `PACKAGE REPRODUCIBILITY: PASS`, sha256 `24f50ea9…`, `OK (170 tests, 1033 assertions)`, `STABLE certification
 gates passed.`); tag `v0.9.3` (`8455d52`) run `34782185628` — тот же sha256. Ранее: `a808254` run `34779262020` (0.9.2 dispatch: live HTTP E2E PASS,
 `PACKAGE REPRODUCIBILITY: PASS`, sha256 `721e9ce0…`, `OK (168 tests, 1023 assertions)`, `STABLE certification
@@ -384,10 +417,12 @@ assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `347511
 sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
 `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b,a808254,e5514de,5d2682e,8455d52}…`
+`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b,a808254,e5514de,5d2682e,8455d52,0423714,327591d}…`
 (90 дней). Репозиторий: `sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.9.3.transport.zip` sha256
+Артефакты: `aibridge-0.10.0.transport.zip` sha256
+`4ca7d0a8f2b7e97066833d6eedafb174c6e5c2772bef9bb8c97543acee4227bf` (144514 bytes; GitHub Release `v0.10.0`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.3.transport.zip` sha256
 `24f50ea9eb512cadee11e22c5112672a8b7b257d63cc85b41cb0fda5ba7f59e9` (148130 bytes; GitHub Release `v0.9.3`,
 digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.2.transport.zip` sha256
 `721e9ce0b794e0fdeaf4441b1f2b146c48a93b508665466b31d2a2d70a95d34a` (147647 bytes; GitHub Release `v0.9.2`,
@@ -406,7 +441,9 @@ digest ассета совпадает; локальная сборка == CI ==
 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
 sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
 
-Iteration 64 (локально, `0.9.3`): `unit,contract,security` 64, `sdk` 11, integration 95, static contract PASS,
+Iteration 65 (локально, `0.10.0`): `unit,contract,security` 71, `sdk` 11, integration 104, TS runtime 14,
+static contract PASS, reproducibility `4ca7d0a8…`; полный CI-гейт `OK (186 tests, 1094 assertions)`, TS live
+HTTP PASS, `SUPPLY CHAIN PINS: PASS`, миграция `003` применена к существующей БД. Iteration 64 (локально, `0.9.3`): `unit,contract,security` 64, `sdk` 11, integration 95, static contract PASS,
 reproducibility `24f50ea9…`; полный CI-гейт `OK (170 tests, 1033 assertions)`, TS live HTTP PASS,
 `SUPPLY CHAIN PINS: PASS`. Iteration 63 (локально, `0.9.2`): `unit,contract,security` 64, `sdk` 11, integration 93, static contract PASS,
 reproducibility `721e9ce0…`; полный CI-гейт `OK (168 tests, 1023 assertions)`, TS live HTTP PASS,
@@ -423,7 +460,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.9.3.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.10.0.transport.zip'
 ```
 
 Полезные команды:
@@ -435,6 +472,10 @@ gh run watch <run-id> --exit-status
 
 # воспроизводимость пакета (2 сборки, сравнение sha256)
 docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/verify-package-reproducibility.php'
+
+# миграции (status/migrate); для 0.10.0 нужен 003 (index-only)
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/migrations/migrate.php status'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/migrations/migrate.php migrate'
 
 # TypeScript SDK (build + runtime-тесты) локально
 & "C:\Program Files\Git\bin\bash.exe" -lc 'cd "/e/projects/ModX AI Bridge" && bash scripts/sdk-typescript-check.sh'
@@ -492,6 +533,27 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   `ChangeRequest` — это `resource.publish`, профиль совпадает с principal (для profile-scoped) и
   `resource_id` совпадает с запросом. Не ослаблять: approval не является самостоятельным пропуском
   (Iteration 64; регрессы `testPublishToolRejectsCrossProfileApproval`/`...ForAnotherResource`).
+- Таймауты job: `JobTimeoutException` — терминальный (extends `NonRetryableJobException`), timeout никогда не
+  requeue'ится. `JobDeadline` проверяется в handler (`ensureWithinDeadline`) и в `ResourceExecutionService`
+  перед snapshot/транзакцией; abort (`execution_timeout`) **освобождает** idempotency-ключ
+  (`IdempotencyService::abandon`, только `in_progress`) и конвертируется handler'ом в non-retryable
+  `job_timeout` (job = failed, не completed). Не «завершать» ключ на транзиентном таймауте
+  (Iteration 65; регрессы `testDeadlineAbortReleasesIdempotencyKeyForRetry`,
+  `testHandlerFailsFastWhenDeadlineBudgetIsSpent`, `testAbandonedInProgressKeyCanBeReusedButCompletedKeyCannot`).
+- Idempotency/rate-limit: уникальные индексы начинаются с `profile_id`
+  (`profile_id,idempotency_key,principal_id,operation` и `profile_id,bucket_key,window_start`); менять только
+  вместе с моделью (`scripts/generate-schema.php`), `001_initial.sql` и новой миграцией. Апгрейд — `003`
+  (index-only, drop+re-add, maintenance window на большой БД). `Idempotency-Key` ≤ 190 **символов**
+  (`mb_strlen`), MCP `maxLength` берётся из `ResourceExecutionService::MAX_IDEMPOTENCY_KEY_LENGTH`
+  (Iteration 65).
+- Ошибки: клиентские ответы REST/MCP и `error_json` не содержат сырых `$e->getMessage()`; диагностика —
+  только redacted в audit/MODX log (`ErrorDisclosureTest` guard). Не возвращать raw-сообщения (Iteration 65).
+- Кеш: `CacheInvalidationService::invalidateResource($id, $resource)` удаляет кеш страницы и кеш-map
+  контекста (lazy-регенерация), вызывается **после** commit; whole-`db` refresh не использовать
+  (`static-contract` guard). Manager `WorkflowProcessor::listChanges/listApprovals` делегируют в
+  `OperationsConsoleService` (единый shape проекций). Удалённые stub-классы (`Middleware/*`,
+  `RequestValidator`, `AssetService`, `SchemaService`, resource/site-processors) не возвращать —
+  `static-contract` падает (Iteration 65).
 - MCP-транспорт: client IP берётся из trusted principal (`$principal['client_ip']`), который кладёт
   транспорт, а **не** из `params._client_ip`. Manager-connector MCP (`processors/mcp.class.php`) — только
   для аутентифицированного менеджера с `aibridge_manage`; token-путь — REST `POST /api/ai/v2/mcp`.
@@ -552,27 +614,27 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   failed jobs, а не изменения в коде.
 - Исторические записи не менять: `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*`,
   `docs/testing/iteration-39-stable-certification.md`.
-- Audit-backlog (Iteration 63) открыт в `known-defects.md` (36–43): сырые `$e->getMessage()` в API/job,
-  unique-индексы идемпотентности/rate-limit без `profile_id`, неограниченная длина `Idempotency-Key`,
-  мёртвый/заглушечный код, timeout worker после выполнения handler'а, полный `db`-cache refresh, сырые
-  `toArray()` в console `changes`/`approvals`, стилевой `readonly`. Не блокируют Stable; закрывать по
-  приоритету. Пункты #8/#9 известных дефектов повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3.
+- Job-timeout остаётся кооперативным: одна длинная SQL-операция не прерывается, но job не переигрывается, а
+  мутация не стартует после исчерпания бюджета (Iteration 65).
+- Миграция `003` (Iteration 65) — index-only, но перестраивает оба индекса по всем историческим строкам
+  и берёт metadata lock; на большой нагруженной БД применять в maintenance window. Новые ключи — строгий
+  superset старых, поэтому дубликатов быть не может и pre-check не нужен.
+- Аудит-backlog `known-defects.md` 36–43 закрыт в 0.10.0; открытых пунктов нет. Пункты #8/#9 известных
+  дефектов повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3.
 
 ## 6. Что делать дальше
 
-Stable `0.9.3` выпущен и опубликован (GitHub Release, 3 ассета); `main` = `8455d52` — publish-approval binding
-и MCP channel (Iteration 64). Обязательных гейтов нет.
+Stable `0.10.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `327591d` — audit-backlog
+closure (Iteration 65). Обязательных гейтов нет; открытых пунктов known-defects нет.
 
 Приоритетные кандидаты:
 
-1. **Backlog `known-defects.md` (36–43)**: info disclosure в API/job-ошибках, `profile_id` в unique-индексах
-   идемпотентности/rate-limit, длина `Idempotency-Key`, мёртвый код, семантика worker-timeout, scope
-   cache invalidation, проекции console. Тем же flow (bump identity → гейт → evidence → tag → tag-run →
-   GitHub Release) для выбранного набора.
+1. **Новые наблюдения** (по мере появления): заводить в `known-defects.md` и закрывать тем же flow
+   (bump identity → гейт → evidence → tag → tag-run → GitHub Release).
 2. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
    `parent` и `parent` в `sort` закрыты в Iteration 60; без конкретного запроса не меняем).
 3. **Менеджер/UI**: processor-покрытие `ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor` закрыто в
-   Iteration 62; при желании — Manager E2E сценарии поверх консоли.
+   Iteration 62, list-проекции унифицированы в Iteration 65; при желании — Manager E2E сценарии поверх консоли.
 4. Опционально: Dependabot PR #1 (PHP 8.5) отложен (см. §5), следить за остальными digest/SHA-PR.
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
@@ -586,7 +648,9 @@ contexts в `/capabilities` + join TV-фильтр + релиз `0.7.0` (57),
 менеджерское покрытие + фиксы console/rollback + релиз `0.9.1` (61),
 processor-покрытие manager-процессоров + Dependabot-ревью (62, без релиза),
 security hardening (publish-bypass, discovery determinism, MCP guard/publish) + аудит-backlog + релиз
-`0.9.2` (63), publish-approval binding (cross-profile/replay) + MCP channel + фиксы ревью + релиз `0.9.3` (64).
+`0.9.2` (63), publish-approval binding (cross-profile/replay) + MCP channel + фиксы ревью + релиз `0.9.3` (64),
+аудит-backlog 36–43 (info disclosure, profile-scoped индексы + миграция 003, лимит Idempotency-Key,
+терминальные таймауты, scoped cache, проекции, удаление мёртвого кода) + релиз `0.10.0` (65).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).

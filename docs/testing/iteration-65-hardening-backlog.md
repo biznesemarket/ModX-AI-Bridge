@@ -103,8 +103,13 @@ Scope: `docs/ai-agent/baseline/known-defects.md` items **36–43** (all open aud
 - `bash scripts/sdk-typescript-check.sh` (host Node 24) — 14/14 runtime tests, `TYPESCRIPT SDK: PASS`.
 - Runtime: package built and installed on the disposable stack (`Transport Package installation: PASS`),
   `docker compose restart modx`, migration `003` applied against the pre-existing database, `SHOW INDEX`
-  verified. Full CI certification (live HTTP E2E, runtime verification, reproducibility on the runner) is
-  pending the release dispatch.
+  verified.
+- CI certification: dispatch `34809046034` (`main`, `0423714`) and tag run `34809475083` (`v0.10.0`,
+  `327591d`) — both `STABLE certification gates passed.` with the same sha256 `4ca7d0a8…`,
+  `OK (186 tests, 1094 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`.
+  Push-CI on `0423714`: `Quality Gates` `34809039290`, `MODX Integration` `34809039317` — success; on
+  `327591d`: `Quality Gates` `34809463758`/`34809475053`, `MODX Integration` `34809463757`/`34809475055` —
+  success. GitHub Release `v0.10.0` published (3 assets, latest).
 
 ## 4. Risks / notes
 
