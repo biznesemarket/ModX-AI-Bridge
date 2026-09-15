@@ -1,8 +1,36 @@
 # Stable Certification Status
 
-Status: **STABLE** — current release `0.10.0` (previous: `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
+Status: **PENDING CERTIFICATION** — target release `0.11.0` (previous Stable: `0.10.0`, `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1`, `0.1.0`).
 
-## 0.10.0 (current)
+## 0.11.0 (target)
+
+Read-back privacy, deep-tree budget and the supervised worker. Certification gate not yet dispatched; the
+local pre-certification run on the disposable stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) is recorded in
+`docs/testing/iteration-66-readback-privacy-deep-trees-supervised-worker.md`:
+
+```text
+composer validate --no-check-publish --strict        PASS
+composer lint                                        PASS
+composer verify-static-contract                      PASS
+composer test -- --testsuite unit,contract,security  OK (71 tests, 226 assertions)
+composer test -- --testsuite sdk                     OK (11 tests, 52 assertions)
+TypeScript SDK runtime (host Node)                   14/14 TYPESCRIPT SDK: PASS
+TypeScript SDK live HTTP E2E                         TYPESCRIPT SDK LIVE HTTP: PASS (15/15)
+full PHPUnit integration                             OK (108 tests, 10603 assertions)
+package reproducibility                              PACKAGE REPRODUCIBILITY: PASS (sha256 1f23f9fd…)
+```
+
+- Release artifact: `aibridge-0.11.0.transport.zip` (sha256
+  `1f23f9fd62df99d26a0b923301dac17010aa25ee6b9f240774dda4096d9e0bb2`, 148228 bytes, local
+  pre-certification; the CI gate must reproduce it). SDK `User-Agent`
+  moves to `0.11` and SDK/package `clientInfo` to `0.11.0` (minor release); all version identities,
+  including README, are committed before the gate.
+- Minor release over `0.10.0`: `aibridge_redacted_tvs` read-back redaction, `depth` up to 50 with a bounded
+  descendant budget (`too_many_descendants`), and a supervised CLI worker that hard-stops a job at its time
+  budget (terminal `job_timeout`, idempotency-key release, redacted child stderr).
+- See `docs/release/0.11.0.md`.
+
+## 0.10.0 (previous)
 
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` completed green on GitHub Actions
 `ubuntu-latest`, commit `0423714`, run `34809046034`:

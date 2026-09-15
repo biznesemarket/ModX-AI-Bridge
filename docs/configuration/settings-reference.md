@@ -36,6 +36,12 @@ The following switches are deny-by-default controls:
 - `aibridge_token_expiry_days` (default `90`)
 - `aibridge_rate_limit_per_minute` (default `60`)
 
+## Read-back controls
+
+- `aibridge_redacted_tvs` — JSON array of template-variable names whose values are omitted from the
+  read-back projection (`GET /api/ai/v2/resources/{id}`, MCP `resource_read`, `modx://resource/{id}`).
+  Default `[]`. Use it when a TV stores a secret; the rest of the `tvs` map keeps its normal shape.
+
 ## Non-secret numeric controls
 
 - `aibridge_max_request_body_bytes` (default `1048576`)

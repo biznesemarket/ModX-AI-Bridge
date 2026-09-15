@@ -14,6 +14,7 @@ use AIBridge\Queue\QueueManager;
 use AIBridge\Queue\ResourceExecutionJobHandler;
 use AIBridge\Queue\Worker;
 use AIBridge\Security\TokenManager;
+use AIBridge\Services\ResourceReadService;
 use PHPUnit\Framework\TestCase;
 
 final class RestApiTest extends TestCase
@@ -275,6 +276,33 @@ final class RestApiTest extends TestCase
         self::assertSame('rest-tv-value', $tvs[$tvName] ?? null);
     }
 
+    public function testRedactedTemplateVariablesAreOmittedFromReadBack(): void
+    {
+        $secretName = 'rest_secret_tv';
+        $publicName = 'rest_public_tv';
+        self::templateVariable($secretName);
+        self::templateVariable($publicName);
+
+        $id = $this->createResource('rest-redact-' . bin2hex(random_bytes(5)));
+        $resource = self::$modx->getObject(\MODX\Revolution\modResource::class, $id);
+        self::assertNotNull($resource);
+        $resource->setTVValue($secretName, 'top-secret');
+        $resource->setTVValue($publicName, 'public-value');
+        self::$modx->getCacheManager()->refresh();
+
+        self::setting('aibridge_redacted_tvs', json_encode([$secretName]));
+        try {
+            $read = $this->call('GET', '/resources/' . $id);
+            self::assertSame(200, $read['status']);
+            $tvs = $read['body']['data']['resource']['tvs'] ?? null;
+            self::assertIsArray($tvs);
+            self::assertArrayNotHasKey($secretName, $tvs);
+            self::assertSame('public-value', $tvs[$publicName] ?? null);
+        } finally {
+            self::setting('aibridge_redacted_tvs', '[]');
+        }
+    }
+
     public function testResourceListFiltersAndPagination(): void
     {
         $prefix = 'rest-list-' . bin2hex(random_bytes(4));
@@ -371,7 +399,7 @@ final class RestApiTest extends TestCase
         self::assertSame(400, $orphanDepth['status']);
         self::assertSame('invalid_filter', $orphanDepth['body']['error']['code'] ?? null);
 
-        foreach (['0', '11', 'abc'] as $badDepth) {
+        foreach (['0', '51', 'abc'] as $badDepth) {
             $bad = $this->call('GET', '/resources', query: ['parent' => '0', 'depth' => $badDepth]);
             self::assertSame(400, $bad['status'], 'depth=' . $badDepth . ' must be rejected.');
             self::assertSame('invalid_filter', $bad['body']['error']['code'] ?? null);
@@ -393,6 +421,32 @@ final class RestApiTest extends TestCase
         $afterDelete = $this->call('GET', '/resources', query: ['parent' => (string) $rootA, 'depth' => '10']);
         self::assertSame(200, $afterDelete['status']);
         self::assertSame(2, $afterDelete['body']['data']['total'] ?? null, 'A soft-deleted subtree must not be walked.');
+    }
+
+    public function testResourceListSupportsDeepTreesWithinDescendantBudget(): void
+    {
+        $prefix = 'rest-deep-' . bin2hex(random_bytes(4));
+        $root = $this->createResource($prefix . '-root');
+        $parent = $root;
+        for ($level = 1; $level <= 12; $level++) {
+            $parent = $this->createResource($prefix . '-l' . $level, $parent);
+        }
+
+        $deep = $this->call('GET', '/resources', query: ['parent' => (string) $root, 'depth' => '12', 'limit' => '100']);
+        self::assertSame(200, $deep['status']);
+        self::assertSame(12, $deep['body']['data']['total'] ?? null, 'depth beyond 10 must include deeper descendants.');
+
+        $eleven = $this->call('GET', '/resources', query: ['parent' => (string) $root, 'depth' => '11', 'limit' => '100']);
+        self::assertSame(200, $eleven['status']);
+        self::assertSame(11, $eleven['body']['data']['total'] ?? null);
+
+        $overBudget = (new ResourceReadService(self::$modx, 5))->list(['parent' => $root, 'depth' => 12, 'limit' => 100]);
+        self::assertFalse((bool) ($overBudget['success'] ?? false));
+        self::assertSame('too_many_descendants', $overBudget['error']['code'] ?? null);
+
+        $withinBudget = (new ResourceReadService(self::$modx, 12))->list(['parent' => $root, 'depth' => 12, 'limit' => 100]);
+        self::assertTrue((bool) ($withinBudget['success'] ?? false));
+        self::assertSame(12, $withinBudget['data']['total'] ?? null);
     }
 
     public function testResourceListFiltersByTemplateVariable(): void

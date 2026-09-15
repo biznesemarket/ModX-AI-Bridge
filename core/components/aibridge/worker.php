@@ -10,10 +10,19 @@ declare(strict_types=1);
  * Options:
  *   --once             process at most one job and exit;
  *   --sleep=N          idle sleep in seconds (default 5);
- *   --max-iterations=N stop after N loop iterations.
+ *   --max-iterations=N stop after N loop iterations;
+ *   --inline           run jobs in this process instead of a supervised child.
  *
- * Graceful shutdown: SIGTERM/SIGINT stop claiming new jobs; a claimed job is
- * allowed to finish or expire its lease. Stale jobs are requeued while idle.
+ * Internal supervisor mode: when the AIBRIDGE_EXEC_JOB environment variable holds
+ * a job id, this process executes that already-claimed job once and exits (used
+ * by the child process spawned by the worker supervisor).
+ *
+ * By default each claimed job runs in a child process supervised with a hard
+ * wall-clock budget, so a stuck statement cannot outlive the job timeout. The
+ * child owns its own database connection; terminating it rolls back an open
+ * transaction. Graceful shutdown: SIGTERM/SIGINT stop claiming new jobs; a
+ * claimed job is allowed to finish or expire its lease. Stale jobs are requeued
+ * while idle.
  */
 
 $modxRoot = rtrim((string) (getenv('MODX_ROOT') ?: '/var/www/html'), '/') . '/';
@@ -40,7 +49,7 @@ if (!is_dir($corePath)) {
 $modx->getLoader()->addPsr4('AIBridge\\', $corePath . 'src/');
 $modx->addPackage('AIBridge\\Model', $corePath . 'src/', null, 'AIBridge\\');
 
-$options = getopt('', ['once', 'sleep::', 'max-iterations::']);
+$options = getopt('', ['once', 'sleep::', 'max-iterations::', 'inline']);
 $once = isset($options['once']);
 $sleep = max(1, (int) ($options['sleep'] ?? 5));
 $maxIterations = isset($options['max-iterations']) ? max(1, (int) $options['max-iterations']) : 0;
@@ -48,8 +57,20 @@ $maxIterations = isset($options['max-iterations']) ? max(1, (int) $options['max-
 $queue = new AIBridge\Queue\QueueManager($modx);
 $registry = new AIBridge\Queue\JobRegistry();
 $registry->register('resource_execution', new AIBridge\Queue\ResourceExecutionJobHandler($modx));
-$worker = new AIBridge\Queue\Worker($queue, $registry, new AIBridge\Audit\AuditService($modx));
+$worker = new AIBridge\Queue\Worker($queue, $registry, new AIBridge\Audit\AuditService($modx), idempotency: new AIBridge\Security\IdempotencyService($modx));
 $redactor = new AIBridge\Security\SecretRedactor();
+
+$execJobId = max(0, (int) (getenv('AIBRIDGE_EXEC_JOB') ?: 0));
+if ($execJobId > 0) {
+    $record = $queue->get($execJobId);
+    if ($record !== null && $record->status() === AIBridge\Queue\JobState::RUNNING) {
+        $worker->runJob($record);
+    }
+    exit(0);
+}
+
+$runner = [PHP_BINARY !== '' ? PHP_BINARY : 'php', __FILE__];
+$supervised = !isset($options['inline']);
 
 $workerId = 'worker-' . getmypid() . '-' . substr(bin2hex(random_bytes(4)), 0, 8);
 
@@ -69,7 +90,9 @@ $iterations = 0;
 while ($running) {
     $result = null;
     try {
-        $result = $worker->runOnce($workerId);
+        $result = $supervised
+            ? $worker->runOnceSupervised($workerId, $runner)
+            : $worker->runOnce($workerId);
     } catch (\Throwable $e) {
         fwrite(STDERR, '[worker] error: ' . $redactor->redactText($e->getMessage()) . "\n");
     }

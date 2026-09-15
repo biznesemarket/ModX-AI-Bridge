@@ -49,7 +49,7 @@ final class RestApi
             return $this->json(200, [
                 'status' => 'ok',
                 'component' => 'modx-ai-bridge',
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.10.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.11.0'),
                 'request_id' => $requestId,
             ]);
         }
@@ -59,7 +59,7 @@ final class RestApi
             return $this->json($readiness['status'] === 'ready' ? 200 : 503, [
                 'component' => 'modx-ai-bridge',
                 'status' => $readiness['status'],
-                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.10.0'),
+                'version' => (string) $this->modx->getOption('aibridge_version', null, '0.11.0'),
                 'checks' => $readiness['checks'],
                 'request_id' => $requestId,
             ]);

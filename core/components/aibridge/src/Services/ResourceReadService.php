@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AIBridge\Services;
 
+use AIBridge\Configuration\ConfigFactory;
 use MODX\Revolution\modX;
 
 /**
@@ -19,7 +20,8 @@ final class ResourceReadService
 {
     public const LIST_LIMIT_DEFAULT = 25;
     public const LIST_LIMIT_MAX = 100;
-    public const LIST_DEPTH_MAX = 10;
+    public const LIST_DEPTH_MAX = 50;
+    public const LIST_DESCENDANT_MAX = 5000;
 
     private const STRING_FIELDS = [
         'pagetitle', 'longtitle', 'description', 'introtext', 'content', 'alias',
@@ -35,7 +37,15 @@ final class ResourceReadService
     private const LIST_BOOL_FIELDS = ['published', 'hidemenu', 'searchable'];
     private const SORTABLE = ['id', 'parent', 'pagetitle', 'alias', 'menuindex', 'editedon', 'createdon', 'publishedon'];
 
-    public function __construct(private readonly modX $modx) {}
+    /** @var list<string>|null */
+    private ?array $redactedTvs = null;
+
+    private int $descendantLimit;
+
+    public function __construct(private readonly modX $modx, int $descendantLimit = self::LIST_DESCENDANT_MAX)
+    {
+        $this->descendantLimit = max(1, $descendantLimit);
+    }
 
     public function read(int $id): array
     {
@@ -54,7 +64,7 @@ final class ResourceReadService
     /**
      * Filtered, paginated read-back of non-deleted resources.
      *
-     * Supported filters: `parent` (optionally with `depth` 1..10 to include
+     * Supported filters: `parent` (optionally with `depth` 1..50 to include
      * descendants; 1 = direct children, the default), `template`, `context_key`,
      * `published`, `tv_name`/`tv_value` (match an explicit template-variable
      * value), `q`/`search` (pagetitle/alias/description LIKE), `limit` (1..100,
@@ -183,6 +193,12 @@ final class ResourceReadService
         if ($depth > 1) {
             unset($and['parent']);
             $descendants = $this->descendantIds((int) $parentId, $depth);
+            if ($descendants === null) {
+                return ['success' => false, 'error' => [
+                    'code' => 'too_many_descendants',
+                    'message' => 'The requested depth expands to too many descendants; narrow the subtree or lower the depth.',
+                ]];
+            }
             if ($descendants === []) {
                 return $this->emptyPage($limit, $offset);
             }
@@ -244,9 +260,13 @@ final class ResourceReadService
      * `LIST_DEPTH_MAX` bounds the recursion. Only the PK column is selected so
      * large subtrees are not hydrated as full rows.
      *
-     * @return list<int>
+     * Returns the id list, an empty list when the subtree has no descendants, or
+     * null when the subtree exceeds the configured descendant budget: the caller
+     * must then reject the request instead of materializing an unbounded set.
+     *
+     * @return list<int>|null
      */
-    private function descendantIds(int $parentId, int $depth): array
+    private function descendantIds(int $parentId, int $depth): ?array
     {
         $ids = [];
         $frontier = [$parentId];
@@ -259,6 +279,9 @@ final class ResourceReadService
             foreach ($collection ?: [] as $child) {
                 $id = (int) $child->get('id');
                 $ids[] = $id;
+                if (count($ids) > $this->descendantLimit) {
+                    return null;
+                }
                 $frontier[] = $id;
             }
         }
@@ -318,6 +341,10 @@ final class ResourceReadService
      * Scalar values are normalized to strings (or null); structured values (for
      * example MIGX/JSON TV types) are JSON-encoded so the projection stays a flat
      * string map. Keys are the TV names, matching the `tv:<name>` write contract.
+     *
+     * TV names configured in `aibridge_redacted_tvs` are omitted entirely so a
+     * secret value never reaches a read-back client; the rest of the map keeps
+     * its normal shape.
      */
     private function tvValues(\xPDOObject $resource): array
     {
@@ -326,17 +353,35 @@ final class ResourceReadService
         if (!is_array($tvs)) {
             return $values;
         }
+        $redacted = $this->redactedTvs();
         foreach ($tvs as $tv) {
             if (!method_exists($tv, 'get') || !method_exists($tv, 'getValue')) {
                 continue;
             }
             $name = (string) $tv->get('name');
-            if ($name === '') {
+            if ($name === '' || in_array($name, $redacted, true)) {
                 continue;
             }
             $values[$name] = $this->normalizeTvValue($tv->getValue($resource->get('id')));
         }
         return $values;
+    }
+
+    /**
+     * TV names whose values must not be exposed through the read-back surfaces.
+     * Read once per instance from the (JSON-decoded) `redacted_tvs` setting.
+     *
+     * @return list<string>
+     */
+    private function redactedTvs(): array
+    {
+        if ($this->redactedTvs === null) {
+            $configured = ConfigFactory::fromModx($this->modx)->get('redacted_tvs', []);
+            $this->redactedTvs = is_array($configured)
+                ? array_values(array_unique(array_map('strval', $configured)))
+                : [];
+        }
+        return $this->redactedTvs;
     }
 
     private function normalizeTvValue(mixed $value): ?string

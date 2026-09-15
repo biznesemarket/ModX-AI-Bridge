@@ -18,7 +18,11 @@ queued → cancelled
 
 A worker claims a job with a database row lock. `locked_at` and `locked_by` form a lease. `requeueStale()` returns abandoned jobs to `queued` after the configured lease period.
 
-The worker records progress and heartbeats. Timeout is measured at the worker boundary. This is a cooperative/observed timeout; a hard process-level kill must be supplied by the process supervisor (systemd, Supervisor, Kubernetes, etc.).
+The worker records progress and heartbeats. Timeout is enforced twice: handlers and the execution
+service consult `JobDeadline` cooperatively, and the CLI worker additionally runs each claimed job in a
+supervised child process with a hard wall-clock budget. The child owns its database connection, so
+terminating it rolls back an open transaction; the job is then marked as a non-retryable `job_timeout`
+and the in-progress idempotency key is released. `--inline` restores single-process execution.
 
 ## Idempotency
 

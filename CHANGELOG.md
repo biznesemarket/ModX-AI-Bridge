@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.11.0 — 2026-09-14
+
+- Security (read-back privacy): new `aibridge_redacted_tvs` setting (JSON array of template-variable
+  names). Redacted TV values are omitted from the `tvs` map returned by `GET /api/ai/v2/resources/{id}`,
+  the MCP `resource_read` tool and the `modx://resource/{id}` resource template, so a TV that stores a
+  secret never reaches a client with `resource:read`. Default `[]` keeps the previous behaviour.
+- Read-back: the recursive `parent` filter now accepts `depth` up to 50 (was 10). The descendant walk
+  stops with `400 too_many_descendants` when a subtree exceeds 5000 materialized ids instead of building
+  an unbounded set; the MCP `resource_list` schema derives its `maximum` from
+  `ResourceReadService::LIST_DEPTH_MAX`.
+- Queue (hard timeout): the CLI worker runs each claimed job in a supervised child process and terminates
+  it with SIGKILL once the job's `timeout_seconds` budget is spent. The child owns its database
+  connection, so the killed transaction is rolled back server-side. A hard timeout is terminal: the job
+  is recorded as a non-retryable `job_timeout` (never requeued) and its `in_progress` idempotency key is
+  released so a pre-mutation abort stays retryable. Child stderr is bounded, redacted and attached to the
+  audit diagnostic; a child that exits without settling the job is failed as retryable `job_failed`.
+  `--inline` restores the previous single-process cooperative mode.
+- Minor release: adds one setting and one additive error code; existing routes, settings and operations
+  are unchanged. SDK `User-Agent` moves to `0.11`; `clientInfo`/package versions to `0.11.0`.
+- Tests: `RestApiTest` redacted-TV projection and deep-tree/descendant-budget cases;
+  `WorkerSupervisionTest` covers the supervised hard timeout (terminal `job_timeout` + key release) and a
+  real child-process job completion.
+
 ## 0.10.0 — 2026-09-13
 
 - Security (info disclosure): client-facing errors no longer carry raw exception text. `RestApi`,

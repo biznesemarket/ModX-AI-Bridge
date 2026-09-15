@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: STABLE — `0.10.0` (`v0.10.0`), superseding `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
+**Status: PENDING CERTIFICATION — target `0.11.0` (`v0.11.0`), superseding `0.10.0`, `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; local pre-certification gates PASS, CI dispatch pending**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`

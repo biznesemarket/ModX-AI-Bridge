@@ -72,6 +72,9 @@ return [
         'key' => 'aibridge_security_fail_closed', 'value' => '1', 'xtype' => 'combo-boolean', 'namespace' => 'aibridge', 'area' => 'security',
     ]),
     $setting([
+        'key' => 'aibridge_redacted_tvs', 'value' => '[]', 'xtype' => 'textarea', 'namespace' => 'aibridge', 'area' => 'security',
+    ]),
+    $setting([
         'key' => 'aibridge_max_request_body_bytes', 'value' => '1048576', 'xtype' => 'number', 'namespace' => 'aibridge', 'area' => 'api',
     ]),
     $setting([
@@ -87,7 +90,7 @@ return [
         'key' => 'aibridge_environment', 'value' => 'production', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
     ]),
     $setting([
-        'key' => 'aibridge_version', 'value' => '0.10.0', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
+        'key' => 'aibridge_version', 'value' => '0.11.0', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'operations',
     ]),
     $setting([
         'key' => 'aibridge_api_version', 'value' => 'v2', 'xtype' => 'textfield', 'namespace' => 'aibridge', 'area' => 'api',

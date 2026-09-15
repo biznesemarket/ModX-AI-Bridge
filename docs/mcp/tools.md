@@ -44,19 +44,21 @@ Required scope: `content:validate`.
 
 Reads a persisted MODX resource by numeric `id` and returns a whitelisted projection (`pagetitle`, `alias`,
 `template`, `published`, `content`, timestamps, ...). Template variables bound to the resource template are
-included read-only under the `tvs` map (TV name → string value; structured values are JSON-encoded). A missing
-or soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
+included read-only under the `tvs` map (TV name → string value; structured values are JSON-encoded); TV names
+listed in the `aibridge_redacted_tvs` setting are omitted from the map so their values never leave the site.
+A missing or soft-deleted resource returns `resource_not_found` in the tool result payload (not a JSON-RPC error).
 
 Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources/{id}`.
 
 ## resource_list
 
-Lists persisted, non-deleted MODX resources with optional filters: `parent` (optionally with `depth` 1..10 to
+Lists persisted, non-deleted MODX resources with optional filters: `parent` (optionally with `depth` 1..50 to
 include descendants; `depth` 1, the default, returns direct children and requires `parent`), `template`,
 `context_key`, `published`, `tv_name`/`tv_value` (match an explicit template-variable value), `q`
 (pagetitle/alias/description match), `limit` (1..100, default 25), `offset`, `sort`, `dir`. Returns a paginated
 summary projection (id/parent/pagetitle/alias/template/context/timestamps/state, without `content` or TVs) plus
-`count`, `total`, `limit` and `offset`. Invalid filter values return `invalid_filter` in the tool result payload.
+`count`, `total`, `limit` and `offset`. Invalid filter values return `invalid_filter` in the tool result payload;
+a deep `depth` whose subtree exceeds the descendant budget returns `too_many_descendants`.
 
 Required scope: `resource:read`. The same operation backs `GET /api/ai/v2/resources`.
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'namespace' => 'aibridge',
-    'version' => '0.10.0',
+    'version' => '0.11.0',
     'api_version' => 'v2',
     'environment' => 'development',
     'rest_enabled' => false,
@@ -22,4 +22,5 @@ return [
     'blocked_operations' => ['settings.write'],
     'idempotency_ttl_seconds' => 86400,
     'security_fail_closed' => true,
+    'redacted_tvs' => [],
 ];

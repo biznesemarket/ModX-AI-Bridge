@@ -8,7 +8,7 @@ use MODX\Revolution\modX;
 
 final class ConfigFactory
 {
-    private const JSON_KEYS = ['ip_allowlist', 'blocked_operations'];
+    private const JSON_KEYS = ['ip_allowlist', 'blocked_operations', 'redacted_tvs'];
 
     public static function fromModx(modX $modx): BridgeConfig
     {

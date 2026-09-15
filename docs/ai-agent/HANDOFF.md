@@ -540,6 +540,10 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   `job_timeout` (job = failed, не completed). Не «завершать» ключ на транзиентном таймауте
   (Iteration 65; регрессы `testDeadlineAbortReleasesIdempotencyKeyForRetry`,
   `testHandlerFailsFastWhenDeadlineBudgetIsSpent`, `testAbandonedInProgressKeyCanBeReusedButCompletedKeyCannot`).
+  CLI-worker по умолчанию супервизит job в дочернем процессе (`Worker::runOnceSupervised`, id через env
+  `AIBRIDGE_EXEC_JOB`), киллит по `timeout_seconds` SIGKILL, помечает terminal `job_timeout` + abandon
+  ключа, stderr ребёнка redacted идёт в audit; `--inline` возвращает однопроцессный режим, child без
+  терминального статуса → retryable `job_failed` (Iteration 66; `WorkerSupervisionTest`).
 - Idempotency/rate-limit: уникальные индексы начинаются с `profile_id`
   (`profile_id,idempotency_key,principal_id,operation` и `profile_id,bucket_key,window_start`); менять только
   вместе с моделью (`scripts/generate-schema.php`), `001_initial.sql` и новой миграцией. Апгрейд — `003`
@@ -559,10 +563,11 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   для аутентифицированного менеджера с `aibridge_manage`; token-путь — REST `POST /api/ai/v2/mcp`.
   `McpServer::callTool()` форвардит `approval_id`/`change_id` в pipeline (Iteration 63).
 - Read-back: `GET /resources/{id}` требует scope `resource:read`; проекция включает карту `tvs` (TV, привязанные
-  к шаблону ресурса; scalar → `string|null`, структурированные → JSON-строка). Те же данные отдаёт MCP
+  к шаблону ресурса; scalar → `string|null`, структурированные → JSON-строка; имена из `aibridge_redacted_tvs`
+  в карту не попадают). Те же данные отдаёт MCP
   `resource_read`. `GET /resources` (операция `resource.list`, тот же scope) — список с фильтрами
-  (`parent` + опциональный `depth` 1..10: default 1 = прямые дети, требует `parent`, soft-deleted узел скрывает
-  всё своё поддерево; `template`, `context_key`, `published`, `tv_name`, `tv_value`, `q`, `limit` 1..100
+  (`parent` + опциональный `depth` 1..50: default 1 = прямые дети, требует `parent`, soft-deleted узел скрывает
+  всё своё поддерево; при числе потомков > 5000 → `400 too_many_descendants`; `template`, `context_key`, `published`, `tv_name`, `tv_value`, `q`, `limit` 1..100
   default 25, `offset`, `sort` (id, parent, pagetitle, alias, menuindex, editedon, createdon, publishedon),
   `dir`), summary-проекция без `content`/TV + `count/total/limit/offset`; невалидный фильтр →
   `400 invalid_filter`; `tv_name`/`tv_value` матчат только явные TV-значения (не `default_text`).
@@ -598,11 +603,12 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 - `scripts/ts-live-runtime.php` печатает токен в stdout — только test/dev, не логировать вывод; harness
   передаёт его в Node через окружение.
 - `0.1.0` (tag `v0.1.0`) не содержал настроек и не был воспроизводимым — исторический артефакт.
-- Read-back `tvs` отдаёт значения TV как есть (без redaction): это часть контента ресурса, но если в TV
-  хранятся секреты, они попадут авторизованному клиенту со scope `resource:read`.
+- Read-back `tvs` отдаёт значения TV как есть; если в TV хранятся секреты, их имена нужно перечислить в
+  `aibridge_redacted_tvs` (JSON-массив) — тогда значение не попадёт авторизованному клиенту со scope
+  `resource:read`.
 - Рекурсивный `parent`-фильтр (`depth > 1`) материализует id потомков послойными запросами; глубина
-  ограничена 10 (MODX-конвенция `getChildIds`), поэтому более глубокие деревья обходятся постранично по
-  уровням.
+  ограничена 50, а объём — 5000 id (`too_many_descendants`), поэтому очень большие поддеревья обходятся
+  запросами по уровням с `parent`.
 - ~~Латентный xPDO-баг~~ (закрыт в Iteration 58): `ResourceExplorerService::search/tree` и `RestApi::profiles`
   передавали options третьим аргументом `getCollection` (это cacheFlag), теряя limit/sort, а `search()`
   использовал плоские `OR:`-ключи → возвращал почти всё. Теперь `newQuery()`+`limit()`/`sortby()` и групповой
@@ -614,8 +620,10 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   failed jobs, а не изменения в коде.
 - Исторические записи не менять: `docs/release/0.1.0.md`, `docs/testing/iteration-38..41-*`,
   `docs/testing/iteration-39-stable-certification.md`.
-- Job-timeout остаётся кооперативным: одна длинная SQL-операция не прерывается, но job не переигрывается, а
-  мутация не стартует после исчерпания бюджета (Iteration 65).
+- Job-timeout: cooperative-проверки `JobDeadline` плюс hard-stop супервизора в CLI-worker (SIGKILL ребёнка,
+  соединение закрывается → откат транзакции). Узкое окно: если kill попадёт после commit, но до
+  терминального статуса, job будет помечен `job_timeout` при уже применённой мутации (ключ освобождается,
+  как и у любого timeout). Режим `--inline` остаётся полностью кооперативным (Iteration 66).
 - Миграция `003` (Iteration 65) — index-only, но перестраивает оба индекса по всем историческим строкам
   и берёт metadata lock; на большой нагруженной БД применять в maintenance window. Новые ключи — строгий
   superset старых, поэтому дубликатов быть не может и pre-check не нужен.
