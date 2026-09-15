@@ -1,25 +1,27 @@
-# Handoff — ModX AI Bridge (Stable `0.10.0`)
+# Handoff — ModX AI Bridge (Stable `0.11.0`)
 
-Дата: 2026-09-14
-Состояние: **STABLE `0.10.0`** (tag `v0.10.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
-`327591d` (релизная документация `0.10.0`) + этот handoff-коммит, дерево чистое.
+Дата: 2026-09-15
+Состояние: **STABLE `0.11.0`** (tag `v0.11.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
+`d766b3e` (certification `0.11.0`) + этот handoff-коммит, дерево чистое.
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `327591d` (синхронизирован с origin; релизные code-коммиты `0423714`/`327591d`), дерево чистое.
+- `main` = `d766b3e` (синхронизирован с origin; релизные code-коммиты `452f1db`/`d766b3e`), дерево чистое.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
   `v0.9.0` (`19b8b8e9…`), `v0.9.1` (`ed4f729f…`), `v0.9.2` (`e5514de…`), `v0.9.3` (`8455d52…`),
-  `v0.10.0` (`327591d…`). GitHub
-  Releases: `v0.10.0` (latest), `v0.9.3`, `v0.9.2`, `v0.9.1`, `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
+  `v0.10.0` (`327591d…`), `v0.11.0` (`d766b3e…`). GitHub
+  Releases: `v0.11.0` (latest), `v0.10.0`, `v0.9.3`, `v0.9.2`, `v0.9.1`, `v0.9.0`, `v0.8.0`, `v0.7.1`, `v0.7.0`, `v0.6.0`, `v0.5.0`, `v0.4.0`,
   `v0.3.0`, `v0.2.0`, `v0.1.3`, `v0.1.2`, `v0.1.1`, `v0.1.0` — все не prerelease.
 
 Ключевые коммиты (новые сверху):
 
 ```text
+d766b3e Iteration 66: Record Stable 0.11.0 certification   (tag v0.11.0)
+452f1db Iteration 66: Harden read-back privacy, deep-tree traversal and job timeouts; cut 0.11.0
 327591d Iteration 65: Record Stable 0.10.0 certification   (tag v0.10.0)
 0423714 Iteration 65: Close audit backlog and harden storage boundaries; cut 0.10.0
 ccb4dd0 Iteration 64: Update handoff for Stable 0.9.3
@@ -91,7 +93,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
 > `v0.1.1` указывает на `6780a0a`, `v0.1.2` — на `c8ac594`, `v0.1.3` — на `5fe3d14`, `v0.2.0` — на `ab125e4`,
 > `v0.3.0` — на `c6bc5ad`, `v0.4.0` — на `2c55b4c`, `v0.5.0` — на `b91a3ac`, `v0.6.0` — на `cb90ba0`,
 > `v0.7.0` — на `99bf150`, `v0.7.1` — на `81f1328`, `v0.8.0` — на `9ef0e22`, `v0.9.0` — на `144fcf4`,
-> `v0.9.1` — на `a504c3b`, `v0.9.2` — на `e5514de`, `v0.9.3` — на `8455d52`, `v0.10.0` — на `327591d`.
+> `v0.9.1` — на `a504c3b`, `v0.9.2` — на `e5514de`, `v0.9.3` — на `8455d52`, `v0.10.0` — на `327591d`,
+> `v0.11.0` — на `d766b3e`.
 > Исторические теги/релизы **не переписывать**.
 
 ## 2. Что сделано (Iterations 30–62)
@@ -316,10 +319,27 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   push-CI на `0423714` (`Quality Gates` `34809039290`, `MODX Integration` `34809039317`) и на `327591d`
   (`34809463758`/`34809475053`, `34809463757`/`34809475055`) — success. GitHub Release `v0.10.0` (3 ассета,
   latest). Evidence: `docs/testing/iteration-65-hardening-backlog.md`, `docs/release/0.10.0.md`.
+- **66 — `0.11.0`.** Minor-релиз 66: закрыты три остаточных hardening-пункта из §5 0.10.0.
+  Read-back privacy: новая настройка `aibridge_redacted_tvs` (JSON-массив имён TV) — перечисленные имена не
+  попадают в карту `tvs` проекции `GET /resources/{id}`, MCP `resource_read` и `modx://resource/{id}`
+  (`ResourceReadService::tvValues()`; менеджерский explorer не затронут), default `[]`.
+  Deep-tree: `LIST_DEPTH_MAX` 10 → 50, `LIST_DESCENDANT_MAX = 5000`, переполнение → `400
+  too_many_descendants`; MCP-схема берёт `maximum` из константы.
+  Hard-stop: CLI-worker супервизит job в дочернем процессе (env `AIBRIDGE_EXEC_JOB`, `proc_open`), по
+  бюджету `timeout_seconds` — SIGKILL, терминальный non-retryable `job_timeout`, abandon in-progress
+  idempotency-ключа, stderr ребёнка (≤4 KiB) redacted в audit; `--inline` возвращает кооперативный режим;
+  child без терминального статуса → retryable `job_failed`. Identity: `0.11.0` везде, SDK `User-Agent`
+  `0.10` → `0.11`, `clientInfo` → `0.11.0`. Гейты: dispatch `34973881413` (`452f1db`) и tag-run
+  `34975018278` (`d766b3e`) — success, оба sha256
+  `1f23f9fd62df99d26a0b923301dac17010aa25ee6b9f240774dda4096d9e0bb2` (148228 b),
+  `OK (190 tests, 1219 assertions)`, `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`;
+  push-CI на `452f1db` (`Quality Gates` `34973874041`, `MODX Integration` `34973873975`) — success.
+  GitHub Release `v0.11.0` (3 ассета, latest). Evidence:
+  `docs/testing/iteration-66-readback-privacy-deep-trees-supervised-worker.md`, `docs/release/0.11.0.md`.
 
 ## 3. Доказательства
 
-- Release/status: `docs/release/0.10.0.md`, `docs/release/0.9.3.md`, `docs/release/0.9.2.md`, `docs/release/0.9.1.md`,
+- Release/status: `docs/release/0.11.0.md`, `docs/release/0.10.0.md`, `docs/release/0.9.3.md`, `docs/release/0.9.2.md`, `docs/release/0.9.1.md`,
   `docs/release/0.9.0.md`,
   `docs/release/0.8.0.md`, `docs/release/0.7.1.md`, `docs/release/0.7.0.md`, `docs/release/0.6.0.md`,
   `docs/release/0.5.0.md`, `docs/release/0.4.0.md`, `docs/release/0.3.0.md`, `docs/release/0.2.0.md`,
@@ -335,7 +355,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-58-manager-xpdo-fixes.md`, `iteration-59-manager-coverage-site-filters.md`,
   `iteration-60-parent-depth-filter.md`, `iteration-61-manager-coverage.md`,
   `iteration-62-manager-processors.md`, `iteration-63-security-hardening.md`,
-  `iteration-64-mcp-approval-binding.md`, `iteration-65-hardening-backlog.md`.
+  `iteration-64-mcp-approval-binding.md`, `iteration-65-hardening-backlog.md`,
+  `iteration-66-readback-privacy-deep-trees-supervised-worker.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49;
   #8/#9 повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3; весь аудит-backlog 36–43 закрыт в 0.10.0 —
   открытых пунктов нет).
@@ -381,13 +402,19 @@ e5514de run 34779625520   (tag v0.9.2)
 8455d52 run 34782185628   (tag v0.9.3)
 0423714 run 34809046034   (0.10.0 dispatch)
 327591d run 34809475083   (tag v0.10.0)
+452f1db run 34973881413   (0.11.0 dispatch)
+d766b3e run 34975018278   (tag v0.11.0)
 ```
 
 CI на `0b97dcd` (`Quality Gates` 34745076673, `MODX Integration` 34745076672) и на `8326fda`
 (`Quality Gates` 34745267416: `tests 11 / pass 11 / fail 0`, `TYPESCRIPT SDK: PASS`;
 `MODX Integration` 34745267266) — success. Очередь CI пуста.
 
-Полные гейты `Release` 2026-09-14: `0423714` run `34809046034` (0.10.0 dispatch: live HTTP E2E PASS,
+Полные гейты `Release` 2026-09-15: `452f1db` run `34973881413` (0.11.0 dispatch: live HTTP E2E PASS,
+`PACKAGE REPRODUCIBILITY: PASS`, sha256 `1f23f9fd…`, `OK (190 tests, 1219 assertions)`, `SUPPLY CHAIN PINS:
+PASS`, `STABLE certification gates passed.`); tag `v0.11.0` (`d766b3e`) run `34975018278` — тот же sha256;
+push-CI на `452f1db` (`Quality Gates` 34973874041, `MODX Integration` 34973873975) — success. Ранее
+2026-09-14: `0423714` run `34809046034` (0.10.0 dispatch: live HTTP E2E PASS,
 `PACKAGE REPRODUCIBILITY: PASS`, sha256 `4ca7d0a8…`, `OK (186 tests, 1094 assertions)`, `STABLE certification
 gates passed.`); tag `v0.10.0` (`327591d`) run `34809475083` — тот же sha256; push-CI на `0423714`
 (`Quality Gates` 34809039290, `MODX Integration` 34809039317) и на `327591d` (`34809463758`/`34809475053`,
@@ -417,10 +444,12 @@ assertions)`); tag `v0.2.0` (`ab125e4`) run `34753425751`; `93fa4fd` run `347511
 sha256 `0d66d833…`); tag `v0.1.3` (`5fe3d14`) run `34751481747`; `98a592f` run `34747385780` (Iteration 47
 hardening, `SUPPLY CHAIN PINS: PASS`); `ad92ab5` run `34748277073` (0.1.2 dispatch → pre-release
 `b1b985bf…`); tag `v0.1.2` (`c8ac594`) run `34748489085` (sha256 `eedd5f64…`). Evidence-артефакты
-`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b,a808254,e5514de,5d2682e,8455d52,0423714,327591d}…`
+`release-evidence-{…,d49c044,9ef0e22,5d83170,144fcf4,330b78a,a504c3b,a808254,e5514de,5d2682e,8455d52,0423714,327591d,452f1db,d766b3e}…`
 (90 дней). Репозиторий: `sha_pinning_required=true`.
 
-Артефакты: `aibridge-0.10.0.transport.zip` sha256
+Артефакты: `aibridge-0.11.0.transport.zip` sha256
+`1f23f9fd62df99d26a0b923301dac17010aa25ee6b9f240774dda4096d9e0bb2` (148228 bytes; GitHub Release `v0.11.0`,
+digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.10.0.transport.zip` sha256
 `4ca7d0a8f2b7e97066833d6eedafb174c6e5c2772bef9bb8c97543acee4227bf` (144514 bytes; GitHub Release `v0.10.0`,
 digest ассета совпадает; локальная сборка == CI == tag-run). `aibridge-0.9.3.transport.zip` sha256
 `24f50ea9eb512cadee11e22c5112672a8b7b257d63cc85b41cb0fda5ba7f59e9` (148130 bytes; GitHub Release `v0.9.3`,
@@ -441,7 +470,9 @@ digest ассета совпадает; локальная сборка == CI ==
 `0d66d833…` (139631 bytes); `aibridge-0.1.2.transport.zip` sha256 `eedd5f64…`; `aibridge-0.1.1.transport.zip`
 sha256 `26ccdee1…`; `aibridge-0.1.0.transport.zip` sha256 `859c6599…` (историч.).
 
-Iteration 65 (локально, `0.10.0`): `unit,contract,security` 71, `sdk` 11, integration 104, TS runtime 14,
+Iteration 66 (локально, `0.11.0`): `unit,contract,security` 71, `sdk` 11, integration 108, TS runtime 14,
+live E2E 15, static contract PASS, reproducibility `1f23f9fd…`; полный CI-гейт `OK (190 tests, 1219
+assertions)`, TS live HTTP PASS, `SUPPLY CHAIN PINS: PASS`, миграций не требуется. Iteration 65 (локально, `0.10.0`): `unit,contract,security` 71, `sdk` 11, integration 104, TS runtime 14,
 static contract PASS, reproducibility `4ca7d0a8…`; полный CI-гейт `OK (186 tests, 1094 assertions)`, TS live
 HTTP PASS, `SUPPLY CHAIN PINS: PASS`, миграция `003` применена к существующей БД. Iteration 64 (локально, `0.9.3`): `unit,contract,security` 64, `sdk` 11, integration 95, static contract PASS,
 reproducibility `24f50ea9…`; полный CI-гейт `OK (170 tests, 1033 assertions)`, TS live HTTP PASS,
@@ -460,7 +491,7 @@ Windows-хост: Docker + Node.js + Git Bash, но **нет PHP/Composer**. П�
 workspace. После правок `core/`, `assets/`, `_build/` — пересобрать и переустановить:
 
 ```powershell
-docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.10.0.transport.zip'
+docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php _build/build.php >/dev/null && MODX_ROOT=/var/www/html php scripts/install-package.php /var/www/html/core/packages/aibridge-0.11.0.transport.zip'
 ```
 
 Полезные команды:
@@ -473,7 +504,7 @@ gh run watch <run-id> --exit-status
 # воспроизводимость пакета (2 сборки, сравнение sha256)
 docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/verify-package-reproducibility.php'
 
-# миграции (status/migrate); для 0.10.0 нужен 003 (index-only)
+# миграции (status/migrate); 0.11.0 без схемных изменений (003 нужен был для 0.10.0, index-only)
 docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/migrations/migrate.php status'
 docker compose exec -T modx bash -lc 'cd /workspace/modx-ai-bridge && MODX_ROOT=/var/www/html php scripts/migrations/migrate.php migrate'
 
@@ -592,9 +623,13 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 ## 5. Остаточные риски
 
 - Digest-пины образов и SHA-пины actions обновляются только через Dependabot-PR (`.github/dependabot.yml`,
-  раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE. Открытый PR #1
-  (`php:8.2-apache` → `php:8.5-apache`) осознанно отложен: MODX 3.2.2-pl сертифицирован только на PHP 8.2
-  (Iteration 62); возвращаться после валидации совместимости с PHP 8.5.
+  раз в неделю); без просмотра этих PR пины устаревают и накапливают известные CVE. PR #1
+  (`php:8.2-apache` → `php:8.5-apache`) закрыт 2026-09-15 как not applicable: одного bump'а недостаточно —
+  на PHP 8.5 `docker-php-ext-install dom` требует lexbor (пакета `liblexbor-dev` в Debian trixie нет, `dom`
+  уже встроен в `php:8.5-apache`). Локально исправленный список расширений
+  (`ftp gd intl mysqli pcntl pdo_mysql zip`) собирается и проходит полный гейт на PHP 8.5.10, но Stable
+  остаётся на сертифицированном PHP 8.2; возвращаться только осознанным изменением (Dockerfile + матрица).
+  Dependabot может переоткрыть PR — отклонять тем же обоснованием либо добавить ignore-правило.
 - `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
   невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
 - TS-тесты используют fake `fetch`; live-HTTP E2E (Iteration 49) закрывает этот пробел, но требует Node на
@@ -632,18 +667,19 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.10.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `327591d` — audit-backlog
-closure (Iteration 65). Обязательных гейтов нет; открытых пунктов known-defects нет.
+Stable `0.11.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `d766b3e` — read-back
+privacy, deep-tree budget и supervised worker (Iteration 66). Обязательных гейтов нет; открытых пунктов
+known-defects нет.
 
 Приоритетные кандидаты:
 
 1. **Новые наблюдения** (по мере появления): заводить в `known-defects.md` и закрывать тем же flow
    (bump identity → гейт → evidence → tag → tag-run → GitHub Release).
 2. **Read-back**: по мере запросов — фильтры/параметры для `modx://resource/{id}`-проекции (рекурсивный
-   `parent` и `parent` в `sort` закрыты в Iteration 60; без конкретного запроса не меняем).
+   `parent`/`depth` и redaction закрыты в 0.11.0; без конкретного запроса не меняем).
 3. **Менеджер/UI**: processor-покрытие `ResourcesProcessor`/`OverviewProcessor`/`ActionProcessor` закрыто в
    Iteration 62, list-проекции унифицированы в Iteration 65; при желании — Manager E2E сценарии поверх консоли.
-4. Опционально: Dependabot PR #1 (PHP 8.5) отложен (см. §5), следить за остальными digest/SHA-PR.
+4. Опционально: следить за остальными Dependabot digest/SHA-PR; PHP 8.5 PR #1 закрыт (см. §5).
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
@@ -658,7 +694,9 @@ processor-покрытие manager-процессоров + Dependabot-ревь�
 security hardening (publish-bypass, discovery determinism, MCP guard/publish) + аудит-backlog + релиз
 `0.9.2` (63), publish-approval binding (cross-profile/replay) + MCP channel + фиксы ревью + релиз `0.9.3` (64),
 аудит-backlog 36–43 (info disclosure, profile-scoped индексы + миграция 003, лимит Idempotency-Key,
-терминальные таймауты, scoped cache, проекции, удаление мёртвого кода) + релиз `0.10.0` (65).
+терминальные таймауты, scoped cache, проекции, удаление мёртвого кода) + релиз `0.10.0` (65),
+read-back redaction (`aibridge_redacted_tvs`) + `depth` до 50 с бюджетом потомков + supervised worker
+(SIGKILL по бюджету, terminal `job_timeout`, abandon ключа) + релиз `0.11.0` (66).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).
