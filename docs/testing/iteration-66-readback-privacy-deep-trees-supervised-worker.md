@@ -69,8 +69,12 @@ into a redaction list or requests `depth > 10`.
   `Signature: aibridge-0.11.0`), `docker compose restart modx`, `/health` reports `0.11.0`.
 - `sdk/typescript` runtime 14/14 after `npm run build`; `scripts/ts-live-check.sh` —
   `TYPESCRIPT SDK LIVE HTTP: PASS` (15/15, health and MCP `serverInfo` report `0.11.0`).
-- CI certification: pending dispatch on `main` (run id and artifact evidence recorded in
-  `docs/release/0.11.0.md` after the CI run).
+- CI certification: dispatch `34973881413` (`main`, `452f1db`) — `verify` PASS (incl.
+  `SUPPLY CHAIN PINS: PASS`), `certify` PASS, `package` PASS; `OK (190 tests, 1219 assertions)`,
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS` with the same sha256
+  `1f23f9fd…`, `STABLE certification gates passed.` Push-CI on `452f1db`: `Quality Gates` `34973874041`,
+  `MODX Integration` `34973873975` — success. Evidence artifact
+  `release-evidence-452f1db38f11d11eac02bf732195588b4a6fdace` (90 days).
 
 ## 4. Risks / notes
 

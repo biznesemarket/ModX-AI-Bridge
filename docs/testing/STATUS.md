@@ -1,6 +1,6 @@
 # Testing Status — Iterations 21–61
 
-**Status: PENDING CERTIFICATION — target `0.11.0` (`v0.11.0`), superseding `0.10.0`, `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; local pre-certification gates PASS, CI dispatch pending**
+**Status: STABLE — `0.11.0` (`v0.11.0`), superseding `0.10.0`, `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
 Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and certified with a single
 `AIBRIDGE_RUNTIME=1 bash scripts/certification/stable-gate.sh` run on GitHub Actions `ubuntu-latest`
@@ -187,6 +187,18 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `OK (186 tests, 1094 assertions)`, `STABLE certification gates passed.`); push-CI `Quality Gates`
   `34809039290` and `MODX Integration` `34809039317` — success. Evidence:
   `docs/testing/iteration-65-hardening-backlog.md`, `docs/release/0.10.0.md`
+- Iteration 66 — `0.11.0` read-back privacy, deep-tree budget and supervised worker: new
+  `aibridge_redacted_tvs` setting omits secret TV values from the read-back projection (REST, MCP
+  `resource_read`, `modx://resource/{id}`); the recursive `parent` filter accepts `depth` up to 50 with a
+  5000-id descendant budget (`400 too_many_descendants`); the CLI worker supervises each claimed job in a
+  child process, SIGKILLs it at the time budget, records a terminal non-retryable `job_timeout`, releases
+  the in-progress idempotency key and keeps the redacted child stderr in the audit diagnostic (`--inline`
+  restores the cooperative single-process mode). New `WorkerSupervisionTest`, redacted-TV and deep-tree
+  REST cases, SDK identity `0.11`. Gate green on `452f1db` (run `34973881413`; `SUPPLY CHAIN PINS: PASS`,
+  `TYPESCRIPT SDK LIVE HTTP: PASS`, `PACKAGE REPRODUCIBILITY: PASS`, sha256 `1f23f9fd…`,
+  `OK (190 tests, 1219 assertions)`, `STABLE certification gates passed.`); push-CI `Quality Gates`
+  `34973874041` and `MODX Integration` `34973873975` — success. Evidence:
+  `docs/testing/iteration-66-readback-privacy-deep-trees-supervised-worker.md`, `docs/release/0.11.0.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
