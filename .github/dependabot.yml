@@ -7,11 +7,11 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
 
-  - package-ecosystem: docker
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+  # The `docker` entries for `/` and `/deploy/docker` were removed: those
+  # directories contain only compose files, which this ecosystem does not parse
+  # ("No Dockerfiles nor Kubernetes YAML found"), so each produced a failing
+  # Dependabot run every week. Compose image digests (`mysql:8.0`) are therefore
+  # maintained manually.
 
   - package-ecosystem: docker
     directory: /docker/modx
@@ -25,9 +25,3 @@ updates:
     ignore:
       - dependency-name: php
         versions: [">=8.5"]
-
-  - package-ecosystem: docker
-    directory: /deploy/docker
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5

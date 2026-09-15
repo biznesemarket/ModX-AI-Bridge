@@ -49,6 +49,12 @@ Dockerfile extension-list rewrite (`lexbor`/`dom`) and a full re-certification (
 within 8.2.x are still proposed; the ignore rule removes the recurring PR noise instead of relying on manually
 closing it each week.
 
+Reviewing the scheduled Dependabot runs also exposed **known defect #47**: the Docker ecosystems for `/` and
+`/deploy/docker` point at directories that contain only compose files, which this ecosystem does not parse
+(`No Dockerfiles nor Kubernetes YAML found in /…`), so both runs failed every week (confirmed for 2026-09-13
+and 2026-09-15). Both dead entries were removed; compose image digests (`mysql:8.0` in `docker-compose.yml`
+and `deploy/docker/docker-compose.production.yml`) are now explicitly maintained manually.
+
 ## Evidence
 
 Local run against the Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0):
@@ -65,9 +71,14 @@ composer test -- --testsuite sdk                                      OK (11 tes
 ```
 
 Not run (tests/config only, no package change): `scripts/verify-package-reproducibility.php`, TS runtime
-tests, `scripts/ts-live-check.sh`, the CI `Release` gate. `.github/dependabot.yml` was reviewed manually
-(no local YAML linter is available on this host); the block mirrors the existing update entries and the
-GitHub-side dependabot run validates it.
+tests, `scripts/ts-live-check.sh`, the CI `Release` gate.
+
+Dependabot config was additionally verified by the scheduled Dependabot run on the pushed commit: the
+`docker in /docker/modx` run `35004589934` succeeded and its job definition contains the parsed rule
+(`"ignore-conditions":[{"dependency-name":"php","version-requirement":">=8.5",…}]`), so the YAML is valid
+without a local linter. The same batch showed defect #47: `docker in /.` `35004589629` and
+`docker in /deploy/docker` `35004589336` failed with `No Dockerfiles nor Kubernetes YAML found`, matching the
+same-day run of 2026-09-13; those two dead entries were removed.
 
 ## Compatibility and security
 
@@ -81,5 +92,14 @@ GitHub-side dependabot run validates it.
 
 ## Status
 
-PASS (local deterministic + integration). Changes are not committed yet; commit/push requires an explicit
-command.
+PASS. Committed as `24d85ee` ("Iteration 67: Cover manager console E2E and guard PHP 8.5 bumps") and pushed to
+`main`; push-CI `Quality Gates` `35004585705` and `MODX Integration` `35004585805` — success. The follow-up
+`.github/dependabot.yml` cleanup for defect #47 is prepared but not committed yet.
+
+## CI evidence for `24d85ee`
+
+```text
+Quality Gates       35004585705  push  main  success
+MODX Integration    35004585805  push  main  success
+Dependabot run      docker in /docker/modx  35004589934  success (php >= 8.5 ignore rule parsed)
+```
