@@ -2,18 +2,17 @@
 
 Дата: 2026-09-15
 Состояние: **STABLE `0.11.0`** (tag `v0.11.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
-`main` = `24d85ee` (Iteration 67: Manager E2E + Dependabot ignore-правило) поверх `a3b87e4`; запушен, push-CI
-зелёный. В рабочем дереве остаётся незакоммиченный follow-up Iteration 67 по `.github/dependabot.yml`
-(defect #47, см. §6).
+`e6da391` (Iteration 67: Manager E2E + Dependabot ignore-правило + чистка мёртвых docker-entries, defect #47)
+поверх `a3b87e4`; запушен, push-CI зелёный, дерево чистое (единственное untracked — `.kilo/`, локальный
+конфиг инструмента).
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `24d85ee` (Iteration 67; релизные code-коммиты `452f1db`/`d766b3e`, handoff-коммит `a3b87e4`),
-  синхронизирован с origin, push-CI `Quality Gates` `35004585705` / `MODX Integration` `35004585805` —
-  success. В рабочем дереве — незакоммиченный follow-up по `.github/dependabot.yml` (defect #47); коммит/пуш
-  по явной команде.
+- `main` = `e6da391` (Iteration 67; релизные code-коммиты `452f1db`/`d766b3e`, handoff-коммит `a3b87e4`),
+  синхронизирован с origin, дерево чистое (кроме untracked `.kilo/`). Push-CI Iteration 67: `Quality Gates`
+  `35004585705`/`35006124512`, `MODX Integration` `35004585805`/`35006124546` — success.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
@@ -698,15 +697,14 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.11.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `24d85ee` — read-back
-privacy, deep-tree budget и supervised worker (Iteration 66), Manager E2E поверх Operations Console и
-Dependabot ignore-правило `php >= 8.5` (Iteration 67). Обязательных гейтов нет; открытых пунктов
-known-defects нет.
+Stable `0.11.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `e6da391` — read-back
+privacy, deep-tree budget и supervised worker (Iteration 66), Manager E2E поверх Operations Console,
+Dependabot ignore-правило `php >= 8.5` и чистка мёртвых docker-entries (Iteration 67). Обязательных гейтов
+нет; открытых пунктов known-defects нет.
 
-Iteration 67 (tests/CI-config only, без релиза) закрыла пункты 3 и 4 списка ниже; коммит `24d85ee` запушен,
-push-CI зелёный. Не закоммичен только follow-up по `.github/dependabot.yml`: удаление мёртвых docker-entries
-`/` и `/deploy/docker` (defect #47). После его коммита — обычный flow, но без bump identity/релиза (пакет не
-менялся).
+Iteration 67 (tests/CI-config only, без релиза) закрыла пункты 3 и 4 списка ниже: коммиты `24d85ee`
+(Manager E2E + ignore-правило) и `e6da391` (defect #47) запушены, push-CI зелёный, дерево чистое. Релиз не
+требуется (пакет не менялся), bump identity не делался.
 
 Приоритетные кандидаты:
 
