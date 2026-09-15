@@ -1,4 +1,4 @@
-# Testing Status — Iterations 21–61
+# Testing Status — Iterations 21–67
 
 **Status: STABLE — `0.11.0` (`v0.11.0`), superseding `0.10.0`, `0.9.3`, `0.9.2`, `0.9.1`, `0.9.0`, `0.8.0`, `0.7.1`, `0.7.0`, `0.6.0`, `0.5.0`, `0.4.0`, `0.3.0`, `0.2.0`, `0.1.3`, `0.1.2`, `0.1.1` and `0.1.0`; all gates PASS on the CI runner**
 
@@ -199,6 +199,13 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `OK (190 tests, 1219 assertions)`, `STABLE certification gates passed.`); push-CI `Quality Gates`
   `34973874041` and `MODX Integration` `34973873975` — success. Evidence:
   `docs/testing/iteration-66-readback-privacy-deep-trees-supervised-worker.md`, `docs/release/0.11.0.md`
+- Iteration 67 — Manager E2E over the Operations Console (no release): new `ManagerConsoleE2ETest` drives
+  `ResourceOperationProcessor`/`WorkflowProcessor` through the real queue/execution layer and asserts the
+  `OperationsConsoleService` read models (change/job/audit projections) plus the approval-gated publish
+  path, preview sync behavior and fail-closed validation/guards. `.github/dependabot.yml` now ignores
+  `php >= 8.5` for `/docker/modx` (certified runtime is PHP 8.2; HANDOFF §5). Tests/config only, so the
+  transport package is unchanged and Stable stays `0.11.0`. Evidence:
+  `docs/testing/iteration-67-manager-console-e2e.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
 packaging fixed, provisioning deterministic, and the
