@@ -10,7 +10,8 @@ and no version bump, tag or GitHub Release was made. Stable stays `0.11.0`.
 2. **Read-back** (`modx://resource/{id}`): no concrete request, so nothing changed (redaction and depth were
    already closed in 0.11.0).
 3. **Manager E2E over the Operations Console**: implemented as a new integration test.
-4. **Dependabot**: PHP 8.5 is now refused by policy in `.github/dependabot.yml`, not only by closing PR #1.
+4. **Dependabot**: uncertified PHP versions (8.3+) are refused by policy in `.github/dependabot.yml`, not only
+   by closing PRs #1/#2; the dead `/` and `/deploy/docker` entries were removed.
 
 ## Design
 
@@ -95,14 +96,17 @@ same-day run of 2026-09-13; those two dead entries were removed.
 
 ## Status
 
-PASS. Committed as `24d85ee` ("Iteration 67: Cover manager console E2E and guard PHP 8.5 bumps") and pushed to
-`main`; push-CI `Quality Gates` `35004585705` and `MODX Integration` `35004585805` — success. The follow-up
-`.github/dependabot.yml` cleanup for defect #47 is prepared but not committed yet.
+PASS. Committed and pushed in three steps: `24d85ee` (Manager E2E + first ignore rule), `e6da391`
+(defect #47: dead docker entries removed) and `c5ab97b` (defect #48: ignore widened to `>=8.3`); tree clean.
+All push-CI runs are green. PR #3 (digest-only update of the certified `php:8.2-apache` tag) is the expected
+Dependabot output after the widening and is left open for review.
 
-## CI evidence for `24d85ee`
+## CI evidence
 
 ```text
-Quality Gates       35004585705  push  main  success
-MODX Integration    35004585805  push  main  success
-Dependabot run      docker in /docker/modx  35004589934  success (first ignore rule, >=8.5, parsed)
+Quality Gates       35004585705 / 35006124512 / 35006630027 / 35182723482  push  main  success
+MODX Integration    35004585805 / 35006124546 / 35006630100 / 35182723483  push  main  success
+Dependabot run      docker in /docker/modx  35004589934  success  (first rule, >=8.5, parsed)
+Dependabot run      docker in /docker/modx  35182726184  success  (widened rule, >=8.3, parsed)
+Dependabot PR #3    php:8.2-apache digest-only  0970c7c -> f64f4ee  open (expected, same tag)
 ```

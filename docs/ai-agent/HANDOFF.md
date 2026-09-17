@@ -2,17 +2,20 @@
 
 Дата: 2026-09-15
 Состояние: **STABLE `0.11.0`** (tag `v0.11.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
-`25c472b` + этот follow-up-коммит Iteration 67 (Dependabot: ignore `php >= 8.3`, PR #2 закрыт, defect #48);
-запушен, push-CI зелёный, дерево чистое (единственное untracked — `.kilo/`, локальный конфиг инструмента).
+`c5ab97b` + этот docs-коммит Iteration 67 (Dependabot: ignore `php >= 8.3`, PR #1/#2 закрыты, defect
+#47/#48); запушен, push-CI зелёный, дерево чистое (единственное untracked — `.kilo/`, локальный конфиг
+инструмента).
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `25c472b` + этот follow-up-коммит Iteration 67 (релизные code-коммиты `452f1db`/`d766b3e`,
+- `main` = `c5ab97b` + этот docs-коммит Iteration 67 (релизные code-коммиты `452f1db`/`d766b3e`,
   handoff-коммит `a3b87e4`), синхронизирован с origin, дерево чистое (кроме untracked `.kilo/`). Push-CI
-  Iteration 67: `Quality Gates` `35004585705`/`35006124512`/`35006630027`, `MODX Integration`
-  `35004585805`/`35006124546`/`35006630100` — success.
+  Iteration 67: `Quality Gates` `35004585705`/`35006124512`/`35006630027`/`35182723482`, `MODX Integration`
+  `35004585805`/`35006124546`/`35006630100`/`35182723483` — success. Открыт Dependabot PR #3 (digest-only
+  `php:8.2-apache` `0970c7c…` → `f64f4ee…`, тот же сертифицированный тег) — ожидаемый результат правила
+  `>=8.3`, на ревью (см. §6).
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
@@ -662,7 +665,9 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   более новому PHP — только осознанным изменением (Dockerfile + матрица + пересборка evidence). Тогда же
   удалены мёртвые docker-entries для `/` и `/deploy/docker` (Dependabot не парсит compose-файлы → два падающих
   рана в неделю, defect #47 в `known-defects.md`); digest-пины compose (`mysql:8.0` в `docker-compose.yml` и
-  `deploy/docker/docker-compose.production.yml`) обновляются **вручную**.
+  `deploy/docker/docker-compose.production.yml`) обновляются **вручную**. PR #3 (`php:8.2-apache`,
+  digest `0970c7c…` → `f64f4ee…`) — ожидаемый digest-апдейт внутри сертифицированного тега; ревью/мерж по
+  обычному flow (CI на PR + при необходимости локальный rebuild/health), это не смена runtime.
 - `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
   невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
 - TS-тесты используют fake `fetch`; live-HTTP E2E (Iteration 49) закрывает этот пробел, но требует Node на
@@ -718,8 +723,9 @@ Iteration 67 (tests/CI-config only, без релиза) закрыла пунк
    end-to-end через очередь и сверены с проекциями Operations Console (Iteration 62 — processor-покрытие,
    Iteration 65 — унификация list-проекций). Дальше — только по конкретному наблюдению.
 4. Опционально: следить за остальными Dependabot digest/SHA-PR. Новые PHP-версии больше не предлагаются
-   (ignore-правило `>=8.3`; PR #1/#2 закрыты, defect #47/#48), digest-обновления 8.2.x продолжают приходить;
-   digest-пины compose (`mysql:8.0`) — вручную (см. §5).
+   (ignore-правило `>=8.3`; PR #1/#2 закрыты, defect #47/#48), digest-обновления 8.2.x продолжают приходить:
+   открыт PR #3 (digest `php:8.2-apache`, тот же тег) — на ревью; digest-пины compose (`mysql:8.0`) — вручную
+   (см. §5).
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),

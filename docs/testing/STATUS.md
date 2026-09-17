@@ -207,8 +207,10 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `/deploy/docker` Docker entries were removed (defect #47: compose files are not parsed, two failing
   Dependabot runs per week). The first rule (`>=8.5`) was too narrow — Dependabot proposed `php:8.4-apache`
   (PR #2, defect #48), so the range was widened and PR #2 closed. Push-CI `Quality Gates` `35004585705` /
-  `35006124512` and `MODX Integration` `35004585805` / `35006124546` — success. Tests/config only, so the
-  transport package is unchanged and Stable stays `0.11.0`. Evidence:
+  `35006124512` / `35006630027` / `35182723482` and `MODX Integration` `35004585805` / `35006124546` /
+  `35006630100` / `35182723483` — success. Dependabot now proposes only digest updates within the certified
+  `php:8.2-apache` tag (PR #3, on review). Tests/config only, so the transport package is unchanged and Stable
+  stays `0.11.0`. Evidence:
   `docs/testing/iteration-67-manager-console-e2e.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings
