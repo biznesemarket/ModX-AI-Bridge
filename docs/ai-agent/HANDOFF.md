@@ -2,17 +2,17 @@
 
 Дата: 2026-09-15
 Состояние: **STABLE `0.11.0`** (tag `v0.11.0`, GitHub Release опубликован с 3 ассетами, latest). `main` =
-`e6da391` (Iteration 67: Manager E2E + Dependabot ignore-правило + чистка мёртвых docker-entries, defect #47)
-поверх `a3b87e4`; запушен, push-CI зелёный, дерево чистое (единственное untracked — `.kilo/`, локальный
-конфиг инструмента).
+`25c472b` + этот follow-up-коммит Iteration 67 (Dependabot: ignore `php >= 8.3`, PR #2 закрыт, defect #48);
+запушен, push-CI зелёный, дерево чистое (единственное untracked — `.kilo/`, локальный конфиг инструмента).
 
 ## 1. Репозиторий
 
 - Локально: `E:\projects\ModX AI Bridge` (Windows, Docker Desktop, Node.js 24, Git Bash).
 - Remote: `https://github.com/biznesemarket/ModX-AI-Bridge`, branch `main`.
-- `main` = `e6da391` (Iteration 67; релизные code-коммиты `452f1db`/`d766b3e`, handoff-коммит `a3b87e4`),
-  синхронизирован с origin, дерево чистое (кроме untracked `.kilo/`). Push-CI Iteration 67: `Quality Gates`
-  `35004585705`/`35006124512`, `MODX Integration` `35004585805`/`35006124546` — success.
+- `main` = `25c472b` + этот follow-up-коммит Iteration 67 (релизные code-коммиты `452f1db`/`d766b3e`,
+  handoff-коммит `a3b87e4`), синхронизирован с origin, дерево чистое (кроме untracked `.kilo/`). Push-CI
+  Iteration 67: `Quality Gates` `35004585705`/`35006124512`/`35006630027`, `MODX Integration`
+  `35004585805`/`35006124546`/`35006630100` — success.
 - Теги: `v0.1.0` (`d132c257…`), `v0.1.1` (`2f07e3d6…`), `v0.1.2` (`5695a928…`), `v0.1.3` (`9d3312a8…`),
   `v0.2.0` (`1a8dfa10…`), `v0.3.0` (`4de95181…`), `v0.4.0` (`0e70bd4d…`), `v0.5.0` (`a16fa8e6…`),
   `v0.6.0` (`c7646622…`), `v0.7.0` (`78d76bc3…`), `v0.7.1` (`c7c2d703…`), `v0.8.0` (`19ce5721…`),
@@ -351,9 +351,10 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   неопубликованным, после `approve_decision` → `approve` → `execute` job завершается и консоль показывает
   `completed`/`approved`; preview (`sync=1`) синхронный и без очереди; guard'ы `profile_required`/
   `profile_not_found`/`operation_not_allowed` и `manager_auth_required`/`manager_permission_required` для
-  обоих процессоров. **Dependabot**: `.github/dependabot.yml` игнорирует `php >= 8.5` в `/docker/modx`
+  обоих процессоров. **Dependabot**: `.github/dependabot.yml` игнорирует `php >= 8.3` в `/docker/modx`
   (сертифицированный runtime — PHP 8.2; digest-обновления 8.2.x продолжают приходить); мёртвые docker-entries
-  для `/` и `/deploy/docker` удалены (defect #47). Изменений в
+  для `/` и `/deploy/docker` удалены (defect #47), PR #2 (`php:8.4-apache`) закрыт — первоначальное правило
+  `>=8.5` пропускало 8.4 (defect #48). Изменений в
   `core/`/`assets/` нет → transport-пакет не менялся, версия/тег/релиз не выпускались, Stable остаётся
   `0.11.0`. Локально: `phpunit --testsuite integration` 113/11026, `unit,contract,security` 71/226,
   `sdk` 11/52, `static-contract` PASS. Evidence:
@@ -382,7 +383,8 @@ db949b5 Iteration 44: Fix system settings packaging and cut 0.1.1
   `iteration-67-manager-console-e2e.md`.
 - Дефекты: `docs/ai-agent/baseline/known-defects.md` (#34 закрыт в 0.1.1, #35 закрыт в Iteration 49;
   #8/#9 повторно закрыты в 0.9.2; #44–46 закрыты в 0.9.3; весь аудит-backlog 36–43 закрыт в 0.10.0;
-  #47 (мёртвые docker-entries Dependabot) закрыт в Iteration 67 — открытых пунктов нет).
+  #47 (мёртвые docker-entries Dependabot) и #48 (слишком узкое ignore-правило `>=8.5`) закрыты в
+  Iteration 67 — открытых пунктов нет).
 - Пакет/сборка: `docs/development/transport-package.md`, `docs/testing/ci-gates.md`.
 
 Сертификационные прогоны (`STABLE certification gates passed.`):
@@ -654,11 +656,12 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
   уже встроен в `php:8.5-apache`). Локально исправленный список расширений
   (`ftp gd intl mysqli pcntl pdo_mysql zip`) собирается и проходит полный гейт на PHP 8.5.10, но Stable
   остаётся на сертифицированном PHP 8.2; возвращаться только осознанным изменением (Dockerfile + матрица).
-  В Iteration 67 в `.github/dependabot.yml` добавлено ignore-правило `php >= 8.5` для `/docker/modx`, чтобы
-  PR не переоткрывался; digest-обновления 8.2.x продолжают предлагаться. Возврат к PHP 8.5 — только
-  осознанным изменением (Dockerfile + матрица + пересборка evidence). Тогда же удалены мёртвые docker-entries
-  для `/` и `/deploy/docker` (Dependabot не парсит compose-файлы → два падающих рана в неделю, defect #47 в
-  `known-defects.md`); digest-пины compose (`mysql:8.0` в `docker-compose.yml` и
+  В Iteration 67 в `.github/dependabot.yml` добавлено ignore-правило для `/docker/modx`, чтобы PR не
+  переоткрывался; правило должно оставаться **`>=8.3`** (диапазон `>=8.5` оказался слишком узким — Dependabot
+  предложил `php:8.4-apache`, PR #2, defect #48), digest-обновления 8.2.x продолжают предлагаться. Возврат к
+  более новому PHP — только осознанным изменением (Dockerfile + матрица + пересборка evidence). Тогда же
+  удалены мёртвые docker-entries для `/` и `/deploy/docker` (Dependabot не парсит compose-файлы → два падающих
+  рана в неделю, defect #47 в `known-defects.md`); digest-пины compose (`mysql:8.0` в `docker-compose.yml` и
   `deploy/docker/docker-compose.production.yml`) обновляются **вручную**.
 - `sha_pinning_required=true`: любой новый `uses:` без полного 40-символьного SHA делает workflow
   невалидным — обходить через отключение настройки не следует, нужно закреплять по SHA.
@@ -697,14 +700,13 @@ docker compose exec -T modx bash -lc 'mysql -h db -umodx -pmodx --skip-ssl modx 
 
 ## 6. Что делать дальше
 
-Stable `0.11.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` = `e6da391` — read-back
-privacy, deep-tree budget и supervised worker (Iteration 66), Manager E2E поверх Operations Console,
-Dependabot ignore-правило `php >= 8.5` и чистка мёртвых docker-entries (Iteration 67). Обязательных гейтов
-нет; открытых пунктов known-defects нет.
+Stable `0.11.0` выпущен и опубликован (GitHub Release, 3 ассета, latest); `main` (см. §1) доводит Iteration 66
+(read-back privacy, deep-tree budget, supervised worker) и Iteration 67 (Manager E2E поверх Operations Console,
+Dependabot ignore-правило `php >= 8.3`, чистка мёртвых docker-entries). Обязательных гейтов нет; открытых
+пунктов known-defects нет.
 
-Iteration 67 (tests/CI-config only, без релиза) закрыла пункты 3 и 4 списка ниже: коммиты `24d85ee`
-(Manager E2E + ignore-правило) и `e6da391` (defect #47) запушены, push-CI зелёный, дерево чистое. Релиз не
-требуется (пакет не менялся), bump identity не делался.
+Iteration 67 (tests/CI-config only, без релиза) закрыла пункты 3 и 4 списка ниже; коммиты запушены, push-CI
+зелёный. Релиз не требуется (пакет не менялся), bump identity не делался.
 
 Приоритетные кандидаты:
 
@@ -715,9 +717,9 @@ Iteration 67 (tests/CI-config only, без релиза) закрыла пунк
 3. **Менеджер/UI**: закрыто в Iteration 67 — `ResourceOperationProcessor`/`WorkflowProcessor` прогнаны
    end-to-end через очередь и сверены с проекциями Operations Console (Iteration 62 — processor-покрытие,
    Iteration 65 — унификация list-проекций). Дальше — только по конкретному наблюдению.
-4. Опционально: следить за остальными Dependabot digest/SHA-PR. PHP 8.5 больше не переоткрывается
-   (ignore-правило), мёртвые entries удалены (defect #47); digest-пины compose (`mysql:8.0`) — вручную
-   (см. §5).
+4. Опционально: следить за остальными Dependabot digest/SHA-PR. Новые PHP-версии больше не предлагаются
+   (ignore-правило `>=8.3`; PR #1/#2 закрыты, defect #47/#48), digest-обновления 8.2.x продолжают приходить;
+   digest-пины compose (`mysql:8.0`) — вручную (см. §5).
 
 Выполнено: supply-chain pinning + `sha_pinning_required` (47), релиз `0.1.2` (48), TS live-HTTP E2E +
 Defect #35 (49), релиз `0.1.3` (50), read-back API + `aibridge_version` (51), релиз `0.2.0` (52),
@@ -735,8 +737,8 @@ security hardening (publish-bypass, discovery determinism, MCP guard/publish) + 
 терминальные таймауты, scoped cache, проекции, удаление мёртвого кода) + релиз `0.10.0` (65),
 read-back redaction (`aibridge_redacted_tvs`) + `depth` до 50 с бюджетом потомков + supervised worker
 (SIGKILL по бюджету, terminal `job_timeout`, abandon ключа) + релиз `0.11.0` (66),
-Manager E2E поверх Operations Console + Dependabot ignore-правило `php >= 8.5` + удаление мёртвых docker
-entries (defect #47) (67, без релиза).
+Manager E2E поверх Operations Console + Dependabot ignore-правило `php >= 8.3` (PR #1/#2 закрыты), удаление
+мёртвых docker entries (defect #47) и расширение ignore-правила (defect #48) (67, без релиза).
 
 Рабочий цикл: `READ → MAP → PLAN → CHANGE → LINT → TEST → REVIEW → REPORT`; после кодинга —
 `DIFF → SYNTAX → UNIT/CONTRACT → RUNTIME IF AVAILABLE → SECURITY REVIEW → CHANGELOG` (см. `AGENTS.md` §3, §7).

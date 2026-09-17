@@ -203,10 +203,12 @@ Verified against a real Docker stack (MODX 3.2.2-pl, PHP 8.2.33, MySQL 8.0) and 
   `ResourceOperationProcessor`/`WorkflowProcessor` through the real queue/execution layer and asserts the
   `OperationsConsoleService` read models (change/job/audit projections) plus the approval-gated publish
   path, preview sync behavior and fail-closed validation/guards. `.github/dependabot.yml` now ignores
-  `php >= 8.5` for `/docker/modx` (certified runtime is PHP 8.2; HANDOFF §5) and the dead `/` and
+  `php >= 8.3` for `/docker/modx` (certified runtime is PHP 8.2; HANDOFF §5) and the dead `/` and
   `/deploy/docker` Docker entries were removed (defect #47: compose files are not parsed, two failing
-  Dependabot runs per week). Push-CI `Quality Gates` `35004585705` and `MODX Integration` `35004585805` —
-  success. Tests/config only, so the transport package is unchanged and Stable stays `0.11.0`. Evidence:
+  Dependabot runs per week). The first rule (`>=8.5`) was too narrow — Dependabot proposed `php:8.4-apache`
+  (PR #2, defect #48), so the range was widened and PR #2 closed. Push-CI `Quality Gates` `35004585705` /
+  `35006124512` and `MODX Integration` `35004585805` / `35006124546` — success. Tests/config only, so the
+  transport package is unchanged and Stable stays `0.11.0`. Evidence:
   `docs/testing/iteration-67-manager-console-e2e.md`
 
 No remaining gates: TypeScript SDK PASS (build + runtime tests), package reproducibility PASS, settings

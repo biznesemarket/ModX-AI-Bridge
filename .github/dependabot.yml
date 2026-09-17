@@ -18,10 +18,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
-    # `php:8.2-apache` is the certified runtime for MODX 3.2.2-pl. The 8.5 bump
-    # (PR #1) also needs a Dockerfile extension-list rewrite (lexbor/dom) and a
-    # full re-certification, so it is refused by policy — see HANDOFF §5.
+    # `php:8.2-apache` is the certified runtime for MODX 3.2.2-pl. Any newer
+    # PHP (8.3/8.4/8.5) needs a Dockerfile extension-list rewrite and a full
+    # re-certification, so it is refused by policy — see HANDOFF §5. The range
+    # must stay `>=8.3`: with `>=8.5` Dependabot simply proposed 8.4 (PR #2).
     # Digest updates within 8.2.x are still proposed.
     ignore:
       - dependency-name: php
-        versions: [">=8.5"]
+        versions: [">=8.3"]

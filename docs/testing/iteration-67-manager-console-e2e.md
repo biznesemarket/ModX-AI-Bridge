@@ -43,11 +43,14 @@ services directly, unlike `ResourceMutationE2ETest`/`ApprovalWorkflowE2ETest`.
 
 ### Dependabot
 
-`.github/dependabot.yml` now ignores `php >= 8.5` under the `/docker/modx` Docker ecosystem, with the reason
-inline: `php:8.2-apache` is the certified runtime for MODX 3.2.2-pl, the 8.5 bump additionally needs a
-Dockerfile extension-list rewrite (`lexbor`/`dom`) and a full re-certification (HANDOFF §5). Digest updates
-within 8.2.x are still proposed; the ignore rule removes the recurring PR noise instead of relying on manually
-closing it each week.
+`.github/dependabot.yml` now ignores `php >= 8.3` under the `/docker/modx` Docker ecosystem, with the reason
+inline: `php:8.2-apache` is the certified runtime for MODX 3.2.2-pl, and any newer PHP needs a Dockerfile
+extension-list rewrite and a full re-certification (HANDOFF §5). Digest updates within 8.2.x are still
+proposed; the ignore rule removes the recurring PR noise instead of relying on manually closing it each week.
+
+The first version of the rule was `>=8.5`, which turned out to be too narrow: Dependabot simply proposed the
+highest non-ignored version, `php:8.4-apache` (PR #2) — **known defect #48**. The rule was widened to `>=8.3`
+and PR #2 was closed with the same rationale as PR #1 (`php:8.2-apache` is the only certified runtime).
 
 Reviewing the scheduled Dependabot runs also exposed **known defect #47**: the Docker ecosystems for `/` and
 `/deploy/docker` point at directories that contain only compose files, which this ecosystem does not parse
@@ -76,7 +79,7 @@ tests, `scripts/ts-live-check.sh`, the CI `Release` gate.
 Dependabot config was additionally verified by the scheduled Dependabot run on the pushed commit: the
 `docker in /docker/modx` run `35004589934` succeeded and its job definition contains the parsed rule
 (`"ignore-conditions":[{"dependency-name":"php","version-requirement":">=8.5",…}]`), so the YAML is valid
-without a local linter. The same batch showed defect #47: `docker in /.` `35004589629` and
+without a local linter (that run predates the widening to `>=8.3`). The same batch showed defect #47: `docker in /.` `35004589629` and
 `docker in /deploy/docker` `35004589336` failed with `No Dockerfiles nor Kubernetes YAML found`, matching the
 same-day run of 2026-09-13; those two dead entries were removed.
 
@@ -101,5 +104,5 @@ PASS. Committed as `24d85ee` ("Iteration 67: Cover manager console E2E and guard
 ```text
 Quality Gates       35004585705  push  main  success
 MODX Integration    35004585805  push  main  success
-Dependabot run      docker in /docker/modx  35004589934  success (php >= 8.5 ignore rule parsed)
+Dependabot run      docker in /docker/modx  35004589934  success (first ignore rule, >=8.5, parsed)
 ```
